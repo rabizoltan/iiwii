@@ -8,7 +8,7 @@
 ## Ownership Split
 - Hero talent allocation is hero-bound.
 - Town perk and knowledge unlocks are town-bound.
-- Equipped perk configuration is saved as a profile-level preset if that system is implemented.
+- Equipped perk configuration, if added later, should follow player-owned persistence rules.
 
 ## Balance Guidelines
 - Prioritize playstyle shifts over flat multipliers.
@@ -18,7 +18,7 @@
 ## Persistence
 - Hero talent point allocation is hero-bound and is lost when that hero dies.
 - Town-level perk and knowledge unlocks are persistent and survive hero death.
-- Equipped configuration is saved in player profile presets.
+- Any later preset system should remain player-owned rather than hero-owned.
 
 ## Current Scope Note
 - The current milestone does not need full perk-system implementation.

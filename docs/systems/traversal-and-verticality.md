@@ -72,12 +72,12 @@ Minimum viable:
   - elevation layer
   - position/velocity (as applicable)
 
-## Prototype Status (Implemented)
-- Current testbed implements explicit traversal states: Standing/Crouching/Vaulting.
-- Crouch is hold-based and changes both movement speed and capsule height.
-- Vault is contextual and gated by `Vaultable` trigger overlap.
-- Vault start requires movement toward a nearby obstacle (prevents reverse/idle vault "float").
-- Vault distance is computed from obstacle trigger shape + clearance for full crossing.
+## Early Vertical Slice Target
+- Traversal should support explicit `Standing`, `Crouching`, and `Vaulting` states.
+- Crouch should be hold-based and should change both movement speed and capsule height.
+- Vault should be contextual and gated by `Vaultable` trigger overlap.
+- Vault start should require movement toward a nearby obstacle to prevent reverse or idle vault behavior.
+- Vault distance should be computed from obstacle trigger shape plus clearance for full crossing.
 
 ## VS-001 implementation notes (minimal)
 For vertical slice, it's enough to demonstrate:

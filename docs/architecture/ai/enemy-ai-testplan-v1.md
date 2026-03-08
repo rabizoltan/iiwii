@@ -1,92 +1,112 @@
-# Enemy AI Navigation v1 — Test Plan
+# Enemy AI Navigation v1 - Test Plan
 
-## Required test fixtures (scenes)
-A) CornerWedge (repro case)
-- L-shaped obstacle + a tight corner where nav path tends to hug the edge.
-- Player placed behind/around obstacle.
-- Spawn points that force enemies to turn around the corner.
+## Status
+- Design target only.
+- These fixtures and tests should be created alongside the gameplay project structure; they do not already exist in this repository.
 
-B) NarrowCorridors
-- Corridor just wide enough for Small, too narrow for Large.
+## Required test fixtures
+### A) CornerWedge
+- L-shaped obstacle with a tight corner where nav paths tend to hug the edge
+- player placed behind or around the obstacle
+- spawn points that force enemies to turn around the corner
 
-C) LOSBlockers
-- Thin pillars + thick walls.
+### B) NarrowCorridors
+- corridor wide enough for `Small`
+- corridor too narrow for `Large`
 
-D) CapabilityGates
-- Vault link, crouch tunnel, jump link.
-- Each link uses capability nav bits (4+).
+### C) LOSBlockers
+- thin pillars
+- thick walls
 
----
+### D) CapabilityGates
+- vault link
+- crouch tunnel
+- jump link
+- each link uses capability nav bits 4 and above
 
 ## Tests
 
-### 1) Target selection stability (no jitter)
+### 1. Target selection stability
 Setup:
-- 2 players at similar distance, then one moves closer.
-Pass:
-- Enemy does not rapidly switch targets back and forth.
-- Switch occurs only when hysteresis threshold is exceeded.
+- 2 players at similar distance, then one moves closer
 
-### 2) Melee gather behavior
+Pass:
+- enemy does not rapidly switch targets back and forth
+- switch occurs only when hysteresis threshold is exceeded
+
+### 2. Melee gather behavior
 Setup:
-- 30 melee vs 1 player in open area.
-Pass:
-- Enemies spread around player reasonably (not perfect surround required).
-- They do not orbit to far-side points unnecessarily.
-- They can engage when close enough (arrival tolerance).
+- 30 melee enemies vs 1 player in an open area
 
-### 3) Ranged donut + LOS peeking
+Pass:
+- enemies spread around the player reasonably
+- they do not orbit to far-side points unnecessarily
+- they engage when close enough
+
+### 3. Ranged donut and LOS peeking
 Setup:
-- 10 ranged vs player with walls/cover.
-Pass:
-- Ranged seeks a position in the distance band with LOS.
-- If LOS lost, it repositions (peek) rather than shooting into a wall.
+- 10 ranged enemies vs player with walls and cover
 
-### 4) Ranged kiting (strafe)
+Pass:
+- ranged seeks positions in the preferred distance band with LOS
+- if LOS is lost, it repositions instead of shooting into a wall
+
+### 4. Ranged kiting
 Setup:
-- Player pushes into ranged minimum distance.
-Pass:
-- Ranged retreats while strafing (tangent component), not pure backpedal-only.
-- If strafe direction is blocked, it flips side or re-samples a goal.
+- player pushes inside ranged minimum distance
 
-### 5) Corner wedge stuck repro (must pass)
+Pass:
+- ranged retreats while strafing, not only backpedaling
+- if the strafe direction is blocked, it flips side or re-samples a goal
+
+### 5. Corner wedge stuck repro
 Setup:
-- Use CornerWedge fixture.
-- Spawn 10–20 enemies approaching corner simultaneously.
-Pass:
-- No enemy remains pinned > 3 seconds.
-- Stuck recovery triggers and resolves jam.
-- Recovery escalates if needed (detour/widen/anti-clump).
+- use `CornerWedge`
+- spawn 10 to 20 enemies approaching the corner simultaneously
 
-### 6) Mixed sizes + nav layer correctness
+Pass:
+- no enemy remains pinned for more than 3 seconds
+- stuck recovery triggers and resolves the jam
+- recovery escalates when needed
+
+### 6. Mixed sizes and nav layer correctness
 Setup:
-- Spawn Small, Medium, Large together.
-Pass:
-- Each enemy uses only its size nav mesh.
-- Large does not attempt paths through narrow corridors only Small can traverse.
-- Clearance validation rejects goals that do not fit.
+- spawn `Small`, `Medium`, and `Large` together
 
-### 7) Unreachable target behavior
+Pass:
+- each enemy uses only its size nav mesh
+- `Large` does not attempt paths through corridors intended only for `Small`
+- clearance validation rejects goals that do not fit
+
+### 7. Unreachable target behavior
 Setup:
-- Player uses a traversal that an enemy lacks (capability not allowed).
-Pass:
-- Enemy keeps that player as target (does not drop due to unreachable).
-- Enemy moves toward closest reachable anchor and continues attempting until threat changes.
+- player uses a traversal route an enemy lacks capability to follow
 
-### 8) Performance sanity
+Pass:
+- enemy keeps that player as target
+- enemy moves toward the closest reachable anchor and continues trying until threat changes
+
+### 8. Performance sanity
 Setup:
-- 100 enemies active in the same area.
+- 100 active enemies in the same area
+
 Pass:
-- No per-frame repaths.
-- Staggered ticks prevent spikes.
-- Debug counters show bounded repaths/goal changes.
+- no per-frame repaths
+- staggered ticks prevent spikes
+- debug counters show bounded repaths and goal changes
 
----
-
-## Debug overlay checklist (F3)
+## Debug Overlay Checklist
 Per enemy:
-- Path polyline
-- Goal point marker
-- LOS ray(s) and LOS bool
-- Text: target_id, goal_age, stuck_time, recovery_step
-- Counters: repath_count, stuck_count, goal_changes, target_switches
+- path polyline
+- goal point marker
+- LOS ray and LOS bool
+- text fields:
+  - `target_id`
+  - `goal_age`
+  - `stuck_time`
+  - `recovery_step`
+- counters:
+  - `repath_count`
+  - `stuck_count`
+  - `goal_changes`
+  - `target_switches`

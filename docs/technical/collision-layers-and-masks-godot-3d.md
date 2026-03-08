@@ -35,7 +35,7 @@ This project uses a continuous 3D space model and free aim.
 8. `Interactable`
 - Optional interact prompt ray target.
 
-## Implemented Testbed Masks
+## Recommended Early Masks
 ### Aim-pick ray (camera cursor ray)
 - Mask: `WorldSolid (1) + GroundAim (2) + Hurtbox (16)`
 - Numeric: `19`

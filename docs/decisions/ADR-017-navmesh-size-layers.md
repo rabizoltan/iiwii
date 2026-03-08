@@ -17,7 +17,7 @@ Use 3 overlapping navigation meshes filtered by navigation layers:
 
 All three meshes bake from the same source geometry group: "Navigation".
 
-Traversal capabilities are implemented via NavigationLink3D using separate nav bits >= 4 (capability bits). Regions use only size bits (1..3).
+Traversal capabilities should use NavigationLink3D with separate nav bits >= 4 (capability bits). Regions should use only size bits (1..3).
 
 ## Scope
 - This ADR defines navmesh layering strategy for enemy size and traversal capability filtering.

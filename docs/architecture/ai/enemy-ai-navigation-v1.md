@@ -1,245 +1,204 @@
 # Enemy AI Navigation v1
 
+## Status
+- Design target only.
+- This document does not imply that the required gameplay code, scenes, nav meshes, or debug overlay already exist in this repository.
+
 ## Summary
-Implement a robust enemy navigation + combat positioning system for up to ~100 enemies.
-Enemies pick the highest-threat player (v1: distance-only) and move toward a goal point near that player:
-- Melee: ring gather (close enough to engage)
-- Ranged: donut positioning + LOS-based peeking + strafing kite (no backpedal-only)
+Implement a robust enemy navigation and combat-positioning system for up to roughly 100 enemies.
 
-The system must avoid common "corner wedge" stuck cases with explicit stuck detection + recovery.
+Enemies pick the highest-threat player and move toward a goal point near that player:
+- melee: ring gather close enough to engage
+- ranged: donut positioning with LOS-based peeking and strafing kite behavior
 
----
+The system must avoid common corner-wedge stuck cases with explicit stuck detection and recovery.
 
 ## Goals
-1) Target the player with the highest threat (v1: distance-only; supports future threat sources like damage/abilities).
-2) Melee enemies gather around the target and attempt to hit (no perfect surround required).
-3) Ranged enemies maintain a preferred distance band and kite via strafing while keeping LOS.
-4) Enemies stay separated (no overlap). They can push slightly but should not permanently block each other.
-5) Extreme robustness around obstacles/corners (must recover from wall-edge sticking).
-6) Scale to ~100 active enemies without jitter (stagger updates; avoid per-frame repaths).
+1. Target the player with the highest threat. In v1, threat can be distance-only.
+2. Melee enemies gather around the target and attempt to hit.
+3. Ranged enemies maintain a preferred distance band and kite via strafing while keeping LOS.
+4. Enemies stay separated enough to avoid permanent blocking.
+5. Recovery around obstacles and corners must be robust.
+6. Scale to around 100 active enemies without per-frame repaths or visible jitter.
 
-## Non-goals (v1)
-- No advanced squad tactics or formations.
-- No runtime navmesh cutting/carving.
-- No expensive multi-agent global optimization.
+## Non-goals
+- advanced squad tactics or formations
+- runtime navmesh cutting or carving
+- expensive multi-agent global optimization
 
----
-
-## Key Constraints / Assumptions
-- Host-authoritative simulation.
-- Baked navigation exists with **3 size layers** already authored in the scene:
-  - NavRegion_Small  (nav layer bit 1)
-  - NavRegion_Medium (nav layer bit 2)
-  - NavRegion_Large  (nav layer bit 3)
-- All navigation meshes bake from the same world geometry using source group name: **"Navigation"**.
-- Enemy sizes vary (capsule radius/height differs).
-- Player may traverse areas enemies cannot; traversal is controlled via nav layers and links (capability bits).
-
----
+## Key Constraints and Assumptions
+- target multiplayer model is host-authoritative
+- target navigation setup uses 3 size layers:
+  - `NavRegion_Small` using nav bit 1
+  - `NavRegion_Medium` using nav bit 2
+  - `NavRegion_Large` using nav bit 3
+- all nav meshes bake from the same world geometry group: `"Navigation"`
+- enemy sizes vary by capsule radius and height
+- player traversal may allow spaces enemies cannot use, controlled through nav layers and capability links
 
 ## Architecture Overview
 
-### Subsystems (modules)
-A) Threat + Target Selection
-B) Goal Selection (melee ring / ranged donut + kite)
-C) LOS (line of sight) + Attack Gating
-D) Locomotion (path following + avoidance/separation)
-E) Stuck Detection + Recovery Ladder
-F) Tick Scheduling (stagger timers to avoid spikes/jitter)
+### Subsystems
+- threat and target selection
+- goal selection for melee ring or ranged donut
+- LOS and attack gating
+- locomotion with path following and separation
+- stuck detection and recovery ladder
+- tick scheduling to avoid spikes and jitter
 
 ### High-level enemy loop
-Each enemy runs a simple state machine:
-- AcquireTarget (threat)
-- ChooseGoal (goal selection: ring/donut)
-- MoveToGoal (path follow + avoidance)
-- Engage (attack if LOS + range; for ranged: kite/peek)
-- StuckRecovery (if stuck triggers)
+- `AcquireTarget`
+- `ChooseGoal`
+- `MoveToGoal`
+- `Engage`
+- `StuckRecovery`
 
----
-
-## A) Threat + Target Selection
+## Threat and Target Selection
 
 ### Threat table
-Per enemy, maintain a table keyed by player_id:
-- threat_value
-- last_update_time
+Per enemy, maintain a table keyed by `player_id`:
+- `threat_value`
+- `last_update_time`
 
-### v1 threat formula (distance-only)
-Compute on THREAT_TICK_SEC (staggered per enemy):
-- d = distance(enemy, player)
-- threat = 1 / (d*d + eps)
+### v1 threat formula
+Compute on `THREAT_TICK_SEC`:
+- `d = distance(enemy, player)`
+- `threat = 1 / (d*d + eps)`
 
-### Target hysteresis (anti-jitter)
-Keep current target unless:
-- new_threat >= THREAT_SWITCH_MULT * current_threat
+### Target hysteresis
+Keep the current target unless:
+- `new_threat >= THREAT_SWITCH_MULT * current_threat`
 
 ### Unreachable target behavior
-Do NOT drop a target simply because unreachable.
-Instead, compute an **anchor** on reachable nav space and continue pursuing (see Goal Selection).
+Do not drop a target solely because it is unreachable.
+Instead, compute a reachable anchor and continue pursuing through goal selection.
 
----
-
-## B) Goal Selection
+## Goal Selection
 
 ### Key idea
-Enemies do NOT path to the player position.
-They path to a nearby **goal point** chosen from candidates around the player (or around an anchor if player unreachable).
+Enemies do not path to the raw player position.
+They path to a nearby goal point chosen from candidates around the player or around an anchor if the player is unreachable.
 
-Selection MUST prefer the **closest reachable** candidate by **path length** (not random angle).
+Selection should prefer the closest reachable candidate by path length, not random angle.
 
 ### Shared definitions
-- P = target player position
-- E = enemy position
-- A = anchor position (navmesh-projected P for enemy's nav layers)
-- Center = P if reachable, else A
-- Candidate C = point around Center (ring/donut sample)
-- C_proj = candidate projected to navmesh (must exist)
-- Clearance check uses the enemy capsule (radius/height) + margin
+- `P` = target player position
+- `E` = enemy position
+- `A` = reachable anchor position
+- `Center` = `P` if reachable, otherwise `A`
+- `C` = candidate point around `Center`
+- `C_proj` = candidate projected to navmesh
 
-### Anchor point (for unreachable targets)
+### Anchor point
 If the player is not on nav space reachable by this enemy:
-- A = closest reachable nav point to P on the enemy's allowed nav layers
-- All candidate generation centers on A (not raw P)
+- compute `A` as the closest reachable nav point to `P`
+- center candidate generation on `A`
 
 ### Candidate generation
+Melee:
+- generate ring candidates around `Center`
+- radius derives from attack range with clamps
 
-#### Melee (Ring gather)
-- Generate MELEE_RING_CANDIDATES points around Center on radius r_melee
-- r_melee = clamp(attack_range * MELEE_RING_SCALE, MELEE_RING_MIN, MELEE_RING_MAX)
+Ranged:
+- generate candidates inside a preferred distance band
+- sampling can use rings or polar samples
 
-#### Ranged (Donut positioning)
-- Generate RANGED_CANDIDATES points inside band [RANGED_MIN_DIST, RANGED_MAX_DIST]
-- Sampling can be:
-  - multiple rings OR
-  - random polar samples with minimum angular spacing
+### Candidate validation
+A candidate is valid only if:
+1. nav projection exists and projection distance is within tolerance
+2. clearance check passes for the enemy size
+3. a path exists to the candidate, if path validation is enabled
 
-### Candidate validation (critical)
-Candidate is valid only if:
-1) C_proj exists and projection distance <= PROJ_MAX_DIST
-2) Clearance check passes for this enemy size:
-   - Do a shape query placing the enemy capsule at C_proj to ensure it does not intersect static world geometry
-3) Optional but recommended:
-   - Path exists to C_proj (NavigationAgent can compute path; invalid if empty)
+### Candidate scoring
+Use a weighted score:
+- path length
+- occupancy penalty
+- LOS penalty
+- wall-proximity penalty
+- turn-cost penalty
 
-### Candidate scoring (closest reachable wins)
-Pick the candidate with the lowest score:
+Rule:
+- path length must dominate
 
-score(C) =
-  W_PATH * path_length(E -> C_proj)
-+ W_OCC  * occupancy_penalty(C_proj)
-+ W_LOS  * los_penalty(C_proj -> P)
-+ W_WALL * wall_proximity_penalty(C_proj)
-+ W_TURN * turn_cost_penalty(E, C_proj)
+### Soft occupancy
+Maintain a lightweight occupancy metric near the target so enemies prefer less crowded points without hard slot locking.
 
-Rules:
-- Path length MUST dominate so enemies don’t choose far-side points.
-- Occupancy is soft: crowded points still allowed.
-- LOS is soft for movement: lack of LOS can be allowed, but affects scoring.
-- Wall proximity penalty should strongly avoid “barely clears” candidates near corners.
-
-### Soft slot occupancy
-Maintain an occupancy metric around the target:
-- Use a lightweight spatial check (distance-based) to count how many enemies target a similar goal area
-- Occupancy penalty grows with count, but does not make candidate invalid
-
-### Commitment window (no nervous retargeting)
-Once a goal is selected, keep it for GOAL_COMMIT_TIME_SEC unless:
-- target changed (hysteresis switch)
+### Commitment window
+Keep a selected goal for a short commit window unless:
+- target changes
 - stuck triggers
-- ranged enters kite/peek state due to distance/LOS change
-- Center shifts significantly (player moved far enough)
+- ranged behavior needs to reposition for LOS or distance
+- player movement shifts the center significantly
 
----
-
-## C) LOS + Attack Gating
+## LOS and Attack Gating
 
 ### LOS raycast
 Default:
-- From enemy chest/eye point to player chest point
+- enemy chest or eye point to player chest point
 
 Optional:
-- A second ray to player head
-- LOS is true if either ray is unobstructed
+- second ray to player head
 
 ### Rules
-- Attacks require LOS (hard gate) to prevent hitting through walls.
-- Movement prefers LOS (soft scoring) but does not require it.
+- attacks require LOS
+- movement may prefer LOS but should not require LOS
 
----
-
-## D) Locomotion + Separation
+## Locomotion and Separation
 
 ### Path following
-- Use NavigationAgent3D path following to the goal point
-- Do NOT repath every frame
-- Repath only when:
-  - goal changed
-  - enough time elapsed since last repath
-  - agent deviated heavily from the path
+- use `NavigationAgent3D` path following toward the selected goal
+- do not repath every frame
+- repath only when:
+  - goal changes
+  - enough time has elapsed
+  - agent deviates heavily from the path
 
 ### Separation
-- Use avoidance where possible (agent radius slightly larger than capsule radius)
-- Keep physical collision so enemies can push slightly
-- Avoid relying purely on physics pushing for crowd movement (causes corner jams)
+- use avoidance where possible
+- keep physical collision so enemies can push slightly
+- do not rely purely on physics pushing for crowd movement
 
 ### Variable sizes
-- Candidate clearance queries MUST use the real capsule size for each enemy.
-- Avoidance radius should scale with capsule radius.
+- clearance queries must use the real capsule size for each enemy
+- avoidance radius should scale with capsule radius
 
----
+## Stuck Detection and Recovery
 
-## E) Stuck Detection + Recovery (mandatory)
+### Stuck detection
+Sample progress every `STUCK_SAMPLE_DT`:
+- compare previous distance to goal vs current distance to goal
+- accumulate stuck time when speed is low, distance is still meaningful, and progress is below threshold
 
-### Stuck detection (progress-based)
-Sample every STUCK_SAMPLE_DT:
-- dist_prev = distance(prev_pos, goal)
-- dist_now  = distance(curr_pos, goal)
-- progress = dist_prev - dist_now
+Trigger stuck event when stuck time reaches threshold.
 
-Accumulate stuck_time when ALL hold:
-- speed < STUCK_MIN_SPEED
-- distance_to_goal > STUCK_MIN_DIST
-- progress < STUCK_MIN_PROGRESS
+### Recovery ladder
+On a stuck event, escalate:
+1. re-pick goal and exclude recent failed candidates
+2. add a local detour point
+3. loosen movement constraints temporarily
+4. apply anti-clump bias
 
-Trigger STUCK_EVENT when:
-- stuck_time >= STUCK_TIME_THRESHOLD
+Rule:
+- never use "repath to the exact same goal" as the only response
 
-### Recovery ladder (must change behavior)
-On stuck event, escalate steps with cooldown:
+## Tick Scheduling
+Stagger updates per enemy:
+- threat tick around `0.35s`
+- goal-select tick around `0.85s`
+- repath minimum interval around `0.6s`
+- stuck sampling around `0.15s`
 
-1) Re-pick goal (exclude last K candidates)
-2) Local detour:
-   - pick a nearby nav point offset sideways (1–2m), go there, then re-pick goal
-3) Loosen constraints temporarily:
-   - melee: widen ring radius band
-   - ranged: widen donut band
-4) Anti-clump override:
-   - temporarily increase avoidance radius or reduce crowding pressure
-   - prefer lower occupancy candidates aggressively
-
-Never “repath to the exact same goal” as the only reaction.
-
----
-
-## F) Tick scheduling (anti-jitter + perf)
-Stagger across enemies using per-enemy randomized offsets:
-- Threat tick ~0.35s
-- Goal select tick ~0.85s
-- Path repath minimum interval ~0.6s
-- Stuck sampling ~0.15s
-
----
-
-## Debug requirements (F3)
-When debug overlay enabled:
-- Draw current path (polyline)
-- Draw current goal point + candidate ring/donut (optional)
-- Draw LOS ray(s) + show LOS bool
-- Per enemy text:
-  - target_player_id
-  - goal_age
-  - stuck_time
-  - recovery_step
-  - repath_count
-  - goal_changes
-  - target_switches
+## Debug Requirements
+When debug overlay is enabled, expose:
+- current path
+- current goal point
+- optional candidate ring or donut
+- LOS ray and LOS bool
+- per-enemy fields:
+  - `target_player_id`
+  - `goal_age`
+  - `stuck_time`
+  - `recovery_step`
+  - `repath_count`
+  - `goal_changes`
+  - `target_switches`

@@ -1,12 +1,10 @@
 # Movement Spec
 
-This document defines runtime player locomotion/traversal behavior in the current prototype.
+This document defines the intended runtime player locomotion/traversal behavior for the vertical slice.
 
 ## Scope
-- Scene target: `res://scenes/testbeds/Testbed_CombatNav.tscn`
-- Player script: `res://scripts/gameplay/player_controller.gd`
-- Traversal logic: `res://scripts/gameplay/actors/player/player_traversal.gd`
-- Tuning source: `res://resources/tuning/PlayerTuning_Default.tres`
+- This is a behavior specification, not a claim about files currently present in this repository.
+- Concrete scene, script, and tuning asset paths should be added only after the gameplay project structure exists here.
 
 ## State Machine
 
@@ -97,7 +95,7 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 - Position is interpolated from start to end over normalized vault progress.
 
 ## Input Mapping Defaults
-Fallback registration exists in runtime and ensures:
+Default input mapping target:
 - `W/A/S/D` movement
 - `Ctrl` crouch
 - `Space` vault

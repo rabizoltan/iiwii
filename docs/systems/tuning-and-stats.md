@@ -1,17 +1,10 @@
 # Tuning And Stats
 
-This document lists where gameplay numbers are currently defined and how to tune them safely.
+This document defines the intended ownership and organization of gameplay tuning data.
 
-## Player Movement Tuning
-
-### Resource Asset
-- `res://resources/tuning/PlayerTuning_Default.tres`
-
-### Resource Script
-- `res://scripts/data/player_tuning.gd`
-
-### Consuming Runtime Script
-- `res://scripts/gameplay/player_controller.gd`
+## Purpose
+- Keep gameplay numbers centralized enough to tune safely.
+- Separate tunable values from hard-coded combat or movement logic over time.
 
 ### Movement Fields
 - `move_speed`
@@ -34,9 +27,8 @@ This document lists where gameplay numbers are currently defined and how to tune
 - `dodge_iframes_start`
 - `dodge_iframes_end`
 
-## Player Combat/Health Constants (Current)
-- File: `res://scripts/gameplay/player_controller.gd`
-- Fields currently still in script:
+## Player Combat/Health Constants
+- If these remain code-owned early, keep them grouped clearly:
   - `ATTACK_DAMAGE`
   - `ATTACK_RANGE`
   - `MELEE_DAMAGE`
@@ -45,15 +37,11 @@ This document lists where gameplay numbers are currently defined and how to tune
   - `MAX_HP`
   - ray masks/ray length values for targeting
 
-If you need broader tuning unification, move these to a dedicated combat resource next.
+If broader tuning unification is needed, move these to a dedicated combat resource.
 
 ## Enemy Stats And Behavior Tuning
 
-### Base Enemy Type
-- Scene: `res://scenes/gameplay/enemies/EnemyBasic.tscn`
-- Script: `res://scripts/gameplay/enemies/enemy_basic.gd`
-
-### Current Exported Enemy Stats
+### Suggested Exported Enemy Stats
 - `move_speed`
 - `aggro_range`
 - `stop_range`
@@ -63,19 +51,14 @@ If you need broader tuning unification, move these to a dedicated combat resourc
 - `max_hp`
 - `stagger_on_hit`
 
-## How To Create A New Enemy Type
-1. Duplicate `EnemyBasic.tscn` into a new scene file.
-2. Keep script inheritance to `enemy_basic.gd` unless behavior fork is required.
-3. Tune exported values in the duplicated scene:
-   - speed, aggro range, stop range
-   - attack windup/cooldown/damage
-   - HP and stagger response
-4. Place the new scene in testbed/spawner references.
-5. Verify nav and combat behavior in `Testbed_CombatNav`.
+## New Enemy Tuning Workflow
+1. Start from the shared base enemy tuning set.
+2. Change only the values that define role differences.
+3. Validate navigation and combat behavior in the current gameplay test scenario.
 
 ## Safe Tuning Workflow
 1. Change one variable cluster at a time (speed, then dodge, then vault).
-2. Run from bootstrap (`F5`) and test focused behavior in CombatNav.
+2. Run the current gameplay test scene and validate the focused behavior.
 3. Validate no lock-state regressions:
    - crouch release recovery
    - dodge end-state recovery
@@ -83,7 +66,7 @@ If you need broader tuning unification, move these to a dedicated combat resourc
 4. Keep i-frame window within `[0, 1]` normalized dodge progress.
 
 ## Notes
-- Current tuning is hybrid:
-  - movement in resource
-  - combat and enemy values largely script/scene exports
+- Intended early tuning split:
+  - movement values grouped together
+  - combat and enemy values grouped together
 - This is intentional for incremental migration without large refactors.
