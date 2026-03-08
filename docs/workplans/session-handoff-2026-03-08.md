@@ -77,3 +77,37 @@
 ## Later Clarification
 - `ADR-009` should stay a minimal save-foundation ADR.
 - `ADR-015` defines the inventory model, but its concrete persistence shape is deferred to a later schema extension when inventory becomes an active implementation target.
+
+## Latest Update
+- Added [docs/decisions/README.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/README.md) as the ADR entry point.
+- Normalized older ADR formatting and added clearer scope boundaries across the ADR layer.
+- Aligned overlapping ADR clusters:
+  - progression/save/death/town
+  - traversal/world/input/space
+  - AI/navigation
+- Performed a final consistency sweep across `docs/decisions/`, `docs/architecture/`, and `docs/systems/`.
+- Trimmed duplicated wording so:
+  - `decisions/` owns authoritative decisions
+  - `architecture/` owns runtime ownership and subsystem contracts
+  - `systems/` owns gameplay rules
+- Updated `docs/vision/` and `docs/project-header.md` to use the same tightened terminology as the ADR and architecture layers.
+- Added a short glossary to [docs/README.md](d:/Game/DEV/iiWii/iiwii/docs/README.md) for:
+  - `player-owned progression`
+  - `hero-bound`
+  - `town-bound`
+  - `host-authoritative`
+
+## Current Restart Point
+- Documentation structure and terminology are now in good shape for implementation work.
+- Tomorrow's practical starting point should be:
+  1. [docs/README.md](d:/Game/DEV/iiWii/iiwii/docs/README.md)
+  2. [docs/decisions/README.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/README.md)
+  3. the current movement/combat/AI docs relevant to the next coding task
+- Recommended implementation focus remains:
+  - hero movement
+  - enemy movement
+  - combat feel
+  - AI navigation foundations
+
+## Commit Reference
+- Latest docs cleanup commit: `9874a91` - `docs: align ADRs and normalize terminology`
