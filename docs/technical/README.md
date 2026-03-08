@@ -9,6 +9,8 @@ This folder contains implementation constraints and team conventions.
 
 ## Document Roles
 - [coding-standards.md](d:/Game/DEV/iiWii/iiwii/docs/technical/coding-standards.md): cross-cutting engineering standards.
+- [development-governance.md](d:/Game/DEV/iiWii/iiwii/docs/technical/development-governance.md): mandatory maintenance rules for code, docs, feature state, and repo maps.
+- [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md): current implementation status by feature.
 - [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md): Godot-specific engineering conventions.
 - [collision-layers-and-masks-godot-3d.md](d:/Game/DEV/iiWii/iiwii/docs/technical/collision-layers-and-masks-godot-3d.md): collision-layer naming and recommended early conventions.
 - [build-and-release.md](d:/Game/DEV/iiWii/iiwii/docs/technical/build-and-release.md): milestone validation and release handling.
@@ -16,6 +18,8 @@ This folder contains implementation constraints and team conventions.
 
 ## Current Priority
 - Highest priority for the current milestone:
+  - [development-governance.md](d:/Game/DEV/iiWii/iiwii/docs/technical/development-governance.md)
+  - [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md)
   - [coding-standards.md](d:/Game/DEV/iiWii/iiwii/docs/technical/coding-standards.md)
   - [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md)
   - [collision-layers-and-masks-godot-3d.md](d:/Game/DEV/iiWii/iiwii/docs/technical/collision-layers-and-masks-godot-3d.md)

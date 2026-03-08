@@ -11,6 +11,14 @@ Create the first runnable gameplay slice that proves the core runtime foundation
 ## Status
 - `active`
 
+## Step Status Board
+- [ ] Step 0 - Governance setup
+- [ ] Step 1 - Project bootstrap
+- [ ] Step 2 - Player movement
+- [ ] Step 3 - Enemy navigation foundation
+- [ ] Step 4 - Basic combat loop
+- [ ] Step 5 - Stability and debug pass
+
 ## Why This Is First
 - It proves the basic game is actually programmable, runnable, and testable.
 - It validates the current documentation focus:
@@ -37,7 +45,21 @@ The first slice is successful when all of the following are true:
 
 ## Execution Order
 
+### Step 0 - Governance Setup
+Status: `not_started`
+
+Actions:
+1. Keep [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md) as the single source for actual implementation status.
+2. Keep [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) as the single source for runtime file ownership and important references.
+3. Follow [development-governance.md](d:/Game/DEV/iiWii/iiwii/docs/technical/development-governance.md) for every code change.
+4. Do not start code without deciding where the first scene, player actor, enemy actor, and shared config entries will be tracked in the code map.
+
+Exit gate:
+- The project has explicit rules for feature status, file ownership, and doc updates before code starts landing.
+
 ### Step 1 - Project Bootstrap
+Status: `not_started`
+
 Actions:
 1. Create the Godot project.
 2. Create one main demo scene.
@@ -49,6 +71,8 @@ Exit gate:
 - Project launches into a visible playable scene.
 
 ### Step 2 - Player Movement
+Status: `not_started`
+
 Actions:
 1. Add player actor root.
 2. Implement XZ-plane movement.
@@ -60,6 +84,8 @@ Exit gate:
 - Player movement feels stable and predictable around obstacles.
 
 ### Step 3 - Enemy Navigation Foundation
+Status: `not_started`
+
 Actions:
 1. Add one enemy actor.
 2. Add navmesh world setup.
@@ -71,6 +97,8 @@ Exit gate:
 - Enemies reach the player by navigating around obstacles instead of pushing into them.
 
 ### Step 4 - Basic Combat Loop
+Status: `not_started`
+
 Actions:
 1. Add the simplest viable player attack.
 2. Add enemy HP.
@@ -82,6 +110,8 @@ Exit gate:
 - Player can kill enemies in the playable test scene.
 
 ### Step 5 - Stability And Debug Pass
+Status: `not_started`
+
 Actions:
 1. Tune player movement and attack feel.
 2. Tune enemy chase and stop distance.
