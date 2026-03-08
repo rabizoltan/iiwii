@@ -20,7 +20,7 @@
 
 4. Run resolution
 - Extraction: bank mission rewards and progression gains.
-- Death/failure: lose run-carried resources, keep account progression layers.
+- Death/failure: lose run-carried resources and hero-bound progress as applicable, while town-bound progress persists.
 
 5. Persistent progression
 - Apply town upgrades and weapon mastery unlocks.

@@ -19,6 +19,10 @@ We will implement a **PC-first control scheme**:
 - **Actions:** key/mouse button based (primary/secondary + abilities)
 - **Traversal:** dedicated crouch + vault/jump inputs (timing-based)
 
+## Scope
+- This ADR defines input and control conventions.
+- It does not define world representation technology or the low-level movement space model.
+
 We will later support controllers, but the first implementation targets keyboard/mouse.
 
 ## Default bindings (initial)
@@ -54,3 +58,9 @@ We will later support controllers, but the first implementation targets keyboard
 ## Alternatives considered
 - Click-to-move ARPG controls (rejected: conflicts with timing-based traversal/avoidance)
 - Controller-first twin-stick (deferred: would drive early UI/aim-assist decisions)
+
+## Related ADRs
+- [ADR-005-traversal-and-verticality-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-005-traversal-and-verticality-model.md)
+- [ADR-006-world-representation.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-006-world-representation.md)
+- [ADR-008-multiplayer-replication-style.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-008-multiplayer-replication-style.md)
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)

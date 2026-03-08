@@ -5,7 +5,7 @@
 - Co-op first: systems tuned for 2-4 player teamwork.
 - Host authority: deterministic and secure enough for live co-op.
 - Meaningful extraction: staying longer should be tempting and dangerous.
-- Persistent personal growth: each account trends forward over time.
+- Persistent player-owned growth: each profile trends forward over time through town-bound progression.
 - Rapid iteration: gameplay-first development speed over premature complexity.
 
 ## Non-Goals (Initial Phase)
@@ -18,4 +18,4 @@
 
 ## Guardrails
 
-If a feature weakens loop clarity, host-authoritative safety, or personal progression ownership, it is out of scope for the first milestone.
+If a feature weakens loop clarity, host-authoritative safety, or player-owned progression ownership, it is out of scope for the first milestone.

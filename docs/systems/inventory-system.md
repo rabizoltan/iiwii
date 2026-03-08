@@ -3,6 +3,7 @@
 ## Scope Note
 - This is a later-phase system doc.
 - Inventory is not a primary focus of the current movement and enemy-navigation milestone.
+- This doc defines the gameplay model only; the base save-schema shape is intentionally deferred.
 
 ## Core Concepts
 ### Items

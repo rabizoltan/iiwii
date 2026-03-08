@@ -21,6 +21,12 @@ We will use a **player-owned, local, versioned JSON save** (schema v0).
 - Format: JSON
 - Versioning: `schema_version` is required and starts at `0`
 - Ownership: each player writes only their own save; the host never writes saves for guests
+- Scope note: `schema v0` remains intentionally minimal. Inventory-specific persistence details are deferred until inventory becomes an active implementation target.
+
+## Scope
+- This ADR defines save-foundation rules and minimal schema expectations.
+- It does not fully define inventory persistence shape.
+- It does not replace gameplay ADRs that define progression ownership, death, or town behavior.
 
 ## Save writes (when)
 - At mission end (extract success / wipe / abort): write results to local save
@@ -44,3 +50,10 @@ The save contains:
 - VS-001 can implement a save stub immediately (timestamp + town weapon knowledge baseline).
 - Future systems (talents, inventory, crafting) can extend the same file without rewriting.
 - Multiplayer remains consistent with player-owned progression and own-town return after mission end.
+- Inventory persistence is explicitly treated as a later schema extension, not as a required part of `ADR-009` v0.
+
+## Related ADRs
+- [ADR-003-progression-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-003-progression-ownership.md)
+- [ADR-010-session-flow-host-world-own-town-return.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-010-session-flow-host-world-own-town-return.md)
+- [ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md)
+- [ADR-015-inventory-model-loadout-backpack-town-chest.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-015-inventory-model-loadout-backpack-town-chest.md)

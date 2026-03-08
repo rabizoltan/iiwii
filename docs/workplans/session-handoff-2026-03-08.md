@@ -73,3 +73,7 @@
    - multiplayer/networking
    - AI/navigation
 3. Re-check `research/` and `workplans/` periodically so they do not drift back into source-of-truth territory.
+
+## Later Clarification
+- `ADR-009` should stay a minimal save-foundation ADR.
+- `ADR-015` defines the inventory model, but its concrete persistence shape is deferred to a later schema extension when inventory becomes an active implementation target.

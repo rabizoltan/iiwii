@@ -21,6 +21,10 @@ Adopt a goal-based navigation approach:
 
 Updates are staggered on timers (no per-frame retarget/repath).
 
+## Scope
+- This ADR defines enemy navigation and combat-positioning behavior policy.
+- It does not define the underlying navmesh space model or nav-layer authoring strategy by itself.
+
 ## Rules
 1) Goal selection must prioritize closest reachable goal by path length (no random far-side slots).
 2) Slotting is soft: occupancy penalty influences choice but does not hard-block.
@@ -40,3 +44,7 @@ Negative:
 ## Alternatives considered
 - Pure physics pushing + direct chase: causes jams and corner sticking.
 - Random orbit/slot assignment: causes enemies to pick far-side goals and look dumb.
+
+## Related ADRs
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)
+- [ADR-017-navmesh-size-layers.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-017-navmesh-size-layers.md)

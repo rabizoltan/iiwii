@@ -1,4 +1,4 @@
-# ADR-010: Session Flow ó Host World, Own-Town Return
+# ADR-010: Session Flow ‚Äî Host World, Own-Town Return
 
 ## Status
 Accepted
@@ -9,7 +9,7 @@ iiWii is co-op PvE with:
 - player-owned saves/progression
 - drop-in/out friendly sessions
 
-We need to define what happens ìafter the missionî and what ìreturn to townî means for host and joiners.
+We need to define what happens ‚Äúafter the mission‚Äù and what ‚Äúreturn to town‚Äù means for host and joiners.
 
 ## Decision
 - While connected, the party plays in a **host-owned world instance**:
@@ -20,12 +20,22 @@ We need to define what happens ìafter the missionî and what ìreturn to townî mea
   - each player applies rewards/progression to **their own save**
   - the session/lobby can remain connected (optional), but Town state is local per player
 
+## Scope
+- This ADR defines post-mission session flow and town ownership boundaries.
+- It does not define detailed save schema or detailed hero-death rules.
+
 ## Implications
-- ìTownî is not a shared authoritative space by default.
-- Joiners never become dependent on the hostís town progression.
+- ‚ÄúTown‚Äù is not a shared authoritative space by default.
+- Joiners never become dependent on the host‚Äôs town progression.
 - Mixed progression is expected; for simplicity, host sets mission tier for that session.
 
 ## Consequences
 - Better drop-in/out experience
-- Avoids ìI can only progress when the host is onlineî
+- Avoids ‚ÄúI can only progress when the host is online‚Äù
 - Matches player-owned progression model
+
+## Related ADRs
+- [ADR-003-progression-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-003-progression-ownership.md)
+- [ADR-004-networking-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-004-networking-model.md)
+- [ADR-009-save-schema-v0-player-owned-json-versioned.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-009-save-schema-v0-player-owned-json-versioned.md)
+- [ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md)

@@ -19,11 +19,15 @@ We will implement iiWii as a **3D world with 3D characters**, using a **Diablo-l
 - Traversal (crouch/vault) remains **rule/animation-driven** (not physics platforming).
 - Elevation changes happen primarily via **connectors** (stairs/ramps/ladders/doors).
 
+## Scope
+- This ADR defines world representation, camera framing direction, and 3D gameplay space assumptions.
+- It does not define specific traversal input rules or detailed aiming rules.
+
 ## Rationale
 - Makes towers/walls/stairs and LOS straightforward and consistent.
 - Level blockout is fast with simple 3D geometry (placeholders first).
 - 3D animations support readable crouch/vault states under a fixed camera.
-- Avoids special-case ìfake elevationî logic that tends to cause rework later.
+- Avoids special-case ‚Äúfake elevation‚Äù logic that tends to cause rework later.
 
 ## Implications
 - Use 3D gameplay nodes (movement, collision, raycasts for LOS).
@@ -39,3 +43,8 @@ We will implement iiWii as a **3D world with 3D characters**, using a **Diablo-l
 ## Consequences
 - Early prototypes can use primitive meshes (capsules/boxes) and still validate gameplay.
 - Art can evolve later without rewriting core systems.
+
+## Related ADRs
+- [ADR-005-traversal-and-verticality-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-005-traversal-and-verticality-model.md)
+- [ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)

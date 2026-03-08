@@ -17,6 +17,10 @@ We need town progression that:
 ## Decision
 The Town is a persistent meta progression layer with buildings that unlock options and capacity.
 
+## Scope
+- This ADR defines town-bound persistence and building progression.
+- It does not define hero-bound progression details or the exact save schema shape.
+
 ### Town persistence
 - Town upgrades and building levels are permanent.
 - Town resources/materials are permanent (persist across hero deaths).
@@ -51,3 +55,9 @@ Optional future rule:
 ## Consequences
 - Players feel permanent progress through town growth and knowledge unlocks.
 - Death remains meaningful (lose hero + their gear), while town persistence reduces frustration.
+
+## Related ADRs
+- [ADR-003-progression-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-003-progression-ownership.md)
+- [ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md)
+- [ADR-013-progression-split-town-knowledge-vs-hero-build.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-013-progression-split-town-knowledge-vs-hero-build.md)
+- [ADR-015-inventory-model-loadout-backpack-town-chest.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-015-inventory-model-loadout-backpack-town-chest.md)

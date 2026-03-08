@@ -3,6 +3,7 @@
 ## Purpose
 - Define weapon-type XP and town weapon knowledge.
 - This doc does not define general hero XP or town building progression.
+- Use the ADR layer for the authoritative hero-bound vs town-bound split.
 
 ## Granularity Rule (v0)
 For the first versions of the game, mastery tracks broad weapon setups rather than individual weapon families (sword vs axe vs mace).
@@ -41,7 +42,7 @@ On successful mission resolution:
 
 This means town mastery never decreases, even if a high-XP hero dies later.
 
-## Persistence Model
+## Stored Values
 Hero (permadeath):
 - `hero.weapon_xp[weapon_type_id] = number`
 
@@ -53,6 +54,7 @@ Town (persistent):
 - Hero character XP and talent points
 - Town buildings and resources
 - Inventory persistence
+- Full death handling; see [ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md)
 
 ## Design Constraints
 - Saves store only IDs and numbers, never balance stats.

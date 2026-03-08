@@ -4,15 +4,13 @@
 - Define town-bound persistent progression only.
 - This doc covers buildings, resources, and town capability growth.
 - Hero-bound XP and weapon mastery are defined in separate progression docs.
+- Use ADRs for the authoritative permadeath and progression-split rules.
 
 ## Core Rules
 - Town progression is **persistent** across runs and hero deaths.
 - Town resources/materials are **persistent**.
-- Heroes are **permadeath**.
-- Gear is **hero-bound**:
-  - equipped gear is lost when the hero dies
-  - new heroes must be equipped again (typically via crafting)
 - Weapon skill knowledge unlocks persist in the town.
+- Hero death and gear-loss consequences are defined elsewhere; this doc only describes what the town retains.
 
 ## Buildings (v0 set)
 Buildings can be extended later without breaking saves.
@@ -81,3 +79,4 @@ For vertical slice, it is enough to support:
 - Hero XP and talent point allocation
 - Weapon-type XP tracking
 - Combat rules
+- Full hero death handling or inventory-loss rules

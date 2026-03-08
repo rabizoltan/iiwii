@@ -19,6 +19,10 @@ All three meshes bake from the same source geometry group: "Navigation".
 
 Traversal capabilities are implemented via NavigationLink3D using separate nav bits >= 4 (capability bits). Regions use only size bits (1..3).
 
+## Scope
+- This ADR defines navmesh layering strategy for enemy size and traversal capability filtering.
+- It does not define enemy behavior policy, target selection, or combat positioning logic.
+
 ## Rules
 1) Each enemy uses exactly ONE size bit (1..3).
 2) Capability bits (4+) are additive and only used on NavigationLink3D, not on regions.
@@ -37,3 +41,7 @@ Negative:
 ## Alternatives considered
 - Single largest-safe navmesh: simplest but prevents small enemies from using narrow spaces.
 - Runtime nav carving: more complex and higher risk for perf/bugs in v1.
+
+## Related ADRs
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)
+- [ADR-018-enemy-ai-nav-v1-approach.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-018-enemy-ai-nav-v1-approach.md)

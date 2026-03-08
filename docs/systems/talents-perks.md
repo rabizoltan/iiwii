@@ -3,6 +3,7 @@
 ## Intent
 - Define only the persistence and ownership boundaries for talents and perks.
 - Detailed tree layout and specific node content belong elsewhere.
+- Use ADRs and the narrower progression docs for the authoritative progression split.
 
 ## Ownership Split
 - Hero talent allocation is hero-bound.
@@ -15,7 +16,7 @@
 - Co-op utility perks should compete with selfish DPS picks.
 
 ## Persistence
-- Hero talent point allocation is hero-bound and is lost when that hero dies (default permadeath mode).
+- Hero talent point allocation is hero-bound and is lost when that hero dies.
 - Town-level perk and knowledge unlocks are persistent and survive hero death.
 - Equipped configuration is saved in player profile presets.
 

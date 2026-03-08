@@ -13,17 +13,17 @@ Implementation note:
 - Fast onboarding into a mission with clear goals.
 - High-pressure moment-to-moment combat and positioning.
 - Constant extract-or-push decisions tied to reward quality.
-- Persistent personal growth that survives failed runs.
+- Persistent player-owned progress that survives failed runs through town-bound progression.
 
 ## Experience Pillars
 
 - Risk with clarity: players understand what they stand to lose or gain.
 - Co-op interdependence: classes and abilities create team synergy.
-- Fair consequences: death hurts run progress, not total account identity.
+- Fair consequences: hero death hurts hero-bound progress, not total player-owned progress.
 - Build expression: weapon mastery and perks support distinct playstyles.
 
 ## Vertical Slice Success Criteria
 
 - A 20-30 minute run feels complete and replayable.
 - The singleplayer-first slice proves movement, combat, extraction, and progression foundations.
-- Players can identify a meaningful account progression goal after one run.
+- Players can identify a meaningful town-bound progression goal after one run.

@@ -4,6 +4,7 @@
 - Define hero-bound progression only.
 - This doc covers character XP, level, and talent allocation on a hero.
 - Town-bound knowledge and town systems are documented elsewhere.
+- Use the ADR layer for the authoritative permadeath rule.
 
 ## Hero Progression Loop
 - Hero earns **Character XP** from missions (kills, objectives, extraction).
@@ -25,18 +26,12 @@ If a hero dies:
 - all hero-bound progression is lost for future play (cannot be selected)
 - town-bound unlocks remain (weapon knowledge + buildings/resources)
 
-Default mode:
-- Hero permadeath is ON.
-
-Optional mode:
-- A non-permadeath setting may be offered later for players who do not want permanent hero death.
-- Even in that mode, town-bound progression remains persistent as usual.
-
 ## What This Doc Does Not Cover
 - Weapon mastery persistence
 - Town buildings and town resources
 - Inventory/loadout persistence
 - Detailed class design beyond hero talent allocation
+- Full death-flow handling; see [ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md)
 
 ## Design Constraints
 - Save stores only IDs and ranks, not computed stats.

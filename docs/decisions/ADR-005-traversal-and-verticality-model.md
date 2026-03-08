@@ -7,7 +7,7 @@ Accepted
 We want:
 - Jump and crouch as readable, timing-based actions (not precision platforming).
 - Avoiding some projectiles by crouching.
-- ìFleeî events with obstacles requiring jump/crouch at the right time.
+- ‚ÄúFlee‚Äù events with obstacles requiring jump/crouch at the right time.
 - Multi-level play (towers/walls) with line-of-sight combat.
 
 This must remain compatible with:
@@ -32,6 +32,10 @@ We will implement **Diablo-like traversal** with **rule/animation-driven** actio
 - Elevation transitions occur via **connectors** (stairs/ladder/ramps/doors), not free jumping.
 - Combat between elevations requires **line of sight**.
 
+## Scope
+- This ADR defines traversal semantics and gameplay verticality rules.
+- It does not define world representation technology, camera implementation, or aiming-space rules in detail.
+
 ## Implications
 - Characters have explicit traversal state (Standing / Crouching / Vaulting).
 - Attacks and hazards must declare their clearance tag (High / Ground / Neutral).
@@ -39,5 +43,10 @@ We will implement **Diablo-like traversal** with **rule/animation-driven** actio
 - Networking replicates traversal state + elevation layer; host validates transitions and hit results.
 
 ## Alternatives considered
-- Visual-only ìfake depthî (rejected: doesnít support tower/wall gameplay rules)
+- Visual-only ‚Äúfake depth‚Äù (rejected: doesn‚Äôt support tower/wall gameplay rules)
 - Full platformer physics (rejected: too precise for intended feel)
+
+## Related ADRs
+- [ADR-006-world-representation.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-006-world-representation.md)
+- [ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)

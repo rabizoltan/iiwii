@@ -15,6 +15,10 @@ We need clear rules for what happens when a hero dies during a mission, whether 
 Plain language:
 - **Safe state** = a moment where switching heroes cannot break the mission (e.g., Town/Lobby between missions).
 
+## Scope
+- This ADR defines hero death behavior, safe-state hero switching, and mission continuity after death.
+- It does not define the full town progression model or the full progression split model.
+
 ## Decision
 ### 1) Death is final for that hero
 - When a hero dies, that hero's `status` becomes `dead`.
@@ -64,3 +68,9 @@ Hero switching is **not allowed**:
 - Co-op remains smooth (players stay connected and can spectate).
 - Prevents cheese/exploits from swapping heroes mid-mission.
 - Leaves room for future respawn mechanics without rewriting core rules.
+
+## Related ADRs
+- [ADR-010-session-flow-host-world-own-town-return.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-010-session-flow-host-world-own-town-return.md)
+- [ADR-012-town-buildings-and-meta-progression.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-012-town-buildings-and-meta-progression.md)
+- [ADR-013-progression-split-town-knowledge-vs-hero-build.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-013-progression-split-town-knowledge-vs-hero-build.md)
+- [ADR-015-inventory-model-loadout-backpack-town-chest.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-015-inventory-model-loadout-backpack-town-chest.md)

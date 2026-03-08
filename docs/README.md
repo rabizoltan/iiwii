@@ -8,7 +8,7 @@ Use this order when you need fast context:
 1. [project-header.md](d:/Game/DEV/iiWii/iiwii/docs/project-header.md)
 2. [vision/game-vision.md](d:/Game/DEV/iiWii/iiwii/docs/vision/game-vision.md)
 3. [vision/core-loop.md](d:/Game/DEV/iiWii/iiwii/docs/vision/core-loop.md)
-4. Relevant ADRs in [`decisions/`](d:/Game/DEV/iiWii/iiwii/docs/decisions)
+4. [decisions/README.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/README.md), then the relevant ADRs in [`decisions/`](d:/Game/DEV/iiWii/iiwii/docs/decisions)
 5. [architecture/README.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/README.md), then the relevant runtime docs in [`architecture/`](d:/Game/DEV/iiWii/iiwii/docs/architecture)
 6. [systems/README.md](d:/Game/DEV/iiWii/iiwii/docs/systems/README.md), then the relevant gameplay rule docs in [`systems/`](d:/Game/DEV/iiWii/iiwii/docs/systems)
 7. [technical/README.md](d:/Game/DEV/iiWii/iiwii/docs/technical/README.md), then the relevant implementation constraint docs in [`technical/`](d:/Game/DEV/iiWii/iiwii/docs/technical)
@@ -22,6 +22,12 @@ Use this order when you need fast context:
 - `technical/`: implementation standards and conventions.
 - `research/`: non-normative notes. Useful for direction, not final authority.
 - `workplans/`: execution guidance and sequencing. Useful for delivery, not product truth.
+
+## Terminology
+- `player-owned progression`: progression stored per player profile; never shared as one party-wide town save.
+- `hero-bound`: progression or gear attached to a specific hero and lost when that hero dies under default permadeath rules.
+- `town-bound`: persistent progression that survives hero death and helps future heroes.
+- `host-authoritative`: in multiplayer, the host owns mission truth and validates outcomes; clients send intent and render replicated state.
 
 ## Current Project Framing
 - Product target: co-op extraction action game.

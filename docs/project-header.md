@@ -18,7 +18,7 @@ Players launch from a persistent town into dangerous missions, choose to extract
 ## Hard Constraints
 - Co-op network model is host-authoritative; clients are never trusted for game-state authority.
 - Account progression belongs to each player profile; no shared town save file.
-- Character death in mission is permanent for that run, while town and weapon mastery persist.
+- Hero death is permadeath by default; hero-bound progress is lost while town-bound progress persists.
 - C++ GDExtension is optional and reserved for measured performance hotspots.
 
 ## Near-Term Scope
