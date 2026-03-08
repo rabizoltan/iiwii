@@ -14,13 +14,13 @@ This folder contains implementation sequencing and delivery plans.
 - Capturing validation gates for implementation work
 
 ## Status Rules
-- `active`: references existing repo assets and can be executed now.
+- `active`: the plan is the current execution guide for work that should proceed now.
 - `blocked`: design intent is useful, but execution cannot start because required code/assets are not present yet.
 - `stale`: no longer matches the current repo or current source-of-truth docs; rewrite or delete.
 
 ## Current Reality
 - This repository currently contains documentation only.
-- If a workplan references a missing `godot/` tree or claims implementation progress on files that do not exist here, that plan must be treated as `blocked` or `stale`, not as active progress.
+- If a workplan claims completed implementation progress on files that do not exist here, that plan must be treated as `blocked` or `stale`, not as active progress.
 
 ## Current Focus
 - First playable Godot vertical slice

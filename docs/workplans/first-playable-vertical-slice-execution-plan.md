@@ -12,7 +12,7 @@ Create the first runnable gameplay slice that proves the core runtime foundation
 - `active`
 
 ## Step Status Board
-- [ ] Step 0 - Governance setup
+- [x] Step 0 - Governance setup
 - [ ] Step 1 - Project bootstrap
 - [ ] Step 2 - Player movement
 - [ ] Step 3 - Enemy navigation foundation
@@ -46,7 +46,7 @@ The first slice is successful when all of the following are true:
 ## Execution Order
 
 ### Step 0 - Governance Setup
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Keep [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md) as the single source for actual implementation status.

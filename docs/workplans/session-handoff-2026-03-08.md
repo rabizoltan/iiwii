@@ -110,4 +110,7 @@
   - AI navigation foundations
 
 ## Commit Reference
-- Latest docs cleanup commit: `9874a91` - `docs: align ADRs and normalize terminology`
+- Later docs cleanup commits:
+  - `fa43f52` - `docs: remove implementation-specific doc residue`
+  - `714617d` - `docs: simplify workplans for first playable slice`
+  - `e9b60c7` - `docs: add development governance and tracking`

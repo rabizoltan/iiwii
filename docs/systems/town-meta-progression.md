@@ -36,7 +36,7 @@ Buildings can be extended later without breaking saves.
   - barracks level
   - derived roster capacity (or store capacity directly)
 
-Future idea (not implemented now):
+Optional future direction:
 - optional recruit pool / recruit quality system (requires new ADR if introduced)
 
 ### Kitchen

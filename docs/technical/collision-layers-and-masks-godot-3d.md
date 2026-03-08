@@ -41,7 +41,7 @@ This project uses a continuous 3D space model and free aim.
 - Numeric: `19`
 - `collide_with_bodies = true`
 - `collide_with_areas = true`
-- Excludes player-owned nodes.
+- Excludes the local player's own nodes.
 
 ### Shot ray (player chest -> aim point)
 - Mask: `WorldSolid (1) + Hurtbox (16)`
