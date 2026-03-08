@@ -9,13 +9,12 @@ Define the minimum combat feedback and debug visibility required after the behav
 ## Why This Is Separate
 - Current HP and debug overlays exist for prototype validation only.
 - They should not silently evolve into long-term behavior without explicit scope.
+- Shared developer debug controls now belong to the dedicated debug control panel slice, not this slice.
 
 ## Scope Candidates
 - enemy HP presentation
 - hit confirmation
 - death feedback
-- debug overlay contents
-- debug toggle behavior
 - log vs on-screen debug responsibilities
 
 ## Questions That Must Be Answered Before This Slice Starts

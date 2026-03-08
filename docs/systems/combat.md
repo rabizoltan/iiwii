@@ -16,7 +16,7 @@
 - Damage application should target valid enemy hurt targets only.
 - A simple target dummy is sufficient for early validation.
 - Baseline fire mode is single-click single-shot.
-- Baseline cooldown is `1.0` second.
+- Baseline cooldown is `0.5` second.
 - Baseline shots do not pierce.
 - Baseline projectile range is unlimited for the slice.
 - Baseline shooting should feel deliberate and aimed:

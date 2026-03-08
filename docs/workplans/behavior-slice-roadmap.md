@@ -14,26 +14,29 @@
 - The next work should be separated into smaller behavior slices with explicit acceptance criteria.
 
 ## Slice Status Board
-- Slice 1 - Player attack behavior: `active`
-- Slice 2 - Enemy close-range behavior: `active`
-- Slice 3 - Combat feedback and debug behavior: `blocked`
+- Slice 1 - Player attack behavior: `completed`
+- Slice 2 - Debug control panel: `completed`
+- Slice 3 - Enemy close-range behavior: `active`
+- Slice 4 - Combat feedback and debug behavior: `blocked`
 
 ## Recommended Order
 1. Player attack behavior
-2. Enemy close-range behavior
-3. Combat feedback and debug behavior
+2. Debug control panel
+3. Enemy close-range behavior
+4. Combat feedback and debug behavior
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
-2. After player attack behavior is implemented and validated, continue with [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
-3. After both behavior slices are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
+2. Add [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) so current and follow-up behavior slices share the same runtime debug controls
+3. After player attack and debug control are validated, continue with [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
+4. After the behavior slices are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
 - do not start the combat feedback/debug slice as a design driver for combat behavior
 
 ## Slice 1 - Player Attack Behavior
-Status: `active`
+Status: `completed`
 
 Plan file:
 - [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
@@ -43,13 +46,29 @@ Why first:
 - Attack direction, cadence, and aiming rules will affect enemy behavior and combat feel.
 
 Current state:
-- Core attack behavior is now specified enough to proceed.
-- Only tuning values and fallback edge cases remain open.
+- Mouse/world aiming, no-fire rules, blocker-aware projectile travel, and demo-scene validation are complete.
+- This slice is closed and ready for follow-up behavior work.
 
 Execution priority:
 - immediate next implementation slice
 
-## Slice 2 - Enemy Close-Range Behavior
+## Slice 2 - Debug Control Panel
+Status: `completed`
+
+Plan file:
+- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md)
+
+Why second:
+- Shared runtime debug controls improve validation for both player attack and enemy behavior work.
+
+Current state:
+- The `F3` debug menu and first shared toggles are implemented and validated.
+- This slice is closed and available for follow-up behavior work.
+
+Execution priority:
+- immediate follow-up to player attack validation support
+
+## Slice 3 - Enemy Close-Range Behavior
 Status: `active`
 
 Plan file:
@@ -65,7 +84,7 @@ Current state:
 Execution priority:
 - start only after the player attack behavior slice is complete enough to validate against
 
-## Slice 3 - Combat Feedback And Debug Behavior
+## Slice 4 - Combat Feedback And Debug Behavior
 Status: `blocked`
 
 Plan file:

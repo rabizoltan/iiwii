@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://crsljbug2mpyu"]
+[gd_scene load_steps=6 format=3 uid="uid://crsljbug2mpyu"]
 
 [ext_resource type="Script" uid="uid://bvqo5cuwm5gq8" path="res://scripts/enemy/enemy_controller.gd" id="1"]
 
@@ -41,3 +41,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 0)
 billboard = 1
 pixel_size = 0.01
 label_settings = SubResource("4")
+
+[node name="NavPathDebug" type="MeshInstance3D" parent="."]
+cast_shadow = 0

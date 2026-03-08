@@ -1,7 +1,7 @@
 # Player Attack Behavior Slice
 
 ## Status
-- `active`
+- `completed`
 
 ## Goal
 Implement the intended baseline player attack behavior on top of the current foundation slice.
@@ -12,10 +12,10 @@ Implement the intended baseline player attack behavior on top of the current fou
 
 ## Step Status Board
 - Step 0 - Lock behavior rules: `completed`
-- Step 1 - Mouse/world aim target resolution: `not_started`
-- Step 2 - Attack gating and no-fire rules: `not_started`
-- Step 3 - Projectile direction and impact resolution: `not_started`
-- Step 4 - Validation pass: `not_started`
+- Step 1 - Mouse/world aim target resolution: `completed`
+- Step 2 - Attack gating and no-fire rules: `completed`
+- Step 3 - Projectile direction and impact resolution: `completed`
+- Step 4 - Validation pass: `completed`
 
 ## Behavior Rules
 
@@ -28,7 +28,7 @@ Implement the intended baseline player attack behavior on top of the current fou
 
 ### Baseline Rules For This Slice
 1. Baseline firing mode is single-click single-shot.
-2. Baseline cooldown is `1.0` second.
+2. Baseline cooldown is `0.5` second.
 3. Baseline shots do not pierce.
 4. Projectile range is unlimited for this slice.
 5. Projectile speed is not a locked design constant for this slice yet.
@@ -60,7 +60,7 @@ Exit gate:
 - The implementation task can proceed without guessing attack behavior.
 
 ### Step 1 - Mouse/World Aim Target Resolution
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Add cursor-to-world aim resolution in the player attack flow.
@@ -75,11 +75,11 @@ Exit gate:
 - The player can produce a valid world aim target from the cursor.
 
 ### Step 2 - Attack Gating And No-Fire Rules
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Enforce single-click single-shot behavior.
-2. Enforce `1.0s` cooldown.
+2. Enforce `0.5s` cooldown.
 3. Do not fire if no valid aim target exists under the cursor.
 4. Keep attack direction independent from movement direction.
 
@@ -87,7 +87,7 @@ Exit gate:
 - Input and cooldown behavior match the agreed baseline.
 
 ### Step 3 - Projectile Direction And Impact Resolution
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Fire projectiles from player chest toward the resolved aim target.
@@ -102,7 +102,7 @@ Exit gate:
 - Shot travel and impact resolution match the agreed targeting rules.
 
 ### Step 4 - Validation Pass
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Validate enemy targeting.
@@ -112,13 +112,17 @@ Actions:
 5. Validate elevated-to-lower-ground targeting.
 6. Check that the feel is deliberate, readable, and not spammy.
 
+Current demo-scene fixtures:
+- stationary target dummy near player start
+- reachable elevated shooting platform with ramp for downward shot validation
+
 Exit gate:
 - The slice behavior is validated in the demo scene.
 
 ## Success Criteria
 1. Player attacks use mouse/world aim instead of movement-facing aim.
 2. One click produces one shot.
-3. `1.0s` cooldown is enforced.
+3. `0.5s` cooldown is enforced.
 4. Projectiles do not pierce by default.
 5. If the cursor is on ground, the shot resolves to the aimed ground point.
 6. If the cursor is on an enemy, the shot resolves to that enemy.
@@ -140,4 +144,5 @@ Exit gate:
 
 ## Next Slice
 After this slice is implemented and validated, continue with:
+- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md)
 - [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)

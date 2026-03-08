@@ -29,4 +29,4 @@ mesh = SubResource("2")
 material_override = SubResource("3")
 
 [node name="ProjectileSpawn" type="Marker3D" parent="."]
-position = Vector3(0, 1.1, 0.9)
+position = Vector3(0, 1.1, 0)

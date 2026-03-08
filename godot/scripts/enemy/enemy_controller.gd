@@ -13,6 +13,7 @@ extends CharacterBody3D
 
 @onready var _nav_agent: NavigationAgent3D = $NavigationAgent3D
 @onready var _debug_label: Label3D = $DebugLabel3D
+@onready var _nav_path_debug: MeshInstance3D = $NavPathDebug
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _target_node: Node3D
@@ -21,6 +22,7 @@ var _stuck_elapsed: float = 0.0
 var _recovery_elapsed: float = 0.0
 var _recovery_sign: float = 1.0
 var _current_hp: float = 0.0
+var _nav_path_mesh: ImmediateMesh
 
 const DEBUG_LOG_PATH := "user://debug/enemy_debug.log"
 const DEBUG_WRITE_INTERVAL_MSEC := 500
@@ -28,6 +30,8 @@ const DEBUG_WRITE_INTERVAL_MSEC := 500
 
 func _ready() -> void:
 	_current_hp = max_hp
+	_nav_path_mesh = ImmediateMesh.new()
+	_nav_path_debug.mesh = _nav_path_mesh
 	_nav_agent.set_navigation_map(get_world_3d().navigation_map)
 	_nav_agent.path_desired_distance = 1.0
 	_nav_agent.target_desired_distance = desired_stop_distance
@@ -141,6 +145,7 @@ func _update_debug(state_text: String, next_position: Vector3, iteration_id: int
 		distance_to_target = global_position.distance_to(_target_node.global_position)
 
 	_refresh_label(state_text, next_position, iteration_id, distance_to_target, distance_to_next)
+	_update_nav_path_debug()
 
 	if not debug_enabled:
 		return
@@ -156,6 +161,11 @@ func _refresh_label(
 	distance_to_next: float = 0.0
 ) -> void:
 	if _debug_label == null:
+		return
+
+	var show_global_debug := _is_enemy_status_enabled()
+	_debug_label.visible = show_global_debug
+	if not show_global_debug:
 		return
 
 	var lines: Array[String] = []
@@ -174,6 +184,64 @@ func _refresh_label(
 		])
 
 	_debug_label.text = "\n".join(lines)
+
+
+func _update_nav_path_debug() -> void:
+	if _nav_path_debug == null or _nav_path_mesh == null:
+		return
+
+	if not _is_enemy_nav_path_enabled():
+		_clear_nav_path_debug()
+		return
+
+	var path: PackedVector3Array = _nav_agent.get_current_navigation_path()
+	if path.size() == 0:
+		_clear_nav_path_debug()
+		return
+
+	var material: StandardMaterial3D = StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(0.95, 0.85, 0.2, 1.0)
+	material.vertex_color_use_as_albedo = true
+
+	_nav_path_mesh.clear_surfaces()
+	_nav_path_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP, material)
+	_nav_path_mesh.surface_set_color(material.albedo_color)
+	_nav_path_mesh.surface_add_vertex(Vector3.UP * 0.15)
+	var path_count: int = path.size()
+	for path_index in path_count:
+		var path_point: Vector3 = path[path_index]
+		_nav_path_mesh.surface_add_vertex(to_local(path_point + Vector3.UP * 0.15))
+	_nav_path_mesh.surface_end()
+	_nav_path_debug.visible = true
+
+
+func _clear_nav_path_debug() -> void:
+	if _nav_path_mesh != null:
+		_nav_path_mesh.clear_surfaces()
+
+	if _nav_path_debug != null:
+		_nav_path_debug.visible = false
+
+
+func _get_debug_overlay() -> Node:
+	return get_tree().get_first_node_in_group("debug_overlay")
+
+
+func _is_enemy_status_enabled() -> bool:
+	var debug_overlay := _get_debug_overlay()
+	if debug_overlay != null and debug_overlay.has_method("is_enemy_status_enabled"):
+		return debug_overlay.is_enemy_status_enabled()
+
+	return true
+
+
+func _is_enemy_nav_path_enabled() -> bool:
+	var debug_overlay := _get_debug_overlay()
+	if debug_overlay != null and debug_overlay.has_method("is_enemy_nav_path_enabled"):
+		return debug_overlay.is_enemy_nav_path_enabled()
+
+	return false
 
 
 func _prepare_debug_log() -> void:
