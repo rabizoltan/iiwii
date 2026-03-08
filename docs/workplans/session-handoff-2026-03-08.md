@@ -109,6 +109,30 @@
   - combat feel
   - AI navigation foundations
 
+## Later Runtime Update
+- The first playable Godot foundation slice was completed as a prototype milestone.
+- Follow-up work was intentionally split into blocked behavior slices instead of continuing open-ended prototype polishing.
+- The new planning entry point is:
+  - [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md)
+- The next behavior slices now waiting for design answers are:
+  - [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
+  - [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
+  - [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
+
+## Current Planned Order
+1. Player attack behavior slice
+2. Enemy close-range / melee behavior slice
+3. Combat feedback and debug behavior slice
+
+## Current Runtime Baseline
+- The Godot 4.6 baseline prototype now exists in the repository under `godot/`.
+- The completed foundation slice already proves:
+  - player movement
+  - basic enemy navmesh chase
+  - minimal projectile attack
+  - enemy HP and death
+- Follow-up work should now proceed through the dedicated behavior slices instead of reopening the foundation slice for more polishing.
+
 ## Commit Reference
 - Later docs cleanup commits:
   - `fa43f52` - `docs: remove implementation-specific doc residue`

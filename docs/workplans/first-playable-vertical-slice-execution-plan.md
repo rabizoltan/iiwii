@@ -9,15 +9,15 @@ Create the first runnable gameplay slice that proves the core runtime foundation
 - enemy death
 
 ## Status
-- `active`
+- `completed`
 
 ## Step Status Board
-- [x] Step 0 - Governance setup
-- [ ] Step 1 - Project bootstrap
-- [ ] Step 2 - Player movement
-- [ ] Step 3 - Enemy navigation foundation
-- [ ] Step 4 - Basic combat loop
-- [ ] Step 5 - Stability and debug pass
+- Step 0 - Governance setup: `completed`
+- Step 1 - Project bootstrap: `completed`
+- Step 2 - Player movement: `completed`
+- Step 3 - Enemy navigation foundation: `completed`
+- Step 4 - Basic combat loop: `completed`
+- Step 5 - Stability and debug pass: `completed`
 
 ## Why This Is First
 - It proves the basic game is actually programmable, runnable, and testable.
@@ -58,7 +58,7 @@ Exit gate:
 - The project has explicit rules for feature status, file ownership, and doc updates before code starts landing.
 
 ### Step 1 - Project Bootstrap
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Create the Godot project.
@@ -71,7 +71,7 @@ Exit gate:
 - Project launches into a visible playable scene.
 
 ### Step 2 - Player Movement
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Add player actor root.
@@ -84,7 +84,7 @@ Exit gate:
 - Player movement feels stable and predictable around obstacles.
 
 ### Step 3 - Enemy Navigation Foundation
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Add one enemy actor.
@@ -96,8 +96,12 @@ Actions:
 Exit gate:
 - Enemies reach the player by navigating around obstacles instead of pushing into them.
 
+Acceptance note:
+- Prototype-grade enemy chase is acceptable for this slice.
+- Corner recovery exists, but enemy navigation is not considered production-ready yet.
+
 ### Step 4 - Basic Combat Loop
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Add the simplest viable player attack.
@@ -109,8 +113,12 @@ Actions:
 Exit gate:
 - Player can kill enemies in the playable test scene.
 
+Acceptance note:
+- Minimal projectile attack, enemy HP, and enemy death are present.
+- Combat feel is intentionally not finalized in this slice.
+
 ### Step 5 - Stability And Debug Pass
-Status: `not_started`
+Status: `completed`
 
 Actions:
 1. Tune player movement and attack feel.
@@ -123,6 +131,34 @@ Actions:
 
 Exit gate:
 - The slice is stable enough to serve as the foundation for the next gameplay feature.
+
+Acceptance note:
+- The slice is accepted as a foundation milestone, not as tuned gameplay.
+- Some convenience/debug behavior may still be rough if it is not part of the slice goal.
+
+## Accepted Outcome
+This slice is complete as a foundation milestone because it proves:
+1. the Godot 4.6 project is bootstrapped
+2. the main playable scene runs
+3. player movement works
+4. enemy navmesh chase works at prototype level
+5. player attack exists
+6. enemies can take damage and die
+
+## Accepted Rough Edges
+These are intentionally not blockers for closing this slice:
+- enemy navigation is still prototype-grade
+- enemy close-range spacing is not fully defined
+- combat feel is not tuned yet
+- debug convenience features are not slice-defining requirements
+
+## Follow-On Work
+Do not continue polishing this slice indefinitely.
+
+The next work should happen in separate behavior slices with explicit success criteria:
+1. player attack behavior
+2. enemy close-range behavior
+3. combat feedback and debug behavior
 
 ## Explicit Non-Goals
 - no save system

@@ -15,7 +15,7 @@ The system must avoid common corner-wedge stuck cases with explicit stuck detect
 
 ## Goals
 1. Target the player with the highest threat. In v1, threat can be distance-only.
-2. Melee enemies gather around the target and attempt to hit.
+2. Melee enemies gather around the target, hold at engage distance, and attempt to hit.
 3. Ranged enemies maintain a preferred distance band and kite via strafing while keeping LOS.
 4. Enemies stay separated enough to avoid permanent blocking.
 5. Recovery around obstacles and corners must be robust.
@@ -98,6 +98,8 @@ If the player is not on nav space reachable by this enemy:
 Melee:
 - generate ring candidates around `Center`
 - radius derives from attack range with clamps
+- once at engage distance, hold rather than orbit or keep pressing inward
+- if the player moves, re-acquire a nearby reachable engage point
 
 Ranged:
 - generate candidates inside a preferred distance band
@@ -122,6 +124,10 @@ Rule:
 
 ### Soft occupancy
 Maintain a lightweight occupancy metric near the target so enemies prefer less crowded points without hard slot locking.
+
+Rule:
+- use soft spreading only
+- do not force a fast full surround of the player
 
 ### Commitment window
 Keep a selected goal for a short commit window unless:

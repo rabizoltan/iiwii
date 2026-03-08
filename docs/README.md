@@ -37,13 +37,24 @@ Use this order when you need fast context:
 ## Current Project Framing
 - Product target: co-op extraction action game.
 - Current implementation phase: singleplayer-first vertical slice.
-- Current engineering focus: hero movement, enemy movement, combat feel, and AI navigation foundations.
+- Foundation slice status: initial Godot 4.6 gameplay baseline is implemented and accepted as a prototype milestone.
+- Current engineering focus: behavior-specific follow-up slices, starting with player attack behavior and then melee close-range enemy behavior.
 - Multiplayer remains a later phase and current decisions should stay compatible with it.
+
+## Current Runtime Baseline
+- A Godot 4.6 project now exists under `godot/`.
+- The first runnable prototype baseline already includes:
+  - player movement
+  - basic enemy navmesh chase
+  - minimal projectile attack
+  - enemy HP and death
+- That baseline should now be extended through behavior slices rather than more open-ended prototype polishing.
 
 ## Best Entry Points By Task
 - Movement and traversal: [systems/movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [systems/traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md), [decisions/ADR-005-traversal-and-verticality-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-005-traversal-and-verticality-model.md), [decisions/ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
 - Enemy navigation and combat positioning: [architecture/ai/enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md), [architecture/ai/enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md), [architecture/ai/enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [decisions/ADR-017-navmesh-size-layers.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-017-navmesh-size-layers.md), [decisions/ADR-018-enemy-ai-nav-v1-approach.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-018-enemy-ai-nav-v1-approach.md)
 - Combat: [systems/combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [systems/classes-and-abilities.md](d:/Game/DEV/iiWii/iiwii/docs/systems/classes-and-abilities.md), [systems/tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md)
+- Current execution planning: [workplans/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md), [workplans/player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md), [workplans/enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
 - Implementation status and code ownership: [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), [development-governance.md](d:/Game/DEV/iiWii/iiwii/docs/technical/development-governance.md)
 - Progression and death rules: [architecture/save-and-progression.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/save-and-progression.md), [systems/player-hero-progression.md](d:/Game/DEV/iiWii/iiwii/docs/systems/player-hero-progression.md), [systems/progression-weapon-mastery.md](d:/Game/DEV/iiWii/iiwii/docs/systems/progression-weapon-mastery.md), [systems/death-and-extraction.md](d:/Game/DEV/iiWii/iiwii/docs/systems/death-and-extraction.md), [decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-011-hero-death-safe-state-switching-and-party-continuity.md), [decisions/ADR-013-progression-split-town-knowledge-vs-hero-build.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-013-progression-split-town-knowledge-vs-hero-build.md)
 - Multiplayer target model: [architecture/networking.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/networking.md), [research/steam-multiplayer-notes.md](d:/Game/DEV/iiWii/iiwii/docs/research/steam-multiplayer-notes.md), [decisions/ADR-004-networking-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-004-networking-model.md), [decisions/ADR-008-multiplayer-replication-style.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-008-multiplayer-replication-style.md), [decisions/ADR-010-session-flow-host-world-own-town-return.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-010-session-flow-host-world-own-town-return.md)

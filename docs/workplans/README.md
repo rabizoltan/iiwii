@@ -19,12 +19,13 @@ This folder contains implementation sequencing and delivery plans.
 - `stale`: no longer matches the current repo or current source-of-truth docs; rewrite or delete.
 
 ## Current Reality
-- This repository currently contains documentation only.
-- If a workplan claims completed implementation progress on files that do not exist here, that plan must be treated as `blocked` or `stale`, not as active progress.
+- This repository now contains both active documentation and an early Godot 4.6 gameplay project under `godot/`.
+- Workplans may reference implemented files that already exist here.
+- If a workplan claims completed implementation progress on files that do not exist here, that plan must still be treated as `blocked` or `stale`, not as active progress.
 
 ## Current Focus
-- First playable Godot vertical slice
-- Hero movement, basic combat, and enemy navigation foundation
+- Completed first playable Godot foundation slice
+- Next work should move into behavior-specific slices, not open-ended prototype polishing
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -43,5 +44,9 @@ This folder contains implementation sequencing and delivery plans.
     - simple obstacle validation including a U-shape
   - use that kind of brief only as a bootstrap task prompt, never as project truth
 
-## Active Workplan
-- [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/first-playable-vertical-slice-execution-plan.md): active execution plan for the first actual programming work.
+## Current Workplans
+- [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/first-playable-vertical-slice-execution-plan.md): completed foundation milestone that proved the first runnable gameplay slice.
+- [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md): active planning entry point for the next behavior-specific slices.
+- [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md): active executable plan for the next implementation slice.
+- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md): active follow-up slice after player attack behavior is validated.
+- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md): blocked pending design answers.

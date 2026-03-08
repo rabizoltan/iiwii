@@ -1,0 +1,143 @@
+# Player Attack Behavior Slice
+
+## Status
+- `active`
+
+## Goal
+Implement the intended baseline player attack behavior on top of the current foundation slice.
+
+## Why This Is Separate
+- The current projectile attack only proves that combat can exist.
+- This slice turns the attack into the intended baseline player-facing behavior.
+
+## Step Status Board
+- Step 0 - Lock behavior rules: `completed`
+- Step 1 - Mouse/world aim target resolution: `not_started`
+- Step 2 - Attack gating and no-fire rules: `not_started`
+- Step 3 - Projectile direction and impact resolution: `not_started`
+- Step 4 - Validation pass: `not_started`
+
+## Behavior Rules
+
+### Already Defined By Current Docs
+1. Player attack uses mouse aim, not movement-facing-only aim.
+2. Attack direction is separate from movement direction.
+3. Primary attack input is `Left Mouse Button`.
+4. Shots are driven by cursor/world aim point and fired from player chest toward that point.
+5. Line-of-sight blockers should matter before damage applies.
+
+### Baseline Rules For This Slice
+1. Baseline firing mode is single-click single-shot.
+2. Baseline cooldown is `1.0` second.
+3. Baseline shots do not pierce.
+4. Projectile range is unlimited for this slice.
+5. Projectile speed is not a locked design constant for this slice yet.
+6. Valid aim targets are:
+   - enemies
+   - ground
+   - obstacles
+7. The player cannot aim at self.
+8. If there is no valid target under the cursor, the player does not shoot.
+9. If the cursor is on ground, the projectile should resolve to that aimed ground point.
+10. If the cursor is on an enemy, the projectile should resolve to that enemy.
+11. If the cursor is on an obstacle, the projectile should resolve to that obstacle.
+12. Ground-targetable shots must work for elevated shots and for targeting ground between enemies.
+13. Intended feel is deliberate aimed shooting:
+   - not blind bullet-hell spam
+   - not extremely slow long-delay shooting
+
+## Execution Order
+
+### Step 0 - Lock Behavior Rules
+Status: `completed`
+
+Actions:
+1. Read the combat source-of-truth docs and ADR input/aim rules.
+2. Record baseline cadence, aiming, and impact behavior in this slice plan.
+3. Record the agreed no-fire and non-piercing defaults.
+
+Exit gate:
+- The implementation task can proceed without guessing attack behavior.
+
+### Step 1 - Mouse/World Aim Target Resolution
+Status: `not_started`
+
+Actions:
+1. Add cursor-to-world aim resolution in the player attack flow.
+2. Resolve a valid target point from:
+   - enemy
+   - ground
+   - obstacle
+3. Ignore self as a valid aim target.
+4. Ensure the resolved aim point works from elevated positions as well as flat ground.
+
+Exit gate:
+- The player can produce a valid world aim target from the cursor.
+
+### Step 2 - Attack Gating And No-Fire Rules
+Status: `not_started`
+
+Actions:
+1. Enforce single-click single-shot behavior.
+2. Enforce `1.0s` cooldown.
+3. Do not fire if no valid aim target exists under the cursor.
+4. Keep attack direction independent from movement direction.
+
+Exit gate:
+- Input and cooldown behavior match the agreed baseline.
+
+### Step 3 - Projectile Direction And Impact Resolution
+Status: `not_started`
+
+Actions:
+1. Fire projectiles from player chest toward the resolved aim target.
+2. Keep baseline shots non-piercing.
+3. Make impacts resolve correctly against:
+   - enemies
+   - ground
+   - obstacles
+4. Preserve unlimited range for the slice unless collision ends the shot first.
+
+Exit gate:
+- Shot travel and impact resolution match the agreed targeting rules.
+
+### Step 4 - Validation Pass
+Status: `not_started`
+
+Actions:
+1. Validate enemy targeting.
+2. Validate ground targeting.
+3. Validate obstacle targeting.
+4. Validate no-fire on invalid target.
+5. Validate elevated-to-lower-ground targeting.
+6. Check that the feel is deliberate, readable, and not spammy.
+
+Exit gate:
+- The slice behavior is validated in the demo scene.
+
+## Success Criteria
+1. Player attacks use mouse/world aim instead of movement-facing aim.
+2. One click produces one shot.
+3. `1.0s` cooldown is enforced.
+4. Projectiles do not pierce by default.
+5. If the cursor is on ground, the shot resolves to the aimed ground point.
+6. If the cursor is on an enemy, the shot resolves to that enemy.
+7. If the cursor is on an obstacle, the shot resolves to that obstacle.
+8. If there is no valid aim target under the cursor, no shot is fired.
+9. Shooting from elevated positions still respects the same aim rule.
+
+## Non-Goals
+- no piercing extension yet
+- no burst or hold-to-fire mode
+- no final projectile speed tuning
+- no combat feedback pass in this slice
+- no melee enemy behavior tuning in this slice
+
+## Dependencies
+- [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md)
+- [ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
+- [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)
+
+## Next Slice
+After this slice is implemented and validated, continue with:
+- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
