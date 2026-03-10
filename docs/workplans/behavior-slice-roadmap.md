@@ -16,7 +16,7 @@
 ## Slice Status Board
 - Slice 1 - Player attack behavior: `completed`
 - Slice 2 - Debug control panel: `completed`
-- Slice 3 - Enemy close-range behavior: `active`
+- Slice 3 - Enemy close-range behavior: `completed`
 - Slice 4 - Combat feedback and debug behavior: `blocked`
 
 ## Recommended Order
@@ -78,11 +78,11 @@ Why second:
 - Enemy stop distance, spreading, overlap avoidance, and local positioning should be defined against the finalized attack model.
 
 Current state:
-- Baseline melee close-range behavior is now specified enough to proceed.
-- Follow-up tuning can happen during implementation without redefining the behavioral rule.
+- Engage-point movement, hold/facing behavior, soft spreading, physical crowd collision, constrained crowd-yield, and profiling support are implemented and manually validated in the demo scene.
+- This slice is closed for the current milestone.
 
 Execution priority:
-- start only after the player attack behavior slice is complete enough to validate against
+- completed
 
 ## Slice 4 - Combat Feedback And Debug Behavior
 Status: `blocked`

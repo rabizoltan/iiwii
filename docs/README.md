@@ -38,7 +38,8 @@ Use this order when you need fast context:
 - Product target: co-op extraction action game.
 - Current implementation phase: singleplayer-first vertical slice.
 - Foundation slice status: initial Godot 4.6 gameplay baseline is implemented and accepted as a prototype milestone.
-- Current engineering focus: behavior-specific follow-up slices, starting with player attack behavior and then melee close-range enemy behavior.
+- Current engineering focus: behavior-specific follow-up slices after the completed player attack and melee close-range enemy behavior work.
+- The next planned behavior slice is combat feedback and debug behavior, but it remains blocked pending explicit scope decisions.
 - Multiplayer remains a later phase and current decisions should stay compatible with it.
 
 ## Current Runtime Baseline

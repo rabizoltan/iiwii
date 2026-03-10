@@ -3,8 +3,9 @@
 This config centralizes tunables so behavior changes do not require rewrites.
 
 ## Status
-- Design target only.
-- The values below describe intended runtime tuning once the gameplay codebase exists in this repository.
+- Mixed state.
+- The current melee enemy controller already exposes concrete runtime tunables in [enemy_controller.gd](d:/Game/DEV/iiWii/iiwii/godot/scripts/enemy/enemy_controller.gd), but they are still script exports rather than a shared config resource.
+- The values below remain the intended broader v1 config target once threat-based targeting, ranged behaviors, and multi-size nav-layer authoring are implemented.
 
 ## Global tunables
 - `THREAT_TICK_SEC`: `0.35`

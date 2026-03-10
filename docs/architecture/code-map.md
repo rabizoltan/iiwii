@@ -13,8 +13,8 @@
 ## Current State
 - Initial Godot project bootstrap files now exist.
 - Player movement, enemy chase, and first-pass combat files now exist.
-- The active implementation target is the melee close-range enemy behavior slice.
-- The next planned follow-up after that is the combat feedback and debug behavior slice.
+- The melee close-range enemy behavior slice is implemented for the current milestone.
+- The next planned follow-up is the combat feedback and debug behavior slice, which remains blocked pending scope decisions.
 
 ## Entry Format
 Use one row per important runtime file or scene once implementation starts.

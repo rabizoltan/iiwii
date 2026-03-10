@@ -1,8 +1,9 @@
 # Enemy AI Navigation v1
 
 ## Status
-- Design target only.
-- This document does not imply that the required gameplay code, scenes, nav meshes, or debug overlay already exist in this repository.
+- Partially implemented.
+- The current repository implements the melee close-range subset in the demo scene: engage-goal movement, hold/facing, soft spreading, constrained crowd-yield, debug overlays, and profiling support.
+- Threat-table target selection, ranged donut/kite behavior, LOS attack gating, unreachable-anchor handling, multi-size nav-layer authoring, and the broader v1 test fixture set remain design targets.
 
 ## Summary
 Implement a robust enemy navigation and combat-positioning system for up to roughly 100 enemies.

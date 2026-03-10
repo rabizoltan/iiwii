@@ -28,6 +28,7 @@ static var _profile_yield_calls: int = 0
 # Melee engage behavior
 @export var melee_engage_distance: float = 1.8
 @export var engage_hold_tolerance: float = 0.35
+@export var engage_vertical_tolerance: float = 1.0
 
 # Player-vs-crowd pressure response
 @export var player_push_yield_distance: float = 1.2
@@ -43,8 +44,14 @@ static var _profile_yield_calls: int = 0
 
 # Goal selection
 @export var goal_commit_duration: float = 0.6
+@export var goal_select_min_interval: float = 0.2
+@export var goal_select_start_jitter: float = 0.2
 @export var goal_reacquire_distance: float = 0.9
 @export var engage_candidate_count: int = 10
+@export var goal_path_tiebreak_candidate_count: int = 3
+@export var goal_path_tiebreak_score_window: float = 0.75
+@export var goal_path_tiebreak_max_target_distance: float = 8.0
+@export var goal_path_tiebreak_enemy_count_soft_limit: int = 24
 @export var spread_penalty_radius: float = 1.2
 @export var spread_penalty_weight: float = 0.35
 @export var candidate_projection_tolerance: float = 1.0
@@ -76,6 +83,7 @@ var _has_goal: bool = false
 var _current_goal_position: Vector3 = Vector3.ZERO
 var _goal_center_at_selection: Vector3 = Vector3.ZERO
 var _goal_commit_remaining: float = 0.0
+var _goal_select_cooldown_remaining: float = 0.0
 var _goal_age: float = 0.0
 var _recent_failed_goals: Array[Vector3] = []
 var _debug_candidate_positions: PackedVector3Array = PackedVector3Array()
@@ -125,6 +133,7 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	_current_hp = max_hp
+	_goal_select_cooldown_remaining = randf() * maxf(goal_select_start_jitter, 0.0)
 	_nav_path_mesh = ImmediateMesh.new()
 	_nav_path_debug.mesh = _nav_path_mesh
 	_path_debug_material = _build_debug_material(Color(0.95, 0.85, 0.2, 1.0))
@@ -139,6 +148,7 @@ func _ready() -> void:
 
 
 func _resolve_target() -> void:
+	_target_node = null
 	if not target_path.is_empty():
 		_target_node = get_node_or_null(target_path) as Node3D
 
@@ -159,6 +169,9 @@ func _physics_process(delta: float) -> void:
 	if _goal_commit_remaining > 0.0:
 		_goal_commit_remaining = maxf(_goal_commit_remaining - delta, 0.0)
 
+	if _goal_select_cooldown_remaining > 0.0:
+		_goal_select_cooldown_remaining = maxf(_goal_select_cooldown_remaining - delta, 0.0)
+
 	if _local_enemy_cache_remaining > 0.0:
 		_local_enemy_cache_remaining = maxf(_local_enemy_cache_remaining - delta, 0.0)
 
@@ -176,10 +189,13 @@ func _physics_process(delta: float) -> void:
 	else:
 		_goal_age = 0.0
 
-	if _target_node == null:
+	if not _has_valid_target():
+		_target_node = null
 		_resolve_target()
 
-	if _target_node == null:
+	if not _has_valid_target():
+		_has_goal = false
+		_invalidate_navigation_cache()
 		velocity.x = 0.0
 		velocity.z = 0.0
 		debug_state = "no target"
@@ -200,8 +216,9 @@ func _physics_process(delta: float) -> void:
 
 		if _should_refresh_goal():
 			_select_engage_goal()
+			_reset_goal_select_cooldown()
 
-		if _is_in_engage_hold(distance_to_target):
+		if _is_in_engage_hold(_target_node.global_position):
 			var yield_velocity := _compute_player_yield_velocity()
 			if yield_velocity != Vector3.ZERO:
 				velocity.x = yield_velocity.x
@@ -261,14 +278,17 @@ func _physics_process(delta: float) -> void:
 
 # Goal selection and candidate scoring
 func _should_refresh_goal() -> bool:
-	if _target_node == null:
+	if not _has_valid_target():
+		return false
+
+	if _goal_select_cooldown_remaining > 0.0:
 		return false
 
 	if not _has_goal:
 		return true
 
 	var distance_to_target := _horizontal_distance_to(_target_node.global_position)
-	if _is_in_engage_hold(distance_to_target):
+	if _is_in_engage_hold(_target_node.global_position):
 		return false
 
 	if _goal_commit_remaining > 0.0:
@@ -293,10 +313,11 @@ func _select_engage_goal() -> void:
 		return
 
 	var target_position := _target_node.global_position
-	var center := Vector3(target_position.x, global_position.y, target_position.z)
+	var center := target_position
 	var candidate_positions := PackedVector3Array()
 	var capture_candidate_debug := _should_capture_candidate_debug()
 	var nearby_enemy_positions := _collect_nearby_enemy_positions(center)
+	var candidate_infos: Array[Dictionary] = []
 	var best_score := INF
 	var best_candidate := Vector3.ZERO
 	var base_direction := global_position - center
@@ -323,13 +344,16 @@ func _select_engage_goal() -> void:
 			_debug_goal_rejected_failed_count += 1
 			continue
 
-		var score := _score_candidate(projected_candidate, nearby_enemy_positions)
+		var spread_score := _score_spread_penalty(projected_candidate, nearby_enemy_positions)
+		var score := _score_candidate(projected_candidate, spread_score)
+		candidate_infos.append({
+			"raw_candidate": raw_candidate,
+			"projected_candidate": projected_candidate,
+			"spread_score": spread_score,
+			"cheap_score": score,
+		})
 		if score < best_score:
 			best_score = score
-			_debug_goal_raw_candidate = raw_candidate
-			_debug_goal_projected_candidate = projected_candidate
-			_debug_goal_projection_error = _horizontal_distance(raw_candidate, projected_candidate)
-			best_candidate = projected_candidate
 
 	if best_score == INF:
 		var fallback_candidate := _project_candidate_to_nav(center)
@@ -345,6 +369,12 @@ func _select_engage_goal() -> void:
 		_debug_goal_projected_candidate = fallback_candidate
 		_debug_goal_projection_error = _horizontal_distance(center, fallback_candidate)
 		best_candidate = fallback_candidate
+	else:
+		var selected_candidate_info := _select_candidate_with_path_tiebreak(candidate_infos, best_score)
+		_debug_goal_raw_candidate = selected_candidate_info["raw_candidate"] as Vector3
+		_debug_goal_projected_candidate = selected_candidate_info["projected_candidate"] as Vector3
+		_debug_goal_projection_error = _horizontal_distance(_debug_goal_raw_candidate, _debug_goal_projected_candidate)
+		best_candidate = _debug_goal_projected_candidate
 
 	_current_goal_position = best_candidate
 	_goal_center_at_selection = center
@@ -372,10 +402,116 @@ func _project_candidate_to_nav(candidate: Vector3) -> Vector3:
 	_record_profile_duration("nav_query", Time.get_ticks_usec() - profile_start_usec)
 	return projected_candidate
 
-func _score_candidate(candidate: Vector3, nearby_enemy_positions: Array[Vector3]) -> float:
+func _score_candidate(candidate: Vector3, spread_score: float) -> float:
 	var movement_score := _horizontal_distance(global_position, candidate)
-	var spread_score := _score_spread_penalty(candidate, nearby_enemy_positions)
 	return movement_score + spread_score
+
+
+func _select_candidate_with_path_tiebreak(candidate_infos: Array[Dictionary], best_cheap_score: float) -> Dictionary:
+	if candidate_infos.is_empty():
+		return {}
+
+	if not _should_use_path_tiebreak():
+		return _build_path_tiebreak_shortlist(candidate_infos, best_cheap_score)[0]
+
+	var shortlist := _build_path_tiebreak_shortlist(candidate_infos, best_cheap_score)
+	if shortlist.size() <= 1:
+		return shortlist[0] if not shortlist.is_empty() else candidate_infos[0]
+
+	var best_info: Dictionary = shortlist[0]
+	var best_path_score := INF
+	for candidate_info in shortlist:
+		var projected_candidate := candidate_info["projected_candidate"] as Vector3
+		var path_length := _estimate_candidate_path_length(projected_candidate)
+		if is_inf(path_length):
+			continue
+
+		var final_score := path_length + float(candidate_info["spread_score"])
+		if final_score < best_path_score:
+			best_path_score = final_score
+			best_info = candidate_info
+
+	return best_info
+
+
+func _build_path_tiebreak_shortlist(candidate_infos: Array[Dictionary], best_cheap_score: float) -> Array[Dictionary]:
+	if candidate_infos.is_empty():
+		return []
+
+	var shortlist: Array[Dictionary] = []
+	var max_shortlist_size := maxi(goal_path_tiebreak_candidate_count, 1)
+	var score_limit := best_cheap_score + maxf(goal_path_tiebreak_score_window, 0.0)
+	var used_indices: Array[int] = []
+
+	while shortlist.size() < max_shortlist_size:
+		var best_index := -1
+		var next_score := INF
+		for candidate_index in range(candidate_infos.size()):
+			if used_indices.has(candidate_index):
+				continue
+
+			var cheap_score := float(candidate_infos[candidate_index]["cheap_score"])
+			if cheap_score > score_limit and not shortlist.is_empty():
+				continue
+
+			if cheap_score < next_score:
+				next_score = cheap_score
+				best_index = candidate_index
+
+		if best_index == -1:
+			break
+
+		used_indices.append(best_index)
+		shortlist.append(candidate_infos[best_index])
+
+	return shortlist
+
+
+func _estimate_candidate_path_length(candidate: Vector3) -> float:
+	var profile_start_usec := _profile_start_usec()
+	var navigation_map := _nav_agent.get_navigation_map()
+	var path := NavigationServer3D.map_get_path(
+		navigation_map,
+		global_position,
+		candidate,
+		true,
+		_nav_agent.navigation_layers
+	)
+	_record_profile_duration("nav_query", Time.get_ticks_usec() - profile_start_usec)
+	if path.is_empty():
+		return INF
+
+	return _measure_path_length(path)
+
+
+func _measure_path_length(path: PackedVector3Array) -> float:
+	if path.size() < 2:
+		return 0.0
+
+	var total_length := 0.0
+	for path_index in range(1, path.size()):
+		total_length += path[path_index - 1].distance_to(path[path_index])
+
+	return total_length
+
+
+func _should_use_path_tiebreak() -> bool:
+	if goal_path_tiebreak_candidate_count <= 1:
+		return false
+
+	if not _has_valid_target():
+		return false
+
+	var enemy_count := _enemy_registry.size()
+	var distance_to_target := _horizontal_distance_to(_target_node.global_position)
+	if enemy_count > goal_path_tiebreak_enemy_count_soft_limit and distance_to_target > goal_path_tiebreak_max_target_distance:
+		return false
+
+	return true
+
+
+func _reset_goal_select_cooldown() -> void:
+	_goal_select_cooldown_remaining = maxf(goal_select_min_interval, 0.0)
 
 
 func _score_spread_penalty(candidate: Vector3, nearby_enemy_positions: Array[Vector3]) -> float:
@@ -437,8 +573,12 @@ func _remember_failed_goal(goal_position: Vector3) -> void:
 		_recent_failed_goals.remove_at(0)
 
 
-func _is_in_engage_hold(distance_to_target: float) -> bool:
-	return distance_to_target <= melee_engage_distance + engage_hold_tolerance
+func _is_in_engage_hold(target_position: Vector3) -> bool:
+	var vertical_offset := absf(target_position.y - global_position.y)
+	if vertical_offset > engage_vertical_tolerance:
+		return false
+
+	return _horizontal_distance(global_position, target_position) <= melee_engage_distance + engage_hold_tolerance
 
 
 # Crowd-pressure response
@@ -1115,6 +1255,10 @@ func _horizontal_distance(from_position: Vector3, to_position: Vector3) -> float
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+
+
+func _has_valid_target() -> bool:
+	return _target_node != null and is_instance_valid(_target_node)
 
 
 func apply_damage(amount: float) -> void:
