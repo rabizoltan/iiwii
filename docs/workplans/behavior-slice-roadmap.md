@@ -17,19 +17,22 @@
 - Slice 1 - Player attack behavior: `completed`
 - Slice 2 - Debug control panel: `completed`
 - Slice 3 - Enemy close-range behavior: `completed`
-- Slice 4 - Combat feedback and debug behavior: `blocked`
+- Slice 4 - Player-enemy collision and crowd pressure: `planned`
+- Slice 5 - Combat feedback and debug behavior: `blocked`
 
 ## Recommended Order
 1. Player attack behavior
 2. Debug control panel
 3. Enemy close-range behavior
-4. Combat feedback and debug behavior
+4. Player-enemy collision and crowd pressure
+5. Combat feedback and debug behavior
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
 2. Add [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) so current and follow-up behavior slices share the same runtime debug controls
 3. After player attack and debug control are validated, continue with [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
-4. After the behavior slices are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
+4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
+5. After the movement and collision rules are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -84,7 +87,24 @@ Current state:
 Execution priority:
 - completed
 
-## Slice 4 - Combat Feedback And Debug Behavior
+## Slice 4 - Player-Enemy Collision And Crowd Pressure
+Status: `planned`
+
+Plan file:
+- [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
+
+Why next:
+- The current dense-pack pressure model still carries prototype-era baseline player push behavior.
+- The next gameplay and performance win is to replace that with explicit escape movement and clearer front-line crowd pressure rules.
+
+Current state:
+- Enemy close-range behavior and profiling infrastructure exist.
+- Baseline locomotion-driven player push still exists in code and remains the next intended behavior change.
+
+Execution priority:
+- immediate next implementation slice
+
+## Slice 5 - Combat Feedback And Debug Behavior
 Status: `blocked`
 
 Plan file:

@@ -56,3 +56,8 @@ This project uses a continuous 3D space model and free aim.
 - Keep vault/crouch/extract zones non-blocking trigger areas.
 - Separate body and hurtbox colliders where possible.
 - For top-down camera parallax, cursor pick and shot origin differ; this is expected. Use fallback validation rules deliberately and keep them documented.
+
+## Planned Enemy-Contact Rule
+- Normal player movement should collide with `EnemyBody` and be subject to body pressure or blocking.
+- Player dodge or another explicit escape move should temporarily become `ghosted` or `unhindered` against `EnemyBody`.
+- Prefer implementing that with a temporary player collision mask change during the escape state rather than with continuous body-push logic.

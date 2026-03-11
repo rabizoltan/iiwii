@@ -15,6 +15,7 @@ extends CharacterBody3D
 @export var enemy_crowd_assist_max_step: float = 0.09
 @export var enemy_crowd_assist_enemy_layer_mask: int = 2
 @export var crowd_push_debug_enabled: bool = true
+@export var crowd_push_profiling_enabled: bool = true
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _attack_cooldown_remaining: float = 0.0
@@ -34,10 +35,25 @@ var _debug_push_query_best_factor: float = 0.0
 var _debug_push_assist_used: bool = false
 var _debug_push_assist_distance: float = 0.0
 var _debug_push_assist_blocked_by_world: bool = false
+var _crowd_push_profile_window_start_usec: int = 0
+var _crowd_push_profile_last_write_msec: int = 0
+var _crowd_push_profile_total_usec: int = 0
+var _crowd_push_profile_calls: int = 0
+var _crowd_push_collided_total_usec: int = 0
+var _crowd_push_nearby_total_usec: int = 0
+var _crowd_push_assist_total_usec: int = 0
+var _crowd_push_assist_block_check_total_usec: int = 0
+var _crowd_push_apply_count: int = 0
+var _crowd_push_query_hit_total: int = 0
+var _crowd_push_query_applied_total: int = 0
+var _crowd_push_assist_attempts: int = 0
+var _crowd_push_assist_blocked_count: int = 0
 
 const CROWD_PUSH_DEBUG_PATH := "user://debug/player_crowd_push_debug.txt"
 const CROWD_PUSH_DEBUG_INTERVAL_MSEC := 100
 const CROWD_PUSH_BLOCKED_DISPLACEMENT_THRESHOLD := 0.03
+const CROWD_PUSH_PROFILE_PATH := "user://debug/player_crowd_push_profile.log"
+const CROWD_PUSH_PROFILE_LOG_INTERVAL_MSEC := 1000
 
 
 func _ready() -> void:
@@ -45,9 +61,11 @@ func _ready() -> void:
 	_enemy_push_query_shape.radius = enemy_push_query_radius
 	_collision_shape_node = $CollisionShape3D as CollisionShape3D
 	_prepare_crowd_push_debug_log()
+	_prepare_crowd_push_profile_log()
 
 
 func _physics_process(delta: float) -> void:
+	var crowd_push_profile_start_usec := _crowd_push_profile_start_usec()
 	var pre_move_position := global_position
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var move_direction := Vector3(input_vector.x, 0.0, input_vector.y)
@@ -73,11 +91,20 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 
 	move_and_slide()
+	var collided_start_usec := _crowd_push_profile_start_usec()
 	_push_collided_enemies()
+	_record_crowd_push_profile_duration("collided", Time.get_ticks_usec() - collided_start_usec)
 	if move_direction.length_squared() > 0.0:
+		var nearby_start_usec := _crowd_push_profile_start_usec()
 		_push_nearby_enemies(move_direction)
+		_record_crowd_push_profile_duration("nearby", Time.get_ticks_usec() - nearby_start_usec)
+		var assist_start_usec := _crowd_push_profile_start_usec()
 		_apply_enemy_crowd_assist(move_direction, delta, pre_move_position)
+		_record_crowd_push_profile_duration("assist", Time.get_ticks_usec() - assist_start_usec)
 	_capture_crowd_push_runtime_debug(pre_move_position)
+	_record_crowd_push_query_sample()
+	_record_crowd_push_profile_duration("total", Time.get_ticks_usec() - crowd_push_profile_start_usec)
+	_maybe_append_crowd_push_profile_log()
 
 	if _attack_cooldown_remaining > 0.0:
 		_attack_cooldown_remaining = maxf(_attack_cooldown_remaining - delta, 0.0)
@@ -140,8 +167,12 @@ func _push_collided_enemies() -> void:
 		else:
 			_debug_push_direct_colliders.append(str(collider))
 
-		if collider.has_method("apply_player_collision_push"):
+		if collider.has_method("apply_external_movement_influence"):
+			collider.apply_external_movement_influence(push_direction, global_position, enemy_push_speed, "player_push")
+			_crowd_push_apply_count += 1
+		elif collider.has_method("apply_player_collision_push"):
 			collider.apply_player_collision_push(push_direction, global_position, enemy_push_speed)
+			_crowd_push_apply_count += 1
 
 
 func _push_nearby_enemies(move_direction: Vector3) -> void:
@@ -177,7 +208,7 @@ func _push_nearby_enemies(move_direction: Vector3) -> void:
 			continue
 
 		var collider: Object = result["collider"] as Object
-		if collider == null or not collider.has_method("apply_player_collision_push"):
+		if collider == null:
 			continue
 
 		if collider == self:
@@ -203,7 +234,12 @@ func _push_nearby_enemies(move_direction: Vector3) -> void:
 		_debug_push_query_applied_count += 1
 		_debug_push_query_best_factor = maxf(_debug_push_query_best_factor, push_factor)
 		_debug_push_query_targets.append("%s:%.2f" % [collider_node.name, push_factor])
-		collider.apply_player_collision_push(horizontal_direction, global_position, enemy_push_speed * push_factor)
+		if collider.has_method("apply_external_movement_influence"):
+			collider.apply_external_movement_influence(horizontal_direction, global_position, enemy_push_speed * push_factor, "player_push")
+			_crowd_push_apply_count += 1
+		elif collider.has_method("apply_player_collision_push"):
+			collider.apply_player_collision_push(horizontal_direction, global_position, enemy_push_speed * push_factor)
+			_crowd_push_apply_count += 1
 
 
 func _capture_crowd_push_runtime_debug(pre_move_position: Vector3) -> void:
@@ -235,9 +271,11 @@ func _apply_enemy_crowd_assist(move_direction: Vector3, delta: float, pre_move_p
 	if assist_distance <= 0.0001:
 		return
 
+	_crowd_push_assist_attempts += 1
 	var assist_motion := horizontal_direction * assist_distance
 	if _is_enemy_crowd_assist_blocked_by_world(assist_motion):
 		_debug_push_assist_blocked_by_world = true
+		_crowd_push_assist_blocked_count += 1
 		return
 
 	global_position += assist_motion
@@ -246,11 +284,14 @@ func _apply_enemy_crowd_assist(move_direction: Vector3, delta: float, pre_move_p
 
 
 func _is_enemy_crowd_assist_blocked_by_world(assist_motion: Vector3) -> bool:
+	var profile_start_usec := _crowd_push_profile_start_usec()
 	if _collision_shape_node == null or _collision_shape_node.shape == null:
+		_record_crowd_push_profile_duration("assist_block_check", Time.get_ticks_usec() - profile_start_usec)
 		return false
 
 	var world_mask := collision_mask & ~enemy_crowd_assist_enemy_layer_mask
 	if world_mask == 0:
+		_record_crowd_push_profile_duration("assist_block_check", Time.get_ticks_usec() - profile_start_usec)
 		return false
 
 	var query := PhysicsShapeQueryParameters3D.new()
@@ -262,6 +303,7 @@ func _is_enemy_crowd_assist_blocked_by_world(assist_motion: Vector3) -> bool:
 	query.collide_with_areas = false
 
 	var results := get_world_3d().direct_space_state.intersect_shape(query, 1)
+	_record_crowd_push_profile_duration("assist_block_check", Time.get_ticks_usec() - profile_start_usec)
 	return not results.is_empty()
 
 
@@ -277,6 +319,21 @@ func _prepare_crowd_push_debug_log() -> void:
 	file.store_line("--- player crowd push debug session start ---")
 	file.flush()
 	_last_crowd_push_log_msec = Time.get_ticks_msec()
+
+
+func _prepare_crowd_push_profile_log() -> void:
+	if not crowd_push_profiling_enabled:
+		return
+
+	DirAccess.make_dir_recursive_absolute("user://debug")
+	var file := FileAccess.open(CROWD_PUSH_PROFILE_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+
+	file.store_line("--- player crowd push profile session start ---")
+	file.flush()
+	_crowd_push_profile_last_write_msec = Time.get_ticks_msec()
+	_reset_crowd_push_profile_window()
 
 
 func _maybe_append_crowd_push_debug_log() -> void:
@@ -342,6 +399,96 @@ func _reset_crowd_push_debug() -> void:
 	_debug_push_assist_used = false
 	_debug_push_assist_distance = 0.0
 	_debug_push_assist_blocked_by_world = false
+
+
+func _crowd_push_profile_start_usec() -> int:
+	if not crowd_push_profiling_enabled:
+		return 0
+	if _crowd_push_profile_window_start_usec <= 0:
+		_crowd_push_profile_window_start_usec = Time.get_ticks_usec()
+	return Time.get_ticks_usec()
+
+
+func _record_crowd_push_profile_duration(section: String, duration_usec: int) -> void:
+	if not crowd_push_profiling_enabled:
+		return
+
+	match section:
+		"total":
+			_crowd_push_profile_total_usec += duration_usec
+			_crowd_push_profile_calls += 1
+		"collided":
+			_crowd_push_collided_total_usec += duration_usec
+		"nearby":
+			_crowd_push_nearby_total_usec += duration_usec
+		"assist":
+			_crowd_push_assist_total_usec += duration_usec
+		"assist_block_check":
+			_crowd_push_assist_block_check_total_usec += duration_usec
+
+
+func _record_crowd_push_query_sample() -> void:
+	if not crowd_push_profiling_enabled:
+		return
+	_crowd_push_query_hit_total += _debug_push_query_hit_count
+	_crowd_push_query_applied_total += _debug_push_query_applied_count
+
+
+func _maybe_append_crowd_push_profile_log() -> void:
+	if not crowd_push_profiling_enabled:
+		return
+
+	var now_msec := Time.get_ticks_msec()
+	if now_msec - _crowd_push_profile_last_write_msec < CROWD_PUSH_PROFILE_LOG_INTERVAL_MSEC:
+		return
+
+	_crowd_push_profile_last_write_msec = now_msec
+	var file := FileAccess.open(CROWD_PUSH_PROFILE_PATH, FileAccess.READ_WRITE)
+	if file == null:
+		return
+
+	file.seek_end()
+	file.store_line(
+		"%s | window=%.2fs | total_ms=%.2f | avg_ms=%.3f | collided_ms=%.2f | nearby_ms=%.2f | assist_ms=%.2f | assist_block_ms=%.2f | calls=%d | apply_calls=%d | query_hits=%d | query_applied=%d | assist_attempts=%d | assist_blocked=%d" % [
+			Time.get_datetime_string_from_system(),
+			_crowd_push_profile_window_sec(),
+			float(_crowd_push_profile_total_usec) / 1000.0,
+			(float(_crowd_push_profile_total_usec) / 1000.0) / maxf(float(_crowd_push_profile_calls), 1.0),
+			float(_crowd_push_collided_total_usec) / 1000.0,
+			float(_crowd_push_nearby_total_usec) / 1000.0,
+			float(_crowd_push_assist_total_usec) / 1000.0,
+			float(_crowd_push_assist_block_check_total_usec) / 1000.0,
+			_crowd_push_profile_calls,
+			_crowd_push_apply_count,
+			_crowd_push_query_hit_total,
+			_crowd_push_query_applied_total,
+			_crowd_push_assist_attempts,
+			_crowd_push_assist_blocked_count,
+		]
+	)
+	file.flush()
+	_reset_crowd_push_profile_window()
+
+
+func _crowd_push_profile_window_sec() -> float:
+	if _crowd_push_profile_window_start_usec <= 0:
+		return 0.0
+	return float(Time.get_ticks_usec() - _crowd_push_profile_window_start_usec) / 1000000.0
+
+
+func _reset_crowd_push_profile_window() -> void:
+	_crowd_push_profile_window_start_usec = Time.get_ticks_usec() if crowd_push_profiling_enabled else 0
+	_crowd_push_profile_total_usec = 0
+	_crowd_push_profile_calls = 0
+	_crowd_push_collided_total_usec = 0
+	_crowd_push_nearby_total_usec = 0
+	_crowd_push_assist_total_usec = 0
+	_crowd_push_assist_block_check_total_usec = 0
+	_crowd_push_apply_count = 0
+	_crowd_push_query_hit_total = 0
+	_crowd_push_query_applied_total = 0
+	_crowd_push_assist_attempts = 0
+	_crowd_push_assist_blocked_count = 0
 
 
 func _resolve_aim_target() -> Dictionary:

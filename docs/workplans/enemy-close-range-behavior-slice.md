@@ -28,8 +28,10 @@
 ## Expected Rebuild Direction
 1. Rebuild against the explicit `approach -> close_adjust -> melee_hold` model.
 2. Keep melee-hold validity independent from cached goal ownership.
-3. Allow slight enemy/player push, but keep near-player crowd flow mostly lateral.
-4. Treat visible vibration as a bug, not acceptable tuning noise.
+3. Keep near-player crowd flow mostly lateral.
+4. Do not rely on baseline player walk-push as the long-term answer to crowd pressure.
+5. Use the player-enemy collision and crowd-pressure slice as the follow-up source of truth for locomotion contact rules.
+6. Treat visible vibration as a bug, not acceptable tuning noise.
 
 ## Why This Workplan Is `stale`
 1. It originally mixed delivery history, implementation notes, tuning attempts, and desired long-term behavior.

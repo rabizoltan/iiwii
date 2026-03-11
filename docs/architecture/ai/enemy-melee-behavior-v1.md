@@ -18,6 +18,7 @@ Define melee enemy movement and crowd interaction that is:
 3. Physical interaction between enemies is allowed, but it must not create visible vibration, oscillation, or slot-swapping.
 4. Near the player, the system should prefer simple local rules over repeated goal solving.
 5. The controller should be structured as a small explicit state machine, not a pile of overlapping exceptions.
+6. Player escape from dense crowds should be handled by an explicit mobility state, not by baseline walk-push behavior.
 
 ## Player-Facing Behavior
 1. Enemies approach the player from navigation space until they reach acceptable melee range.
@@ -30,15 +31,17 @@ Define melee enemy movement and crowd interaction that is:
 
 ### Enemy vs Enemy
 1. Enemies should physically collide with each other.
-2. Enemies should be able to push each other a little.
+2. Enemy-enemy separation should stay soft near the player.
 3. Rear enemies may slowly work their way into the pack by causing slight sideways displacement in front enemies.
 4. Frontline enemies must not behave like rigid wall elements.
 5. Frontline enemies must also not slide around continuously once already settled in melee.
+6. Only a limited number of enemies should act as the active melee front line at once.
 
 ### Player vs Enemy
-1. The player should be able to push enemies somewhat.
-2. Player push should create limited physical give, not fully immovable enemies.
-3. Player push should not cause engaged melee enemies to vibrate or continually recalculate movement.
+1. Normal player movement should not push enemies out of the way.
+2. Enemy pressure should come from body blocking, spacing, and attack timing instead of continuous shove feedback.
+3. The player should escape dense contact with a short explicit `ghosted` or `unhindered` movement state on dodge or another mobility action.
+4. Enemy displacement caused by the player should come from authored combat effects, not baseline locomotion contact.
 
 ### Allowed Crowd Motion Near The Player
 1. Sideways crowd flow is allowed.
@@ -132,6 +135,7 @@ Recommended rules:
 3. Bounded path-length-aware candidate choice is reasonable.
 4. Sideways give-way behavior under compression is reasonable.
 5. Stable melee hold with very little local motion is reasonable and desirable.
+6. A limited active melee front line with rear-enemy queue pressure is reasonable and desirable.
 
 ## What Is Not The Preferred Solution
 1. Hard invisible rings around the player.
@@ -143,11 +147,12 @@ Recommended rules:
 ## Acceptance Criteria
 1. A single enemy can enter melee range and stand stably without visible vibration.
 2. Multiple enemies can gather near the player without constant slot-swapping.
-3. The player can push enemies somewhat.
-4. Enemies can push each other somewhat.
-5. That push produces limited sideways crowd flow instead of frantic inward compression.
+3. Walking into enemies does not apply baseline shove behavior.
+4. Enemies can still create readable crowd pressure near the player.
+5. Crowd flow near the player remains mostly lateral instead of frantic inward compression.
 6. Enemies already in melee range do not continually replan.
 7. If the player moves away, enemies resume approach cleanly.
+8. The player has a reliable explicit escape move that can break body contact.
 
 ## Implementation Guidance
 1. Keep debug and profiling separate from core movement decisions.

@@ -85,6 +85,9 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 - Position is interpolated from start to end over normalized dodge progress.
 - I-frame window:
   - invulnerable when progress in `[dodge_iframes_start, dodge_iframes_end]`
+- Collision behavior:
+  - dodge should also grant a short `ghosted` or `unhindered` window against enemy bodies so dense contact can be escaped explicitly
+  - this window should be driven by dodge state, not by baseline locomotion pushing enemies away
 
 ## Vault Behavior
 - Vault duration: `vault_duration`
@@ -105,3 +108,8 @@ Default input mapping target:
 - No jump state
 - No slope-specific locomotion model
 - No stamina gating
+
+## Player vs Enemy Collision Direction
+- Normal locomotion should not push enemies away as a baseline movement rule.
+- Enemy pressure should come from body blocking and combat threat, not a continuous shove loop.
+- Enemy displacement caused by the player should be an authored combat effect, not a default locomotion side effect.
