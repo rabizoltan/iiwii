@@ -78,11 +78,12 @@ Why second:
 - Enemy stop distance, spreading, overlap avoidance, and local positioning should be defined against the finalized attack model.
 
 Current state:
-- Baseline melee close-range behavior is now specified enough to proceed.
-- Follow-up tuning can happen during implementation without redefining the behavioral rule.
+- The slice is being rebuilt against the renewed melee behavior contract.
+- Current runtime progress includes explicit melee states, approach-goal selection, local close-adjust movement, and distance-envelope melee hold.
+- Soft spreading, constrained crowd-yield, and dense-crowd validation are still pending.
 
 Execution priority:
-- start only after the player attack behavior slice is complete enough to validate against
+- active
 
 ## Slice 4 - Combat Feedback And Debug Behavior
 Status: `blocked`
