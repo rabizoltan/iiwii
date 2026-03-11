@@ -1,7 +1,7 @@
 # Player-Enemy Collision And Crowd Pressure Slice
 
 ## Status
-- `planned`
+- `active`
 
 ## Purpose
 - Replace the current baseline "player walks into enemies and pushes them" behavior with a clearer and cheaper collision model.
@@ -42,7 +42,7 @@
 - Replacing the current enemy approach and close-range state machine.
 
 ## Implementation Plan
-1. Remove baseline player push from `player_controller.gd`.
+1. Remove baseline player push from `player_controller.gd`. `implemented`
 2. Keep the enemy external movement influence path only for authored combat displacement.
 3. Add a short `ghosted` or `unhindered` window to player dodge or another explicit escape move.
 4. Add a simple cap for active melee front-line enemies near the player.

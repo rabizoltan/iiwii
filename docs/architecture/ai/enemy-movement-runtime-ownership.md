@@ -43,9 +43,9 @@
   - Keeps telemetry payload construction out of the main enemy controller flow.
 
 ## Important Boundary
-- Player-originated crowd pressure currently still begins in `player_controller.gd`.
-- Enemy movement currently receives that pressure through a generic external movement-influence interface, with the old player-push method retained only as a compatibility wrapper.
-- The next planned behavior slice removes baseline locomotion-driven player push and narrows external movement influence to authored combat displacement and other explicit forces.
+- Baseline locomotion-driven player push has been removed from `player_controller.gd`.
+- Enemy movement still retains the generic external movement-influence interface, with the old player-push compatibility wrapper still present on the enemy side.
+- The remaining behavior work for this slice is to narrow practical influence usage to authored combat displacement and explicit escape/crowd-pressure rules.
 
 ## Next Refactor Target
 - Reduce the remaining small untyped helper internals into typed request/response objects where the added structure still pays for itself.

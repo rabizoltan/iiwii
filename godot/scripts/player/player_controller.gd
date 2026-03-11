@@ -91,16 +91,6 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 
 	move_and_slide()
-	var collided_start_usec := _crowd_push_profile_start_usec()
-	_push_collided_enemies()
-	_record_crowd_push_profile_duration("collided", Time.get_ticks_usec() - collided_start_usec)
-	if move_direction.length_squared() > 0.0:
-		var nearby_start_usec := _crowd_push_profile_start_usec()
-		_push_nearby_enemies(move_direction)
-		_record_crowd_push_profile_duration("nearby", Time.get_ticks_usec() - nearby_start_usec)
-		var assist_start_usec := _crowd_push_profile_start_usec()
-		_apply_enemy_crowd_assist(move_direction, delta, pre_move_position)
-		_record_crowd_push_profile_duration("assist", Time.get_ticks_usec() - assist_start_usec)
 	_capture_crowd_push_runtime_debug(pre_move_position)
 	_record_crowd_push_query_sample()
 	_record_crowd_push_profile_duration("total", Time.get_ticks_usec() - crowd_push_profile_start_usec)
