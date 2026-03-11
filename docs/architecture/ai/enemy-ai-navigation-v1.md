@@ -1,8 +1,10 @@
 # Enemy AI Navigation v1
 
 ## Status
-- Design target only.
-- This document does not imply that the required gameplay code, scenes, nav meshes, or debug overlay already exist in this repository.
+- Partially implemented.
+- The melee close-range target behavior is now documented explicitly in [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md).
+- The current runtime implementation should be treated as rebuild work against that contract, not as final reference behavior.
+- Threat-table target selection, ranged donut/kite behavior, LOS attack gating, unreachable-anchor handling, multi-size nav-layer authoring, and the broader v1 test fixture set remain design targets.
 
 ## Summary
 Implement a robust enemy navigation and combat-positioning system for up to roughly 100 enemies.
@@ -53,6 +55,11 @@ The system must avoid common corner-wedge stuck cases with explicit stuck detect
 - `Engage`
 - `StuckRecovery`
 
+For the melee subset, the detailed close-range state model is:
+- `approach`
+- `close_adjust`
+- `melee_hold`
+
 ## Threat and Target Selection
 
 ### Threat table
@@ -100,6 +107,7 @@ Melee:
 - radius derives from attack range with clamps
 - once at engage distance, hold rather than orbit or keep pressing inward
 - if the player moves, re-acquire a nearby reachable engage point
+- do not keep resampling nearby ring points as a continuously active solver once already near the player
 
 Ranged:
 - generate candidates inside a preferred distance band
@@ -128,6 +136,7 @@ Maintain a lightweight occupancy metric near the target so enemies prefer less c
 Rule:
 - use soft spreading only
 - do not force a fast full surround of the player
+- do not let occupancy logic destabilize already-settled melee enemies
 
 ### Commitment window
 Keep a selected goal for a short commit window unless:
@@ -161,8 +170,11 @@ Optional:
 
 ### Separation
 - use avoidance where possible
-- keep physical collision so enemies can push slightly
+- keep physical collision so enemies remain solid to each other
 - do not rely purely on physics pushing for crowd movement
+- do not design around rear enemies pushing through frontline enemies to make progress
+- near the player, prefer lateral crowd flow over inward compression
+- physical nudges alone should not force continual melee replanning
 
 ### Variable sizes
 - clearance queries must use the real capsule size for each enemy
@@ -198,7 +210,7 @@ Stagger updates per enemy:
 When debug overlay is enabled, expose:
 - current path
 - current goal point
-- optional candidate ring or donut
+- optional candidate ring or donut only if it remains readable and trustworthy
 - LOS ray and LOS bool
 - per-enemy fields:
   - `target_player_id`
@@ -208,3 +220,9 @@ When debug overlay is enabled, expose:
   - `repath_count`
   - `goal_changes`
   - `target_switches`
+
+For melee debugging specifically, logs should make it easy to separate:
+- state transitions
+- goal replacement
+- local crowd-adjust movement
+- stuck-triggered recovery

@@ -38,7 +38,8 @@ Use this order when you need fast context:
 - Product target: co-op extraction action game.
 - Current implementation phase: singleplayer-first vertical slice.
 - Foundation slice status: initial Godot 4.6 gameplay baseline is implemented and accepted as a prototype milestone.
-- Current engineering focus: behavior-specific follow-up slices, starting with player attack behavior and then melee close-range enemy behavior.
+- Current engineering focus: behavior-specific follow-up slices plus a clean rebuild of melee close-range behavior against the renewed architecture contract.
+- The next planned behavior slice is combat feedback and debug behavior, but it remains blocked pending explicit scope decisions.
 - Multiplayer remains a later phase and current decisions should stay compatible with it.
 
 ## Current Runtime Baseline
@@ -52,7 +53,7 @@ Use this order when you need fast context:
 
 ## Best Entry Points By Task
 - Movement and traversal: [systems/movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [systems/traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md), [decisions/ADR-005-traversal-and-verticality-model.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-005-traversal-and-verticality-model.md), [decisions/ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
-- Enemy navigation and combat positioning: [architecture/ai/enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md), [architecture/ai/enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md), [architecture/ai/enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [decisions/ADR-017-navmesh-size-layers.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-017-navmesh-size-layers.md), [decisions/ADR-018-enemy-ai-nav-v1-approach.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-018-enemy-ai-nav-v1-approach.md)
+- Enemy navigation and combat positioning: [architecture/ai/enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md), [architecture/ai/enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md), [architecture/ai/enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md), [architecture/ai/enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [decisions/ADR-017-navmesh-size-layers.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-017-navmesh-size-layers.md), [decisions/ADR-018-enemy-ai-nav-v1-approach.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-018-enemy-ai-nav-v1-approach.md)
 - Combat: [systems/combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [systems/classes-and-abilities.md](d:/Game/DEV/iiWii/iiwii/docs/systems/classes-and-abilities.md), [systems/tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md)
 - Current execution planning: [workplans/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md), [workplans/player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md), [workplans/enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
 - Implementation status and code ownership: [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), [development-governance.md](d:/Game/DEV/iiWii/iiwii/docs/technical/development-governance.md)

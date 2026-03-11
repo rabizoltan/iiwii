@@ -1,8 +1,9 @@
 # Enemy AI Navigation v1 - Test Plan
 
 ## Status
-- Design target only.
-- These fixtures and tests should be created alongside the gameplay project structure; they do not already exist in this repository.
+- Mixed state.
+- The broader v1 fixture set below is still a design target.
+- The current repository does already contain a manual validation scene in [DemoMain.tscn](d:/Game/DEV/iiWii/iiwii/godot/scenes/main/DemoMain.tscn) that covers the shipped melee close-range slice: one-enemy hold behavior, multi-enemy soft spreading, player-moves-away follow behavior, and dense-crowd pressure testing.
 
 ## Required test fixtures
 ### A) CornerWedge
