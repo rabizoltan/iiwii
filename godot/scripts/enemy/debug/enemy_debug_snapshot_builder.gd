@@ -88,10 +88,12 @@ static func build(request: BuildRequest) -> EnemyDebugSnapshot:
 	snapshot.debug_goal_candidate_count = request.goal_debug_state.candidate_count
 	snapshot.debug_goal_rejected_projection_count = request.goal_debug_state.rejected_projection_count
 	snapshot.debug_goal_rejected_failed_count = request.goal_debug_state.rejected_failed_count
+	snapshot.debug_goal_unreachable_path_count = request.goal_debug_state.unreachable_path_count
 	snapshot.debug_goal_used_fallback = request.goal_debug_state.used_fallback
 	snapshot.debug_goal_raw_candidate = request.goal_debug_state.raw_candidate
 	snapshot.debug_goal_projected_candidate = request.goal_debug_state.projected_candidate
 	snapshot.debug_goal_projection_error = request.goal_debug_state.projection_error
+	snapshot.debug_goal_selected_path_length = request.goal_debug_state.selected_path_length
 	snapshot.debug_goal_path_end = request.goal_debug_state.path_end
 	snapshot.debug_goal_path_end_error = request.goal_debug_state.path_end_error
 	snapshot.hold_margin = hold_margin

@@ -79,6 +79,7 @@ class PhysicsStepResult:
 @export var goal_path_tiebreak_score_window: float = 0.75
 @export var goal_path_tiebreak_max_target_distance: float = 8.0
 @export var goal_path_tiebreak_enemy_count_soft_limit: int = 24
+@export var goal_path_endpoint_tolerance: float = 0.9
 @export var spread_penalty_radius: float = 1.2
 @export var spread_penalty_weight: float = 0.35
 @export var candidate_projection_tolerance: float = 1.0
@@ -371,6 +372,7 @@ func _select_engage_goal() -> void:
 	goal_request.goal_path_tiebreak_score_window = goal_path_tiebreak_score_window
 	goal_request.goal_path_tiebreak_enemy_count_soft_limit = goal_path_tiebreak_enemy_count_soft_limit
 	goal_request.goal_path_tiebreak_max_target_distance = goal_path_tiebreak_max_target_distance
+	goal_request.goal_path_endpoint_tolerance = goal_path_endpoint_tolerance
 	goal_request.enemy_count = EnemyCrowdQuery.get_registered_enemy_count()
 	goal_request.distance_to_target = _horizontal_distance_to(target_position)
 	goal_request.invalid_point = INVALID_POINT
@@ -379,10 +381,12 @@ func _select_engage_goal() -> void:
 	_goal_debug_state.candidate_count = debug_info.candidate_count
 	_goal_debug_state.rejected_projection_count = debug_info.rejected_projection_count
 	_goal_debug_state.rejected_failed_count = debug_info.rejected_failed_count
+	_goal_debug_state.unreachable_path_count = debug_info.unreachable_path_count
 	_goal_debug_state.used_fallback = debug_info.used_fallback
 	_goal_debug_state.raw_candidate = debug_info.raw_candidate
 	_goal_debug_state.projected_candidate = debug_info.projected_candidate
 	_goal_debug_state.projection_error = debug_info.projection_error
+	_goal_debug_state.selected_path_length = debug_info.selected_path_length
 	_goal_debug_state.candidate_positions = goal_result.candidate_positions
 
 	if not goal_result.has_goal:

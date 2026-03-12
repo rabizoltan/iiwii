@@ -8,10 +8,12 @@ class GoalDebugState:
 	var candidate_count: int = 0
 	var rejected_projection_count: int = 0
 	var rejected_failed_count: int = 0
+	var unreachable_path_count: int = 0
 	var used_fallback: bool = false
 	var raw_candidate: Vector3 = Vector3.ZERO
 	var projected_candidate: Vector3 = Vector3.ZERO
 	var projection_error: float = 0.0
+	var selected_path_length: float = INF
 	var path_end: Vector3 = Vector3.ZERO
 	var path_end_error: float = 0.0
 
@@ -20,10 +22,12 @@ class GoalDebugState:
 		candidate_count = 0
 		rejected_projection_count = 0
 		rejected_failed_count = 0
+		unreachable_path_count = 0
 		used_fallback = false
 		raw_candidate = Vector3.ZERO
 		projected_candidate = Vector3.ZERO
 		projection_error = 0.0
+		selected_path_length = INF
 		path_end = Vector3.ZERO
 		path_end_error = 0.0
 

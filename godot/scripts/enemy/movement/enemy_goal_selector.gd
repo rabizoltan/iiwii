@@ -21,6 +21,7 @@ class SelectGoalRequest:
 	var goal_path_tiebreak_score_window: float = 0.0
 	var goal_path_tiebreak_enemy_count_soft_limit: int = 0
 	var goal_path_tiebreak_max_target_distance: float = 0.0
+	var goal_path_endpoint_tolerance: float = 0.0
 	var enemy_count: int = 0
 	var distance_to_target: float = 0.0
 	var invalid_point: Vector3 = Vector3.ZERO
@@ -32,10 +33,12 @@ class GoalDebugInfo:
 	var candidate_count: int = 0
 	var rejected_projection_count: int = 0
 	var rejected_failed_count: int = 0
+	var unreachable_path_count: int = 0
 	var used_fallback: bool = false
 	var raw_candidate: Vector3 = Vector3.ZERO
 	var projected_candidate: Vector3 = Vector3.ZERO
 	var projection_error: float = 0.0
+	var selected_path_length: float = INF
 
 
 class GoalSelectionResult:
@@ -133,15 +136,41 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 		debug_info.raw_candidate = center
 		debug_info.projected_candidate = fallback_candidate
 		debug_info.projection_error = _horizontal_distance(center, fallback_candidate)
+		debug_info.selected_path_length = estimate_candidate_path_length(
+			navigation_map,
+			global_position,
+			fallback_candidate,
+			request.navigation_layers
+		)
+		var fallback_path_end_error := estimate_candidate_path_end_error(
+			navigation_map,
+			global_position,
+			fallback_candidate,
+			request.navigation_layers
+		)
+		if is_inf(debug_info.selected_path_length) or fallback_path_end_error > request.goal_path_endpoint_tolerance:
+			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
+			empty_result.candidate_positions = candidate_positions
+			empty_result.debug = debug_info
+			return empty_result
+
 		best_candidate = fallback_candidate
 	else:
 		var selected_candidate_info: Dictionary = _select_candidate_with_path_tiebreak(request, candidate_infos, best_score)
+		debug_info.unreachable_path_count = int(selected_candidate_info.get("unreachable_path_count", 0))
+		if not selected_candidate_info.has("projected_candidate"):
+			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
+			empty_result.candidate_positions = candidate_positions
+			empty_result.debug = debug_info
+			return empty_result
+
 		debug_info.raw_candidate = selected_candidate_info["raw_candidate"]
 		debug_info.projected_candidate = selected_candidate_info["projected_candidate"]
 		debug_info.projection_error = _horizontal_distance(
 			debug_info.raw_candidate,
 			debug_info.projected_candidate
 		)
+		debug_info.selected_path_length = float(selected_candidate_info.get("path_length", INF))
 		best_candidate = debug_info.projected_candidate
 
 	var result: GoalSelectionResult = GoalSelectionResult.new()
@@ -176,17 +205,25 @@ static func estimate_candidate_path_length(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> float:
-	var path := NavigationServer3D.map_get_path(
-		navigation_map,
-		from_position,
-		candidate,
-		true,
-		navigation_layers
-	)
+	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
 	if path.is_empty():
 		return INF
 
 	return _measure_path_length(path)
+
+
+static func estimate_candidate_path_end_error(
+	navigation_map: RID,
+	from_position: Vector3,
+	candidate: Vector3,
+	navigation_layers: int
+) -> float:
+	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
+	if path.is_empty():
+		return INF
+
+	var path_end: Vector3 = path[path.size() - 1]
+	return _horizontal_distance(path_end, candidate)
 
 
 static func _project_candidate_to_nav(
@@ -245,10 +282,45 @@ static func _is_failed_goal_candidate(
 static func _select_candidate_with_path_tiebreak(
 	request: SelectGoalRequest,
 	candidate_infos: Array[Dictionary],
-	best_cheap_score: float
+	_best_cheap_score: float
 ) -> Dictionary:
 	if candidate_infos.is_empty():
 		return {}
+
+	var valid_candidate_infos: Array[Dictionary] = []
+	var unreachable_path_count := 0
+	var best_valid_cheap_score := INF
+	for candidate_info in candidate_infos:
+		var projected_candidate := candidate_info["projected_candidate"] as Vector3
+		var path_length := estimate_candidate_path_length(
+			request.navigation_map,
+			request.global_position,
+			projected_candidate,
+			request.navigation_layers
+		)
+		var path_end_error := estimate_candidate_path_end_error(
+			request.navigation_map,
+			request.global_position,
+			projected_candidate,
+			request.navigation_layers
+		)
+		candidate_info["path_length"] = path_length
+		candidate_info["path_end_error"] = path_end_error
+		if is_inf(path_length):
+			unreachable_path_count += 1
+			continue
+
+		if path_end_error > request.goal_path_endpoint_tolerance:
+			unreachable_path_count += 1
+			continue
+
+		valid_candidate_infos.append(candidate_info)
+		best_valid_cheap_score = minf(best_valid_cheap_score, float(candidate_info["cheap_score"]))
+
+	if valid_candidate_infos.is_empty():
+		return {
+			"unreachable_path_count": unreachable_path_count,
+		}
 
 	if not should_use_path_tiebreak(
 		request.goal_path_tiebreak_candidate_count,
@@ -258,40 +330,46 @@ static func _select_candidate_with_path_tiebreak(
 		request.goal_path_tiebreak_enemy_count_soft_limit,
 		request.goal_path_tiebreak_max_target_distance
 	):
-		return _build_path_tiebreak_shortlist(
-			candidate_infos,
-			best_cheap_score,
+		var shortlist_without_tiebreak := _build_path_tiebreak_shortlist(
+			valid_candidate_infos,
+			best_valid_cheap_score,
 			request.goal_path_tiebreak_candidate_count,
 			request.goal_path_tiebreak_score_window
-		)[0]
+		)
+		if shortlist_without_tiebreak.is_empty():
+			return {
+				"unreachable_path_count": unreachable_path_count,
+			}
+
+		var best_without_tiebreak: Dictionary = shortlist_without_tiebreak[0]
+		best_without_tiebreak["unreachable_path_count"] = unreachable_path_count
+		return best_without_tiebreak
 
 	var shortlist := _build_path_tiebreak_shortlist(
-		candidate_infos,
-		best_cheap_score,
+		valid_candidate_infos,
+		best_valid_cheap_score,
 		request.goal_path_tiebreak_candidate_count,
 		request.goal_path_tiebreak_score_window
 	)
-	if shortlist.size() <= 1:
-		return shortlist[0] if not shortlist.is_empty() else candidate_infos[0]
+	if shortlist.is_empty():
+		return {
+			"unreachable_path_count": unreachable_path_count,
+		}
+	if shortlist.size() == 1:
+		var single_shortlist_info: Dictionary = shortlist[0]
+		single_shortlist_info["unreachable_path_count"] = unreachable_path_count
+		return single_shortlist_info
 
 	var best_info: Dictionary = shortlist[0]
 	var best_path_score := INF
 	for candidate_info in shortlist:
-		var projected_candidate := candidate_info["projected_candidate"] as Vector3
-		var path_length := estimate_candidate_path_length(
-			request.navigation_map,
-			request.global_position,
-			projected_candidate,
-			request.navigation_layers
-		)
-		if is_inf(path_length):
-			continue
-
+		var path_length := float(candidate_info["path_length"])
 		var final_score := path_length + float(candidate_info["spread_score"])
 		if final_score < best_path_score:
 			best_path_score = final_score
 			best_info = candidate_info
 
+	best_info["unreachable_path_count"] = unreachable_path_count
 	return best_info
 
 
@@ -342,6 +420,21 @@ static func _measure_path_length(path: PackedVector3Array) -> float:
 		total_length += path[path_index - 1].distance_to(path[path_index])
 
 	return total_length
+
+
+static func _get_candidate_path(
+	navigation_map: RID,
+	from_position: Vector3,
+	candidate: Vector3,
+	navigation_layers: int
+) -> PackedVector3Array:
+	return NavigationServer3D.map_get_path(
+		navigation_map,
+		from_position,
+		candidate,
+		true,
+		navigation_layers
+	)
 
 
 static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -> float:

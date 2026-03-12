@@ -31,6 +31,7 @@ static var _pending_melee_hold_log_lines: Array[String] = []
 static var _last_melee_hold_flush_msec: int = 0
 
 const DEBUG_LOG_PATH := "user://debug/enemy_debug.log"
+const GOAL_PROJECTION_DEBUG_PATH := "user://debug/enemy_goal_projection_debug.txt"
 const MELEE_HOLD_DEBUG_PATH := "user://debug/enemy_melee_hold_debug.txt"
 const DEBUG_WRITE_INTERVAL_MSEC := 500
 const MELEE_HOLD_DEBUG_INTERVAL_MSEC := 100
@@ -105,6 +106,13 @@ func prepare_debug_log(debug_enabled: bool, debug_log_enabled: bool) -> void:
 
 	file.store_line("--- enemy debug session start ---")
 	file.flush()
+
+	var goal_projection_file := FileAccess.open(GOAL_PROJECTION_DEBUG_PATH, FileAccess.WRITE)
+	if goal_projection_file == null:
+		return
+
+	goal_projection_file.store_line("--- enemy goal projection debug session start ---")
+	goal_projection_file.flush()
 
 
 func prepare_melee_hold_debug_log(melee_hold_debug_enabled: bool) -> void:
@@ -257,9 +265,12 @@ func append_debug_log(snapshot: EnemyDebugSnapshot, state_text: String, next_pos
 	var goal_projected_candidate: Vector3 = snapshot.debug_goal_projected_candidate
 	var goal_path_end: Vector3 = snapshot.debug_goal_path_end
 	var yield_direction: Vector3 = snapshot.debug_yield_direction
+	var goal_vertical_delta: float = absf(goal_projected_candidate.y - goal_raw_candidate.y)
+	var goal_selected_path_length: float = snapshot.debug_goal_selected_path_length
+	var goal_path_empty: bool = is_inf(goal_selected_path_length)
 	file.seek_end()
 	file.store_line(
-		"%s | enemy=%s | pos=(%.2f, %.2f, %.2f) | close_state=%s | close_state_age=%.2f | close_state_changes=%d | state=%s | iter=%d | goal=%s | goal_at=(%.2f, %.2f, %.2f) | path_pts=%d | goal_candidates=%d | goal_reject_proj=%d | goal_reject_failed=%d | goal_fallback=%s | goal_raw=(%.2f, %.2f, %.2f) | goal_proj=(%.2f, %.2f, %.2f) | goal_proj_err=%.2f | path_end=(%.2f, %.2f, %.2f) | path_end_err=%.2f | d_target=%.2f | d_next=%.2f | next=(%.2f, %.2f, %.2f) | nav_refresh=%s | cadj_path_dist=%.2f | cadj_gap=%.2f | cadj_crowd=%.2f | cadj_left=%.2f | cadj_right=%.2f | cadj_side=%.0f | cadj_lat=%.2f | cadj_speed=%.2f | yield_speed=%.2f | yield_strength=%.2f | yield_neighbors=%d | yield_penalty=%.2f | crowd_pressure=%.2f | yield_direct=%.2f | yield_chain=%.2f | yield_dir=(%.2f, %.2f)" % [
+		"%s | enemy=%s | pos=(%.2f, %.2f, %.2f) | close_state=%s | close_state_age=%.2f | close_state_changes=%d | state=%s | iter=%d | goal=%s | goal_at=(%.2f, %.2f, %.2f) | path_pts=%d | goal_candidates=%d | goal_reject_proj=%d | goal_reject_failed=%d | goal_unreachable_shortlist=%d | goal_fallback=%s | goal_raw=(%.2f, %.2f, %.2f) | goal_proj=(%.2f, %.2f, %.2f) | goal_proj_err=%.2f | goal_vert_err=%.2f | goal_path_len=%s | goal_path_empty=%s | path_end=(%.2f, %.2f, %.2f) | path_end_err=%.2f | d_target=%.2f | d_next=%.2f | next=(%.2f, %.2f, %.2f) | nav_refresh=%s | cadj_path_dist=%.2f | cadj_gap=%.2f | cadj_crowd=%.2f | cadj_left=%.2f | cadj_right=%.2f | cadj_side=%.0f | cadj_lat=%.2f | cadj_speed=%.2f | yield_speed=%.2f | yield_strength=%.2f | yield_neighbors=%d | yield_penalty=%.2f | crowd_pressure=%.2f | yield_direct=%.2f | yield_chain=%.2f | yield_dir=(%.2f, %.2f)" % [
 			Time.get_datetime_string_from_system(),
 			snapshot.enemy_name,
 			snapshot.global_position.x,
@@ -278,6 +289,7 @@ func append_debug_log(snapshot: EnemyDebugSnapshot, state_text: String, next_pos
 			snapshot.debug_goal_candidate_count,
 			snapshot.debug_goal_rejected_projection_count,
 			snapshot.debug_goal_rejected_failed_count,
+			snapshot.debug_goal_unreachable_path_count,
 			str(snapshot.debug_goal_used_fallback),
 			goal_raw_candidate.x,
 			goal_raw_candidate.y,
@@ -286,6 +298,9 @@ func append_debug_log(snapshot: EnemyDebugSnapshot, state_text: String, next_pos
 			goal_projected_candidate.y,
 			goal_projected_candidate.z,
 			snapshot.debug_goal_projection_error,
+			goal_vertical_delta,
+			"INF" if goal_path_empty else "%.2f" % goal_selected_path_length,
+			str(goal_path_empty),
 			goal_path_end.x,
 			goal_path_end.y,
 			goal_path_end.z,
@@ -316,6 +331,37 @@ func append_debug_log(snapshot: EnemyDebugSnapshot, state_text: String, next_pos
 		]
 	)
 	file.flush()
+
+	var goal_projection_file := FileAccess.open(GOAL_PROJECTION_DEBUG_PATH, FileAccess.READ_WRITE)
+	if goal_projection_file == null:
+		return
+
+	goal_projection_file.seek_end()
+	goal_projection_file.store_line(
+		"%s | enemy=%s | state=%s | pos=(%.2f, %.2f, %.2f) | goal=%s | fallback=%s | raw=(%.2f, %.2f, %.2f) | proj=(%.2f, %.2f, %.2f) | horiz_err=%.2f | vert_err=%.2f | selected_path_len=%s | path_empty=%s | unreachable_shortlist=%d | path_end_err=%.2f" % [
+			Time.get_datetime_string_from_system(),
+			snapshot.enemy_name,
+			state_text,
+			snapshot.global_position.x,
+			snapshot.global_position.y,
+			snapshot.global_position.z,
+			str(snapshot.has_goal),
+			str(snapshot.debug_goal_used_fallback),
+			goal_raw_candidate.x,
+			goal_raw_candidate.y,
+			goal_raw_candidate.z,
+			goal_projected_candidate.x,
+			goal_projected_candidate.y,
+			goal_projected_candidate.z,
+			snapshot.debug_goal_projection_error,
+			goal_vertical_delta,
+			"INF" if goal_path_empty else "%.2f" % goal_selected_path_length,
+			str(goal_path_empty),
+			snapshot.debug_goal_unreachable_path_count,
+			snapshot.debug_goal_path_end_error,
+		]
+	)
+	goal_projection_file.flush()
 
 
 func clear_nav_path_debug() -> void:
