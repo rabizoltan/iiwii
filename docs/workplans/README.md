@@ -50,3 +50,4 @@ This folder contains implementation sequencing and delivery plans.
 - [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md): completed behavior slice for world-aimed player projectile attacks.
 - [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md): stale historical slice note that now points to the renewed melee behavior source of truth.
 - [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md): blocked pending design answers.
+- [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md): planned parent roadmap for future dodge/dash, vault, and crouch traversal slices.

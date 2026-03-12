@@ -17,8 +17,9 @@
 - Slice 1 - Player attack behavior: `completed`
 - Slice 2 - Debug control panel: `completed`
 - Slice 3 - Enemy close-range behavior: `completed`
-- Slice 4 - Player-enemy collision and crowd pressure: `active`
+- Slice 4 - Player-enemy collision and crowd pressure: `stable-baseline`
 - Slice 5 - Combat feedback and debug behavior: `blocked`
+- Future Planning - Player traversal and movement slices: `planned`
 
 ## Recommended Order
 1. Player attack behavior
@@ -26,6 +27,7 @@
 3. Enemy close-range behavior
 4. Player-enemy collision and crowd pressure
 5. Combat feedback and debug behavior
+6. Player traversal and movement slices after scope is chosen
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
@@ -33,6 +35,7 @@
 3. After player attack and debug control are validated, continue with [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
 4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
 5. After the movement and collision rules are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
+6. When traversal work becomes a priority, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -72,7 +75,7 @@ Execution priority:
 - immediate follow-up to player attack validation support
 
 ## Slice 3 - Enemy Close-Range Behavior
-Status: `active`
+Status: `completed`
 
 Plan file:
 - [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
@@ -82,13 +85,13 @@ Why second:
 
 Current state:
 - Engage-point movement, hold/facing behavior, soft spreading, physical crowd collision, constrained crowd-yield, and profiling support are implemented and manually validated in the demo scene.
-- This slice is closed for the current milestone.
+- This slice is closed for the current milestone and superseded as a source of truth by the architecture docs plus the crowd-pressure follow-up slice.
 
 Execution priority:
 - completed
 
 ## Slice 4 - Player-Enemy Collision And Crowd Pressure
-Status: `active`
+Status: `stable-baseline`
 
 Plan file:
 - [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
@@ -102,9 +105,10 @@ Current state:
 - Baseline locomotion-driven player push has been removed and validated.
 - The accepted current baseline keeps only soft ordinary body contact with no old shove/query/assist pipeline activity.
 - The current baseline also includes a limited active melee front line near the player.
+- This slice has reached a stable return point for the current milestone.
 
 Execution priority:
-- stable baseline reached; future follow-up belongs to traversal and combat slices
+- no immediate implementation follow-up; future work belongs to traversal and combat slices
 
 ## Slice 5 - Combat Feedback And Debug Behavior
 Status: `blocked`
@@ -117,6 +121,29 @@ Why third:
 
 Blocker:
 - Feedback/debug requirements need explicit scope decisions before implementation should continue.
+
+Current dependency state:
+- The shared debug menu exists and is usable.
+- Enemy close-range movement and crowd-pressure baselines are stable enough to build feedback rules on top of them.
+- What remains unresolved is product scope, not runtime plumbing.
+
+## Future Planning - Player Traversal And Movement Slices
+Status: `planned`
+
+Plan file:
+- [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md)
+
+Why separate:
+- Dodge or dash, vault, and crouch affect collision, input priority, combat flow, and traversal geometry in different ways.
+- They should not be reopened implicitly through the crowd-pressure slice or mixed into combat feedback work.
+
+Current state:
+- The movement spec already describes intended traversal states.
+- Runtime implementation is not there yet.
+- The crowd-pressure slice explicitly deferred dodge or ghosted escape to later traversal work.
+
+Recommendation:
+- Treat dodge or dash, vault, and crouch as separate slices under one traversal roadmap.
 
 ## Rule For Next Work
 - Do not reopen the foundation slice for behavior tuning.
