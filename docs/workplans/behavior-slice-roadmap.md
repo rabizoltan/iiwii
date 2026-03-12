@@ -17,7 +17,7 @@
 - Slice 1 - Player attack behavior: `completed`
 - Slice 2 - Debug control panel: `completed`
 - Slice 3 - Enemy close-range behavior: `completed`
-- Slice 4 - Player-enemy collision and crowd pressure: `planned`
+- Slice 4 - Player-enemy collision and crowd pressure: `active`
 - Slice 5 - Combat feedback and debug behavior: `blocked`
 
 ## Recommended Order
@@ -88,7 +88,7 @@ Execution priority:
 - completed
 
 ## Slice 4 - Player-Enemy Collision And Crowd Pressure
-Status: `planned`
+Status: `active`
 
 Plan file:
 - [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
@@ -99,7 +99,9 @@ Why next:
 
 Current state:
 - Enemy close-range behavior and profiling infrastructure exist.
-- Baseline locomotion-driven player push still exists in code and remains the next intended behavior change.
+- Baseline locomotion-driven player push has been removed and validated.
+- The accepted current baseline keeps only soft ordinary body contact with no old shove/query/assist pipeline activity.
+- The next intended behavior change is a limited active melee front line near the player.
 
 Execution priority:
 - immediate next implementation slice

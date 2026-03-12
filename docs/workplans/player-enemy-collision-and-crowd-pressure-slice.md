@@ -1,7 +1,7 @@
 # Player-Enemy Collision And Crowd Pressure Slice
 
 ## Status
-- `active`
+- `stable-baseline`
 
 ## Purpose
 - Replace the current baseline "player walks into enemies and pushes them" behavior with a clearer and cheaper collision model.
@@ -43,11 +43,19 @@
 
 ## Implementation Plan
 1. Remove baseline player push from `player_controller.gd`. `implemented`
-2. Keep the enemy external movement influence path only for authored combat displacement.
-3. Add a short `ghosted` or `unhindered` window to player dodge or another explicit escape move.
-4. Add a simple cap for active melee front-line enemies near the player.
-5. Retune close-range enemy crowd behavior after baseline push is gone.
-6. Re-profile dense crowd scenes and compare against the current logs.
+2. Keep the enemy external movement influence path only for authored combat displacement. `reserved for combat abilities and future attack/skill work`
+3. Add a short `ghosted` or `unhindered` window to player dodge or another explicit escape move. `deferred to a later traversal slice`
+4. Add a simple cap for active melee front-line enemies near the player. `implemented`
+5. Retune close-range enemy crowd behavior after baseline push is gone. `validated; no further tuning required for current baseline`
+6. Re-profile dense crowd scenes and compare against the current logs. `implemented`
+
+## Current Baseline
+1. Baseline locomotion-driven player push is removed and validated.
+2. The player can no longer break through dense packs via the old shove path.
+3. Some slow soft body give still exists from ordinary collision/contact behavior, and that feel is currently accepted.
+4. A limited active melee front line is now in place, so only the closest few enemies are allowed into the near-player close-adjust and hold bands at once.
+5. Current profiling confirms the old player crowd-push path is idle and the enemy-side idle influence cost was removed.
+6. This version is the accepted return point for the slice before any future escape-movement work begins.
 
 ## Acceptance Criteria
 1. Walking into enemies no longer applies baseline push to them.
@@ -66,5 +74,24 @@
    - readability of the front line
    - escape reliability during dodge
 
+## Latest Validation Result
+1. Walking into enemies no longer triggers the old player push/query/assist pipeline.
+2. Dense packs remain readable and threatening.
+3. No visible vibration or oscillation remains in melee.
+4. The remaining slow soft contact is acceptable for the current baseline.
+5. Enemy influence profiling now falls to zero when no authored influence is queued.
+6. The active melee front-line cap does not produce a dramatic visible change, but it reduces close-range crowd work while preserving the current feel.
+
+## Next Target
+- Keep enemy external movement influence scoped to authored combat displacement.
+- Leave explicit player escape movement for a later dedicated traversal slice.
+
 ## Success Condition
 - Crowd pressure becomes a deliberate gameplay rule instead of a side effect of baseline body-push physics.
+
+## Slice Outcome
+1. Stable baseline reached for the current milestone.
+2. Baseline locomotion-driven player push is gone.
+3. Dense enemy packs remain readable and performant.
+4. Remaining soft body contact is accepted as the current feel target.
+5. Future follow-up belongs in combat-authored displacement work and a separate traversal slice for dodge or ghosted escape movement.

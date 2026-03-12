@@ -49,6 +49,9 @@ class PhysicsStepResult:
 @export var close_adjust_side_commit_duration: float = 0.3
 @export var close_adjust_side_switch_penalty_margin: float = 0.12
 @export var close_adjust_nav_refresh_interval: float = 0.12
+@export var max_active_melee_enemies: int = 4
+@export var melee_frontline_contender_radius: float = 3.0
+@export var melee_frontline_release_buffer: int = 1
 
 # Player-vs-crowd pressure response
 @export var player_push_yield_distance: float = 1.2
@@ -421,6 +424,8 @@ func _update_melee_state(target_position: Vector3) -> void:
 	request.engage_hold_tolerance = engage_hold_tolerance
 	request.engage_vertical_tolerance = engage_vertical_tolerance
 	var next_state := EnemyMovementStateMachine.compute_next_state(request)
+	if next_state != EnemyCloseState.APPROACH and not _is_in_active_melee_frontline(target_position):
+		next_state = EnemyCloseState.APPROACH
 
 	if next_state == _melee_state:
 		return
@@ -434,6 +439,27 @@ func _update_melee_state(target_position: Vector3) -> void:
 	if _melee_state != EnemyCloseState.CLOSE_ADJUST:
 		_close_adjust_side_sign = 0.0
 		_close_adjust_side_commit_remaining = 0.0
+
+
+func _is_in_active_melee_frontline(target_position: Vector3) -> bool:
+	if max_active_melee_enemies <= 0:
+		return true
+
+	var contender_radius: float = maxf(
+		melee_frontline_contender_radius,
+		maxf(close_adjust_enter_distance, melee_engage_distance + engage_hold_tolerance)
+	)
+	var allowed_rank: int = max_active_melee_enemies
+	if _melee_state != EnemyCloseState.APPROACH:
+		allowed_rank += max(melee_frontline_release_buffer, 0)
+
+	var distance_rank: int = EnemyCrowdQuery.get_target_distance_rank(
+		self,
+		global_position,
+		target_position,
+		contender_radius
+	)
+	return distance_rank < allowed_rank
 
 
 func _run_approach_state(_delta: float, distance_to_target: float) -> EnemyMovementStateMachine.StateDispatchResult:
@@ -704,6 +730,9 @@ func _choose_player_push_resolution_direction(away_direction: Vector3, push_dire
 
 
 func _apply_player_collision_push(delta: float) -> bool:
+	if _movement_influence_state == null or _movement_influence_state.is_empty():
+		return false
+
 	var profile_start_usec := _profile_start_usec()
 	var request: EnemyMovementInfluence.InfluenceVelocityRequest = EnemyMovementInfluence.InfluenceVelocityRequest.new()
 	request.state = _movement_influence_state

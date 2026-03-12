@@ -128,5 +128,44 @@ static func collect_nearby_enemy_positions(
 	return nearby_positions
 
 
+static func get_target_distance_rank(
+	owner: Node3D,
+	owner_position: Vector3,
+	target_position: Vector3,
+	relevant_radius: float
+) -> int:
+	if relevant_radius <= 0.0:
+		return 0
+
+	var owner_distance: float = _horizontal_distance(owner_position, target_position)
+	if owner_distance > relevant_radius:
+		return 0
+
+	var rank: int = 0
+	var owner_instance_id: int = owner.get_instance_id() if owner != null else 0
+	for enemy in _enemy_registry:
+		if not _is_valid_other_enemy(enemy, owner):
+			continue
+
+		var enemy_distance: float = _horizontal_distance(enemy.global_position, target_position)
+		if enemy_distance > relevant_radius:
+			continue
+
+		if enemy_distance < owner_distance - 0.001:
+			rank += 1
+			continue
+
+		if absf(enemy_distance - owner_distance) <= 0.001 and enemy.get_instance_id() < owner_instance_id:
+			rank += 1
+
+	return rank
+
+
 static func _is_valid_other_enemy(enemy: Node3D, owner: Node3D) -> bool:
 	return enemy != null and enemy != owner and is_instance_valid(enemy)
+
+
+static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -> float:
+	var offset: Vector3 = to_position - from_position
+	offset.y = 0.0
+	return offset.length()

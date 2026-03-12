@@ -53,7 +53,7 @@
 
 ## Next Behavior Target
 - Execute the player-enemy collision and crowd-pressure slice.
-- Remove baseline player walk-push behavior.
 - Add a short explicit player escape ghosting state.
 - Re-scope external movement influence to combat-authored displacement.
 - Introduce a limited active melee front line near the player so dense packs stay readable and cheaper.
+- Baseline player walk-push behavior is already removed; the next concrete implementation target is the limited active melee front line.
