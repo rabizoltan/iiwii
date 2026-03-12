@@ -46,14 +46,14 @@ class PlayerYieldRequest:
 	var global_position: Vector3 = Vector3.ZERO
 	var target_position: Vector3 = Vector3.ZERO
 	var local_enemy_positions: Array[Vector3] = []
-	var player_push_yield_distance: float = 0.0
+	var crowd_pressure_yield_distance: float = 0.0
 	var crowd_chain_yield_distance: float = 0.0
 	var crowd_chain_yield_bonus: float = 0.0
 	var crowd_chain_neighbor_radius: float = 0.0
-	var player_push_side_yield_weight: float = 0.0
-	var player_push_min_yield_factor: float = 0.0
-	var player_push_block_check_distance: float = 0.0
-	var player_push_yield_speed: float = 0.0
+	var crowd_pressure_side_yield_weight: float = 0.0
+	var crowd_pressure_min_yield_factor: float = 0.0
+	var crowd_pressure_block_check_distance: float = 0.0
+	var crowd_pressure_yield_speed: float = 0.0
 	var allow_chain_pressure: bool = true
 
 
@@ -78,9 +78,9 @@ class PushResolutionRequest:
 	var away_direction: Vector3 = Vector3.ZERO
 	var push_direction: Vector3 = Vector3.ZERO
 	var local_enemy_positions: Array[Vector3] = []
-	var player_push_block_check_distance: float = 0.0
-	var player_collision_push_lateral_weight: float = 0.0
-	var player_collision_push_outward_weight: float = 0.0
+	var block_check_distance: float = 0.0
+	var lateral_weight: float = 0.0
+	var outward_weight: float = 0.0
 
 
 static func compute_close_adjust_velocity(request: CloseAdjustRequest) -> CloseAdjustResult:
@@ -179,14 +179,14 @@ static func compute_player_yield_velocity(request: PlayerYieldRequest) -> Player
 	var global_position: Vector3 = request.global_position
 	var target_position: Vector3 = request.target_position
 	var local_enemy_positions: Array[Vector3] = request.local_enemy_positions
-	var player_push_yield_distance: float = request.player_push_yield_distance
+	var crowd_pressure_yield_distance: float = request.crowd_pressure_yield_distance
 	var crowd_chain_yield_distance: float = request.crowd_chain_yield_distance
 	var crowd_chain_yield_bonus: float = request.crowd_chain_yield_bonus
 	var crowd_chain_neighbor_radius: float = request.crowd_chain_neighbor_radius
-	var player_push_side_yield_weight: float = request.player_push_side_yield_weight
-	var player_push_min_yield_factor: float = request.player_push_min_yield_factor
-	var player_push_block_check_distance: float = request.player_push_block_check_distance
-	var player_push_yield_speed: float = request.player_push_yield_speed
+	var crowd_pressure_side_yield_weight: float = request.crowd_pressure_side_yield_weight
+	var crowd_pressure_min_yield_factor: float = request.crowd_pressure_min_yield_factor
+	var crowd_pressure_block_check_distance: float = request.crowd_pressure_block_check_distance
+	var crowd_pressure_yield_speed: float = request.crowd_pressure_yield_speed
 	var offset: Vector3 = global_position - target_position
 	offset.y = 0.0
 	var distance_to_target: float = offset.length()
@@ -200,18 +200,18 @@ static func compute_player_yield_velocity(request: PlayerYieldRequest) -> Player
 	)
 	result.debug_crowd_pressure = crowd_pressure
 	var direct_pressure := 0.0
-	if distance_to_target < player_push_yield_distance:
-		direct_pressure = 1.0 - clampf(distance_to_target / player_push_yield_distance, 0.0, 1.0)
+	if distance_to_target < crowd_pressure_yield_distance:
+		direct_pressure = 1.0 - clampf(distance_to_target / crowd_pressure_yield_distance, 0.0, 1.0)
 	result.debug_direct_pressure = direct_pressure
 
 	var chain_pressure := 0.0
 	var allow_chain_pressure: bool = request.allow_chain_pressure
 	if allow_chain_pressure \
-		and crowd_chain_yield_distance > player_push_yield_distance \
+		and crowd_chain_yield_distance > crowd_pressure_yield_distance \
 		and distance_to_target < crowd_chain_yield_distance:
 		var chain_ratio := 1.0 - clampf(
-			(distance_to_target - player_push_yield_distance) /
-				(crowd_chain_yield_distance - player_push_yield_distance),
+			(distance_to_target - crowd_pressure_yield_distance) /
+				(crowd_chain_yield_distance - crowd_pressure_yield_distance),
 			0.0,
 			1.0
 		)
@@ -226,9 +226,9 @@ static func compute_player_yield_velocity(request: PlayerYieldRequest) -> Player
 		global_position,
 		away_direction,
 		local_enemy_positions,
-		player_push_side_yield_weight,
-		player_push_min_yield_factor,
-		player_push_block_check_distance
+		crowd_pressure_side_yield_weight,
+		crowd_pressure_min_yield_factor,
+		crowd_pressure_block_check_distance
 	)
 	var best_direction := best_response["direction"] as Vector3
 	if best_direction == Vector3.ZERO:
@@ -238,10 +238,10 @@ static func compute_player_yield_velocity(request: PlayerYieldRequest) -> Player
 	var yield_strength := float(best_response["strength"])
 	var boosted_strength := clampf(
 		yield_strength + crowd_pressure * crowd_chain_yield_bonus,
-		player_push_min_yield_factor,
+		crowd_pressure_min_yield_factor,
 		1.6
 	)
-	var yield_speed: float = player_push_yield_speed * yield_activation * boosted_strength
+	var yield_speed: float = crowd_pressure_yield_speed * yield_activation * boosted_strength
 	if yield_speed <= 0.01:
 		yield_speed = 0.0
 		best_direction = Vector3.ZERO
@@ -254,7 +254,7 @@ static func compute_player_yield_velocity(request: PlayerYieldRequest) -> Player
 	return result
 
 
-static func choose_player_push_resolution_direction(request: PushResolutionRequest) -> Vector3:
+static func choose_external_displacement_resolution_direction(request: PushResolutionRequest) -> Vector3:
 	var away_direction: Vector3 = request.away_direction
 	var push_direction: Vector3 = request.push_direction
 	var local_enemy_positions: Array[Vector3] = request.local_enemy_positions
@@ -264,13 +264,13 @@ static func choose_player_push_resolution_direction(request: PushResolutionReque
 		request.global_position,
 		left_direction,
 		local_enemy_positions,
-		request.player_push_block_check_distance
+		request.block_check_distance
 	)
 	var right_penalty := score_direction_penalty(
 		request.global_position,
 		right_direction,
 		local_enemy_positions,
-		request.player_push_block_check_distance
+		request.block_check_distance
 	)
 	var lateral_direction := left_direction if left_penalty <= right_penalty else right_direction
 
@@ -279,44 +279,13 @@ static func choose_player_push_resolution_direction(request: PushResolutionReque
 		outward_direction = push_direction
 
 	var desired_direction := (
-		lateral_direction * request.player_collision_push_lateral_weight +
-		outward_direction * request.player_collision_push_outward_weight
+		lateral_direction * request.lateral_weight +
+		outward_direction * request.outward_weight
 	).normalized()
 	if desired_direction.length_squared() > 0.0001:
 		return desired_direction
 
 	return outward_direction.normalized()
-
-
-static func apply_push_velocity(ctx: Dictionary) -> Dictionary:
-	var push_velocity: Vector3 = ctx["push_velocity"]
-	var base_velocity: Vector3 = ctx["base_velocity"]
-	var move_speed: float = float(ctx["move_speed"])
-	var player_collision_push_max_speed: float = float(ctx["player_collision_push_max_speed"])
-	var player_collision_push_decay: float = float(ctx["player_collision_push_decay"])
-	var delta: float = float(ctx["delta"])
-	push_velocity.y = 0.0
-	if push_velocity.length_squared() <= 0.0001:
-		return {
-			"applied": false,
-			"velocity": base_velocity,
-			"remaining_push_velocity": Vector3.ZERO,
-		}
-
-	var combined_velocity: Vector3 = base_velocity + push_velocity
-	var combined_speed: float = combined_velocity.length()
-	var speed_cap: float = maxf(move_speed, player_collision_push_max_speed)
-	if combined_speed > speed_cap and combined_speed > 0.0:
-		combined_velocity = combined_velocity / combined_speed * speed_cap
-
-	return {
-		"applied": true,
-		"velocity": combined_velocity,
-		"remaining_push_velocity": push_velocity.move_toward(
-			Vector3.ZERO,
-			player_collision_push_decay * delta
-		),
-	}
 
 
 static func compute_crowd_pressure(

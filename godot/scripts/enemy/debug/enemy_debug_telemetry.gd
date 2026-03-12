@@ -57,6 +57,7 @@ var _candidate_debug_material: StandardMaterial3D
 var _debug_overlay_cache: Node
 var _last_debug_write_msec: int = 0
 var _last_melee_hold_log_msec: int = 0
+var _last_melee_hold_log_signature: String = ""
 var _debug_label_refresh_remaining: float = 0.0
 var _nav_debug_refresh_remaining: float = 0.0
 
@@ -118,6 +119,7 @@ func prepare_melee_hold_debug_log(melee_hold_debug_enabled: bool) -> void:
 	file.store_line("--- melee hold debug session start ---")
 	file.flush()
 	_last_melee_hold_log_msec = Time.get_ticks_msec()
+	_last_melee_hold_log_signature = ""
 	_last_melee_hold_flush_msec = _last_melee_hold_log_msec
 	_pending_melee_hold_log_lines.clear()
 
@@ -201,33 +203,40 @@ func append_melee_hold_debug_log(snapshot: EnemyDebugSnapshot, state_text: Strin
 	_last_melee_hold_log_msec = now_msec
 	var collision_names: Array[String] = snapshot.debug_hold_collision_names
 	var current_goal_position: Vector3 = snapshot.current_goal_position
+	var log_signature: String = "enemy=%s | state=%s | pos=(%.2f, %.2f, %.2f) | d_target=%.3f | hold_margin=%.3f | disp=%.4f | vel=%.3f | yield=%s | yield_speed=%.3f | yield_direct=%.3f | yield_chain=%.3f | collisions=%d | colliders=%s | next=(%.2f, %.2f, %.2f) | nav_refresh=%s | path_pts=%d | goal=%s | goal_at=(%.2f, %.2f, %.2f)" % [
+		snapshot.enemy_name,
+		state_text,
+		snapshot.global_position.x,
+		snapshot.global_position.y,
+		snapshot.global_position.z,
+		snapshot.distance_to_target,
+		snapshot.hold_margin,
+		snapshot.debug_hold_displacement,
+		snapshot.debug_hold_velocity,
+		str(snapshot.debug_hold_has_yield),
+		snapshot.debug_yield_speed,
+		snapshot.debug_yield_direct_pressure,
+		snapshot.debug_yield_chain_pressure,
+		snapshot.debug_hold_collision_count,
+		",".join(collision_names),
+		next_position.x,
+		next_position.y,
+		next_position.z,
+		str(snapshot.debug_nav_cache_refreshed),
+		snapshot.path_point_count,
+		str(snapshot.has_goal),
+		current_goal_position.x,
+		current_goal_position.y,
+		current_goal_position.z,
+	]
+	if log_signature == _last_melee_hold_log_signature:
+		return
+
+	_last_melee_hold_log_signature = log_signature
 	_pending_melee_hold_log_lines.append(
-		"%s | enemy=%s | state=%s | pos=(%.2f, %.2f, %.2f) | d_target=%.3f | hold_margin=%.3f | disp=%.4f | vel=%.3f | yield=%s | yield_speed=%.3f | yield_direct=%.3f | yield_chain=%.3f | collisions=%d | colliders=%s | next=(%.2f, %.2f, %.2f) | nav_refresh=%s | path_pts=%d | goal=%s | goal_at=(%.2f, %.2f, %.2f)" % [
+		"%s | %s" % [
 			Time.get_datetime_string_from_system(),
-			snapshot.enemy_name,
-			state_text,
-			snapshot.global_position.x,
-			snapshot.global_position.y,
-			snapshot.global_position.z,
-			snapshot.distance_to_target,
-			snapshot.hold_margin,
-			snapshot.debug_hold_displacement,
-			snapshot.debug_hold_velocity,
-			str(snapshot.debug_hold_has_yield),
-			snapshot.debug_yield_speed,
-			snapshot.debug_yield_direct_pressure,
-			snapshot.debug_yield_chain_pressure,
-			snapshot.debug_hold_collision_count,
-			",".join(collision_names),
-			next_position.x,
-			next_position.y,
-			next_position.z,
-			str(snapshot.debug_nav_cache_refreshed),
-			snapshot.path_point_count,
-			str(snapshot.has_goal),
-			current_goal_position.x,
-			current_goal_position.y,
-			current_goal_position.z,
+			log_signature,
 		]
 	)
 	_flush_pending_melee_hold_debug_log_if_needed()

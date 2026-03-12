@@ -101,10 +101,10 @@ Current state:
 - Enemy close-range behavior and profiling infrastructure exist.
 - Baseline locomotion-driven player push has been removed and validated.
 - The accepted current baseline keeps only soft ordinary body contact with no old shove/query/assist pipeline activity.
-- The next intended behavior change is a limited active melee front line near the player.
+- The current baseline also includes a limited active melee front line near the player.
 
 Execution priority:
-- immediate next implementation slice
+- stable baseline reached; future follow-up belongs to traversal and combat slices
 
 ## Slice 5 - Combat Feedback And Debug Behavior
 Status: `blocked`

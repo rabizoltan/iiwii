@@ -34,7 +34,7 @@ class InfluenceVelocityResult:
 	var state: EnemyRuntimeState.MovementInfluenceState
 
 
-static func queue_player_push(request: QueuePushRequest) -> EnemyRuntimeState.MovementInfluenceState:
+static func queue_external_displacement(request: QueuePushRequest) -> EnemyRuntimeState.MovementInfluenceState:
 	var push_direction: Vector3 = request.push_direction
 	push_direction.y = 0.0
 	if push_direction.length_squared() <= 0.0001:
@@ -62,7 +62,7 @@ static func queue_player_push(request: QueuePushRequest) -> EnemyRuntimeState.Mo
 	var current_velocity: Vector3 = state.velocity
 	var current_speed: float = current_velocity.length()
 	state.velocity = desired_direction * maxf(current_speed, capped_speed)
-	state.kind = "player_push"
+	state.kind = "external_displacement"
 	return state
 
 

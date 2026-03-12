@@ -54,16 +54,16 @@ class PhysicsStepResult:
 @export var melee_frontline_release_buffer: int = 1
 
 # Player-vs-crowd pressure response
-@export var player_push_yield_distance: float = 1.2
-@export var player_push_yield_speed: float = 4.2
-@export var player_push_side_yield_weight: float = 1.0
-@export var player_push_block_check_distance: float = 0.8
-@export var player_push_block_neighbor_radius: float = 1.8
-@export var player_push_min_yield_factor: float = 0.6
-@export var player_collision_push_decay: float = 10.0
-@export var player_collision_push_max_speed: float = 4.8
-@export var player_collision_push_lateral_weight: float = 1.2
-@export var player_collision_push_outward_weight: float = 0.35
+@export var crowd_pressure_yield_distance: float = 1.2
+@export var crowd_pressure_yield_speed: float = 4.2
+@export var crowd_pressure_side_yield_weight: float = 1.0
+@export var crowd_pressure_block_check_distance: float = 0.8
+@export var crowd_pressure_block_neighbor_radius: float = 1.8
+@export var crowd_pressure_min_yield_factor: float = 0.6
+@export var external_displacement_decay: float = 10.0
+@export var external_displacement_max_speed: float = 4.8
+@export var external_displacement_lateral_weight: float = 1.2
+@export var external_displacement_outward_weight: float = 0.35
 @export var crowd_chain_yield_distance: float = 2.2
 @export var crowd_chain_neighbor_radius: float = 1.1
 @export var crowd_chain_yield_bonus: float = 1.1
@@ -246,7 +246,7 @@ func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
 	result.debug_next_position = state_result.next_position
 	result.attempted_horizontal_move = state_result.attempted_move
 
-	if _apply_player_collision_push(delta):
+	if _apply_external_displacement(delta):
 		result.attempted_horizontal_move = true
 
 	return result
@@ -610,22 +610,22 @@ func _get_melee_state_name() -> String:
 # Crowd-pressure response
 func _compute_player_yield_velocity(allow_chain_pressure: bool = true) -> Vector3:
 	var profile_start_usec := _profile_start_usec()
-	if _target_node == null or player_push_yield_distance <= 0.0:
+	if _target_node == null or crowd_pressure_yield_distance <= 0.0:
 		_record_profile_duration("yield", Time.get_ticks_usec() - profile_start_usec)
 		return Vector3.ZERO
 
 	var request: EnemyCrowdResponse.PlayerYieldRequest = EnemyCrowdResponse.PlayerYieldRequest.new()
 	request.global_position = global_position
 	request.target_position = _target_node.global_position
-	request.local_enemy_positions = _get_cached_local_enemy_positions(player_push_block_neighbor_radius)
-	request.player_push_yield_distance = player_push_yield_distance
+	request.local_enemy_positions = _get_cached_local_enemy_positions(crowd_pressure_block_neighbor_radius)
+	request.crowd_pressure_yield_distance = crowd_pressure_yield_distance
 	request.crowd_chain_yield_distance = crowd_chain_yield_distance
 	request.crowd_chain_yield_bonus = crowd_chain_yield_bonus
 	request.crowd_chain_neighbor_radius = crowd_chain_neighbor_radius
-	request.player_push_side_yield_weight = player_push_side_yield_weight
-	request.player_push_min_yield_factor = player_push_min_yield_factor
-	request.player_push_block_check_distance = player_push_block_check_distance
-	request.player_push_yield_speed = player_push_yield_speed
+	request.crowd_pressure_side_yield_weight = crowd_pressure_side_yield_weight
+	request.crowd_pressure_min_yield_factor = crowd_pressure_min_yield_factor
+	request.crowd_pressure_block_check_distance = crowd_pressure_block_check_distance
+	request.crowd_pressure_yield_speed = crowd_pressure_yield_speed
 	request.allow_chain_pressure = allow_chain_pressure
 	var yield_result: EnemyCrowdResponse.PlayerYieldResult = EnemyCrowdResponse.compute_player_yield_velocity(request)
 	_yield_debug_state.neighbor_count = yield_result.debug_neighbor_count
@@ -691,45 +691,41 @@ func _face_position(target_position: Vector3, delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, target_yaw, turn_speed * delta)
 
 
-func apply_player_collision_push(push_direction: Vector3, player_position: Vector3, push_speed: float) -> void:
-	apply_external_movement_influence(push_direction, player_position, push_speed, "player_push")
-
-
 func apply_external_movement_influence(
 	influence_direction: Vector3,
 	source_position: Vector3,
 	influence_speed: float,
-	influence_kind: String = "player_push"
+	influence_kind: String = "external_displacement"
 ) -> void:
 	match influence_kind:
-		"player_push":
+		"external_displacement", "player_push":
 			var request: EnemyMovementInfluence.QueuePushRequest = EnemyMovementInfluence.QueuePushRequest.new()
 			request.state = _movement_influence_state
 			request.push_direction = influence_direction
 			request.source_position = source_position
 			request.global_position = global_position
 			request.push_speed = influence_speed
-			request.max_speed = player_collision_push_max_speed
+			request.max_speed = external_displacement_max_speed
 			request.resolve_direction = func(away_direction: Vector3, push_direction: Vector3) -> Vector3:
-				return _choose_player_push_resolution_direction(away_direction, push_direction)
-			_movement_influence_state = EnemyMovementInfluence.queue_player_push(request)
+				return _choose_external_displacement_resolution_direction(away_direction, push_direction)
+			_movement_influence_state = EnemyMovementInfluence.queue_external_displacement(request)
 		_:
 			return
 
 
-func _choose_player_push_resolution_direction(away_direction: Vector3, push_direction: Vector3) -> Vector3:
+func _choose_external_displacement_resolution_direction(away_direction: Vector3, push_direction: Vector3) -> Vector3:
 	var request: EnemyCrowdResponse.PushResolutionRequest = EnemyCrowdResponse.PushResolutionRequest.new()
 	request.global_position = global_position
 	request.away_direction = away_direction
 	request.push_direction = push_direction
-	request.local_enemy_positions = _get_cached_local_enemy_positions(player_push_block_neighbor_radius)
-	request.player_push_block_check_distance = player_push_block_check_distance
-	request.player_collision_push_lateral_weight = player_collision_push_lateral_weight
-	request.player_collision_push_outward_weight = player_collision_push_outward_weight
-	return EnemyCrowdResponse.choose_player_push_resolution_direction(request)
+	request.local_enemy_positions = _get_cached_local_enemy_positions(crowd_pressure_block_neighbor_radius)
+	request.block_check_distance = crowd_pressure_block_check_distance
+	request.lateral_weight = external_displacement_lateral_weight
+	request.outward_weight = external_displacement_outward_weight
+	return EnemyCrowdResponse.choose_external_displacement_resolution_direction(request)
 
 
-func _apply_player_collision_push(delta: float) -> bool:
+func _apply_external_displacement(delta: float) -> bool:
 	if _movement_influence_state == null or _movement_influence_state.is_empty():
 		return false
 
@@ -738,8 +734,8 @@ func _apply_player_collision_push(delta: float) -> bool:
 	request.state = _movement_influence_state
 	request.base_velocity = Vector3(velocity.x, 0.0, velocity.z)
 	request.move_speed = move_speed
-	request.max_speed = player_collision_push_max_speed
-	request.decay = player_collision_push_decay
+	request.max_speed = external_displacement_max_speed
+	request.decay = external_displacement_decay
 	request.delta = delta
 	var push_result: EnemyMovementInfluence.InfluenceVelocityResult = EnemyMovementInfluence.apply_influence_velocity(request)
 	_set_horizontal_velocity(push_result.velocity)

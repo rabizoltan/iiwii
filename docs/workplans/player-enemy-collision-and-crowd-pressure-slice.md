@@ -60,10 +60,9 @@
 ## Acceptance Criteria
 1. Walking into enemies no longer applies baseline push to them.
 2. Dense enemy packs remain readable and threatening without turning into constant physics wrestling.
-3. Player dodge or escape reliably breaks out of enemy contact by passing through enemies for a short window.
-4. Enemy packs no longer rely on player shove feedback to look alive near the player.
-5. Enemy performance in the dense-pack push test improves relative to the current baseline.
-6. Enemy knockback or shove still works when triggered by explicit combat effects.
+3. Enemy packs no longer rely on player shove feedback to look alive near the player.
+4. Enemy performance in the dense-pack push test improves relative to the current baseline.
+5. This slice preserves a clean path for future authored combat displacement effects.
 
 ## Validation Notes
 1. Keep the current enemy and player profiling logs during the migration.
@@ -72,7 +71,6 @@
    - enemy profile hot buckets
    - player crowd-push profile activity
    - readability of the front line
-   - escape reliability during dodge
 
 ## Latest Validation Result
 1. Walking into enemies no longer triggers the old player push/query/assist pipeline.

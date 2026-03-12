@@ -31,7 +31,7 @@
   - Shared enemy registry ownership, spread-query filtering, and short-lived local-neighbor cache policy for crowd-aware movement decisions.
 - `enemy_movement_influence.gd`
   - External movement influence intake and application.
-  - Currently formalizes player-push accumulation/decay so external pressure is no longer a special-case velocity path embedded directly in the controller.
+  - Currently formalizes authored external displacement accumulation/decay so external forces are no longer a special-case velocity path embedded directly in the controller.
   - Its controller-facing queue/apply APIs now use typed request/result objects instead of flattened dictionaries.
 - `enemy_debug_telemetry.gd`
   - Enemy debug label presentation, nav-path visualization, debug log writing, melee-hold log writing, and shared enemy profiling accumulators.
@@ -44,7 +44,7 @@
 
 ## Important Boundary
 - Baseline locomotion-driven player push has been removed from `player_controller.gd`.
-- Enemy movement still retains the generic external movement-influence interface, with the old player-push compatibility wrapper still present on the enemy side.
+- Enemy movement retains a generic external movement-influence interface for authored displacement such as combat knockback or shove effects.
 - The remaining behavior work for this slice is to narrow practical influence usage to authored combat displacement and explicit escape/crowd-pressure rules.
 
 ## Next Refactor Target
@@ -56,4 +56,4 @@
 - Add a short explicit player escape ghosting state.
 - Re-scope external movement influence to combat-authored displacement.
 - Introduce a limited active melee front line near the player so dense packs stay readable and cheaper.
-- Baseline player walk-push behavior is already removed; the next concrete implementation target is the limited active melee front line.
+- Baseline player walk-push behavior is already removed; the remaining follow-up work belongs to traversal and combat-authored displacement slices.
