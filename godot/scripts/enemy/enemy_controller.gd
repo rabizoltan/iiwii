@@ -222,8 +222,7 @@ func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
 		_resolve_target()
 
 	if not _has_valid_target():
-		_has_goal = false
-		_invalidate_navigation_cache()
+		_clear_goal_navigation_state()
 		_set_horizontal_velocity(Vector3.ZERO)
 		result.debug_state = "no target"
 		return result
@@ -343,8 +342,7 @@ func _select_engage_goal() -> void:
 	var profile_start_usec := _profile_start_usec()
 	_reset_goal_debug_state()
 	if _target_node == null:
-		_has_goal = false
-		_invalidate_navigation_cache()
+		_clear_goal_navigation_state()
 		_goal_debug_state.candidate_positions = PackedVector3Array()
 		_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 		return
@@ -390,8 +388,7 @@ func _select_engage_goal() -> void:
 	_goal_debug_state.candidate_positions = goal_result.candidate_positions
 
 	if not goal_result.has_goal:
-		_has_goal = false
-		_invalidate_navigation_cache()
+		_clear_goal_navigation_state()
 		_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 		return
 
@@ -769,9 +766,7 @@ func _update_stuck_state(delta: float, pre_move_position: Vector3, attempted_hor
 		_stuck_elapsed = 0.0
 		if _has_goal:
 			_remember_failed_goal(_current_goal_position)
-			_has_goal = false
-			_goal_commit_remaining = 0.0
-			_invalidate_navigation_cache()
+			_clear_goal_navigation_state()
 		_recovery_elapsed = stuck_recovery_duration
 		_recovery_sign *= -1.0
 
@@ -885,6 +880,17 @@ func _capture_goal_path_debug() -> void:
 	)
 	_goal_debug_state.path_end = goal_path_debug.path_end
 	_goal_debug_state.path_end_error = goal_path_debug.path_end_error
+
+
+func _clear_goal_navigation_state() -> void:
+	_has_goal = false
+	_goal_commit_remaining = 0.0
+	_clear_navigation_agent_path_state()
+	_invalidate_navigation_cache()
+
+
+func _clear_navigation_agent_path_state() -> void:
+	_nav_agent.target_position = global_position
 
 
 func _resolve_navigation_next_position(move_target: Vector3) -> Vector3:

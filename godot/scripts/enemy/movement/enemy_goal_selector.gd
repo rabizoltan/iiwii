@@ -41,6 +41,13 @@ class GoalDebugInfo:
 	var selected_path_length: float = INF
 
 
+class CandidatePathMetrics:
+	extends RefCounted
+
+	var length: float = INF
+	var end_error: float = INF
+
+
 class GoalSelectionResult:
 	extends RefCounted
 
@@ -136,19 +143,14 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 		debug_info.raw_candidate = center
 		debug_info.projected_candidate = fallback_candidate
 		debug_info.projection_error = _horizontal_distance(center, fallback_candidate)
-		debug_info.selected_path_length = estimate_candidate_path_length(
+		var fallback_path_metrics := measure_candidate_path_metrics(
 			navigation_map,
 			global_position,
 			fallback_candidate,
 			request.navigation_layers
 		)
-		var fallback_path_end_error := estimate_candidate_path_end_error(
-			navigation_map,
-			global_position,
-			fallback_candidate,
-			request.navigation_layers
-		)
-		if is_inf(debug_info.selected_path_length) or fallback_path_end_error > request.goal_path_endpoint_tolerance:
+		debug_info.selected_path_length = fallback_path_metrics.length
+		if is_inf(debug_info.selected_path_length) or fallback_path_metrics.end_error > request.goal_path_endpoint_tolerance:
 			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
 			empty_result.candidate_positions = candidate_positions
 			empty_result.debug = debug_info
@@ -205,11 +207,12 @@ static func estimate_candidate_path_length(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> float:
-	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
-	if path.is_empty():
-		return INF
-
-	return _measure_path_length(path)
+	return measure_candidate_path_metrics(
+		navigation_map,
+		from_position,
+		candidate,
+		navigation_layers
+	).length
 
 
 static func estimate_candidate_path_end_error(
@@ -218,12 +221,29 @@ static func estimate_candidate_path_end_error(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> float:
+	return measure_candidate_path_metrics(
+		navigation_map,
+		from_position,
+		candidate,
+		navigation_layers
+	).end_error
+
+
+static func measure_candidate_path_metrics(
+	navigation_map: RID,
+	from_position: Vector3,
+	candidate: Vector3,
+	navigation_layers: int
+) -> CandidatePathMetrics:
+	var result := CandidatePathMetrics.new()
 	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
 	if path.is_empty():
-		return INF
+		return result
 
 	var path_end: Vector3 = path[path.size() - 1]
-	return _horizontal_distance(path_end, candidate)
+	result.length = _measure_path_length(path)
+	result.end_error = _horizontal_distance(path_end, candidate)
+	return result
 
 
 static func _project_candidate_to_nav(
@@ -292,18 +312,14 @@ static func _select_candidate_with_path_tiebreak(
 	var best_valid_cheap_score := INF
 	for candidate_info in candidate_infos:
 		var projected_candidate := candidate_info["projected_candidate"] as Vector3
-		var path_length := estimate_candidate_path_length(
+		var path_metrics := measure_candidate_path_metrics(
 			request.navigation_map,
 			request.global_position,
 			projected_candidate,
 			request.navigation_layers
 		)
-		var path_end_error := estimate_candidate_path_end_error(
-			request.navigation_map,
-			request.global_position,
-			projected_candidate,
-			request.navigation_layers
-		)
+		var path_length := path_metrics.length
+		var path_end_error := path_metrics.end_error
 		candidate_info["path_length"] = path_length
 		candidate_info["path_end_error"] = path_end_error
 		if is_inf(path_length):
