@@ -1,4 +1,8 @@
 # AI Workflow
+Category: Workflow
+Role: Ops Guide
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define team policy for using AI tools during development.

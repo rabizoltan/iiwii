@@ -1,0 +1,8 @@
+name: "Boss Agent"
+interface:
+  display_name: "Boss Agent"
+  short_description: "Scope-preserving orchestration layer that may delegate only to `worker-*` skills."
+  default_prompt: "Use the $Boss Agent skill to narrow the task, protect scope, and delegate only when a suitable `worker-*` skill exists. Never delegate to standalone skills."
+
+policy:
+  allow_implicit_invocation: true

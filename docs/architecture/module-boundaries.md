@@ -1,4 +1,8 @@
 # Module Boundaries
+Category: Runtime Architecture
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define responsibility boundaries between major runtime modules.

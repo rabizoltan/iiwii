@@ -1,0 +1,8 @@
+name: docs-review
+interface:
+  display_name: "Docs Review"
+  short_description: "Full docs review, staging, manual review, and safe consolidation in one workflow."
+  default_prompt: "Use the $docs-review skill to run the full docs-review workflow: automatic classification, archive-candidate handling, manual-review staging, then consolidation of staged content with the internal manual-review logic and validator-compatible cleanup of touched canonical docs."
+
+policy:
+  allow_implicit_invocation: true

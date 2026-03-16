@@ -1,4 +1,8 @@
 # Traversal (Jump/Vault, Crouch) + Verticality
+Category: Gameplay System
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Goals
 - Provide Diablo-like, timing-based traversal (no precision platforming).

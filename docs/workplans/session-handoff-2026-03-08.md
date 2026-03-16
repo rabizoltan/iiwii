@@ -1,140 +1,57 @@
-# Session Handoff - 2026-03-08
+# Session Handover
+
+## Active Scope
+Investigate why enemies cannot traverse the `ShootingTowerRamp` in `DemoMain`, using debug-first diagnosis rather than repeated blind movement changes, and leave the repo in a state where the next session can continue from measured scene/navmesh facts.
+
+## Scope Boundaries
+- Main scope in this session was enemy ramp traversal and navmesh diagnosis in `godot/scenes/main/DemoMain.tscn`.
+- Do not treat broader AI behavior, combat tuning, or docs cleanup as active implementation scope for the next step.
+- Do not continue changing enemy movement logic first; the current blocker is still scene/navmesh-side until proven otherwise.
+
+## Current Focus
+- `DemoMain` tower ramp bake and traversal failure.
+- File-based enemy ramp telemetry to separate pathing, collision, and crowd deadlock causes.
+- Restoring and then carefully reworking ramp geometry from measured scene facts.
 
 ## What Was Done
-- Reorganized the documentation structure for better AI and human navigation.
-- Removed historical and noisy project documents that were no longer active sources of truth.
-- Moved AI-assistant support documents out of `docs/` into `meta/llm/`.
-- Renamed the Steam multiplayer research note to a stable, readable filename.
-- Added top-level index documents for:
-  - `docs/`
-  - `docs/architecture/`
-  - `docs/systems/`
-  - `docs/technical/`
-  - `docs/workplans/`
-  - `meta/`
-  - `meta/llm/`
+- Restored `DemoMain.tscn` to a loadable state after a broken ramp subresource reference caused scene parse failure.
+- Added focused ramp telemetry so the enemies now log target position, nav target, path points, floor state, collision names, commanded movement, actual displacement, local crowd count, recovery state, and ramp-vs-enemy collision counts.
+- Verified from logs that the issue is not only one thing: the ramp/platform bake is fragile, some enemies deadlock around the ramp entry, and the ramp collision produces unstable contact near the slope.
+- Measured the actual scene geometry and the baked navigation mesh around the tower instead of continuing blind code changes.
+- Confirmed that the previous ramp/platform join produced a very thin top overlap and a fragile navmesh bridge made of skinny triangles.
+- Applied two scene-side ramp transform revisions based on measurements rather than guesswork.
+- The latest revision aligns the ramp top to the platform edge to avoid baking the ramp under the platform slab, but the user still needs to clear and rebake the navmesh to verify whether the ramp is now included.
 
-## Documentation Structure Changes
-- `docs/` now contains only active project documentation.
-- `meta/` now contains assistant-facing and workflow-facing support material.
-- `docs/workplans/` now clearly holds execution guidance rather than product truth.
+## Files Touched
+- `godot/scenes/main/DemoMain.tscn`
+- `godot/scripts/enemy/debug/enemy_debug_snapshot.gd`
+- `godot/scripts/enemy/debug/enemy_debug_snapshot_builder.gd`
+- `godot/scripts/enemy/debug/enemy_debug_telemetry.gd`
+- `godot/scripts/enemy/enemy_controller.gd`
+- `godot/scripts/enemy/movement/enemy_goal_selector.gd`
 
-## Architecture Pass
-- Rewrote the active architecture docs to reduce overlap and make their roles explicit:
-  - `high-level-architecture.md`
-  - `module-boundaries.md`
-  - `networking.md`
-  - `save-and-progression.md`
-- Clarified current phase vs target-state multiplayer architecture.
-- Kept multiplayer as a later target while preserving compatibility in present decisions.
+## Decisions Made
+- Switched to debug-first diagnosis for the ramp issue instead of continuing speculative movement changes.
+- Kept the enemy-side telemetry because it is now genuinely useful for navigation debugging and not just temporary print spam.
+- Treated the current blocker as scene/navmesh geometry first, not as a pure AI goal-selection bug.
+- Preserved the stricter 3D goal validation changes in `enemy_goal_selector.gd`, because the older horizontal-only validation was misleading elevated-target selection.
+- Avoided additional enemy movement rewrites until the ramp bake and ramp/platform seam are confirmed healthy.
 
-## Systems Pass
-- Rewrote and narrowed system docs so each one answers a smaller, clearer question.
-- Added `docs/systems/README.md` as the gameplay-rule entry point.
-- Reduced overlap between:
-  - combat
-  - classes and abilities
-  - hero progression
-  - weapon mastery
-  - town progression
-  - death/extraction
-  - inventory
-  - missions/objectives
+## Open Problems
+- The user reported that after the previous measured ramp fix, the navmesh did not generate on the ramp at all.
+- That failure was explained by a clearance issue: the ramp top was entering the platform slab, so the baker likely saw insufficient headroom for the configured agent.
+- The latest ramp transform was adjusted again so the ramp terminates at the platform edge rather than under the slab, but this has not yet been verified after a fresh `Clear NavigationMesh` + `Bake NavigationMesh` cycle.
+- `DemoMain.tscn` still contains many broader working-tree changes unrelated to the narrow ramp task, so future edits in that file should be done carefully.
+- The platform visual mesh and platform collision are not perfectly aligned in size, which may still complicate visual interpretation during further scene debugging.
 
-## Technical Pass
-- Rewrote the active technical docs to separate workflow, conventions, standards, and release handling.
-- Added `docs/technical/README.md` as the implementation-constraint entry point.
+## Next Recommended Step
+1. Open `godot/scenes/main/DemoMain.tscn`.
+2. Select `WorldRoot/NavigationRegion3D`.
+3. Run `Clear NavigationMesh`, then `Bake NavigationMesh`.
+4. Inspect whether the ramp now receives navmesh coverage.
+5. If navmesh still does not appear on the ramp, inspect platform slab clearance and platform collision thickness before touching enemy movement again.
+6. If navmesh does appear but enemies still fail, reproduce once and re-read `user://debug/enemy_ramp_debug.txt` with the current telemetry fields already in place.
 
-## Current Source-Of-Truth Layout
-- `docs/decisions/`: highest authority for accepted architectural decisions
-- `docs/architecture/`: runtime structure and ownership
-- `docs/systems/`: gameplay rules
-- `docs/vision/`: product intent
-- `docs/technical/`: implementation constraints
-- `docs/research/`: non-normative notes
-- `docs/workplans/`: execution planning only
-- `meta/`: non-project AI support material
-
-## Current Project Framing
-- Product target: co-op extraction action game.
-- Current implementation phase: singleplayer-first vertical slice.
-- Current engineering focus:
-  - hero movement
-  - enemy movement
-  - combat feel
-  - AI navigation foundations
-
-## Suggested Next Steps
-1. Add an ADR index so an AI can find the relevant decision file in one hop.
-2. Review whether some older ADRs can be grouped by topic in the index:
-   - platform/runtime
-   - traversal/input/world model
-   - progression/save/death
-   - multiplayer/networking
-   - AI/navigation
-3. Re-check `research/` and `workplans/` periodically so they do not drift back into source-of-truth territory.
-
-## Later Clarification
-- `ADR-009` should stay a minimal save-foundation ADR.
-- `ADR-015` defines the inventory model, but its concrete persistence shape is deferred to a later schema extension when inventory becomes an active implementation target.
-
-## Latest Update
-- Added [docs/decisions/README.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/README.md) as the ADR entry point.
-- Normalized older ADR formatting and added clearer scope boundaries across the ADR layer.
-- Aligned overlapping ADR clusters:
-  - progression/save/death/town
-  - traversal/world/input/space
-  - AI/navigation
-- Performed a final consistency sweep across `docs/decisions/`, `docs/architecture/`, and `docs/systems/`.
-- Trimmed duplicated wording so:
-  - `decisions/` owns authoritative decisions
-  - `architecture/` owns runtime ownership and subsystem contracts
-  - `systems/` owns gameplay rules
-- Updated `docs/vision/` and `docs/project-header.md` to use the same tightened terminology as the ADR and architecture layers.
-- Added a short glossary to [docs/README.md](d:/Game/DEV/iiWii/iiwii/docs/README.md) for:
-  - `player-owned progression`
-  - `hero-bound`
-  - `town-bound`
-  - `host-authoritative`
-
-## Current Restart Point
-- Documentation structure and terminology are now in good shape for implementation work.
-- Tomorrow's practical starting point should be:
-  1. [docs/README.md](d:/Game/DEV/iiWii/iiwii/docs/README.md)
-  2. [docs/decisions/README.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/README.md)
-  3. the current movement/combat/AI docs relevant to the next coding task
-- Recommended implementation focus remains:
-  - hero movement
-  - enemy movement
-  - combat feel
-  - AI navigation foundations
-
-## Later Runtime Update
-- The first playable Godot foundation slice was completed as a prototype milestone.
-- Follow-up work was intentionally split into blocked behavior slices instead of continuing open-ended prototype polishing.
-- The new planning entry point is:
-  - [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md)
-- The next behavior slices now waiting for design answers are:
-  - [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
-  - [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
-  - [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
-
-## Current Planned Order
-1. Player attack behavior slice
-2. Enemy close-range / melee behavior slice
-3. Combat feedback and debug behavior slice
-
-## Current Runtime Baseline
-- The Godot 4.6 baseline prototype now exists in the repository under `godot/`.
-- The completed foundation slice already proves:
-  - player movement
-  - basic enemy navmesh chase
-  - minimal projectile attack
-  - enemy HP and death
-- Follow-up work should now proceed through the dedicated behavior slices instead of reopening the foundation slice for more polishing.
-
-## Commit Reference
-- Later docs cleanup commits:
-  - `fa43f52` - `docs: remove implementation-specific doc residue`
-  - `714617d` - `docs: simplify workplans for first playable slice`
-  - `e9b60c7` - `docs: add development governance and tracking`
+## Other Threads
+- Earlier in the broader worktree, the docs/skills layer was heavily updated and a large number of docs remain modified in git status. That was not the active implementation scope in the final part of this session.
+- Historical project framing still holds: current implementation focus remains player movement, enemy movement, combat feel, and AI navigation foundations.

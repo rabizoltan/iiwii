@@ -1,4 +1,8 @@
 # Enemy Movement Runtime Ownership
+Category: Runtime Architecture
+Role: Runtime Truth
+Last updated: 2026-03-16
+Last validated: 2026-03-16
 
 ## Purpose
 - Record the current implementation ownership after the enemy movement refactor.
@@ -33,6 +37,9 @@
   - External movement influence intake and application.
   - Currently formalizes authored external displacement accumulation/decay so external forces are no longer a special-case velocity path embedded directly in the controller.
   - Its controller-facing queue/apply APIs now use typed request/result objects instead of flattened dictionaries.
+- `enemy_runtime_state.gd`
+  - Typed runtime state containers for goal debug state, close-adjust debug state, yield debug state, hold debug state, and movement influence state.
+  - Centralizes controller-owned transient state objects so the enemy controller and helper modules share stable typed state instead of ad hoc dictionary payloads.
 - `enemy_debug_telemetry.gd`
   - Enemy debug label presentation, nav-path visualization, debug log writing, melee-hold log writing, and shared enemy profiling accumulators.
   - Goal-path debug capture now also uses a typed transport object instead of a small dictionary seam.

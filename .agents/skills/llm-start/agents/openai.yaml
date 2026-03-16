@@ -1,0 +1,8 @@
+name: llm-start
+interface:
+  display_name: "LLM Start"
+  short_description: "Fast project context reconstruction at session start using handover, docs, recent changes, and entry points."
+  default_prompt: "Use the $llm-start skill to quickly assess the current project state: find handover, core documentation, feature/system indexes, recent changes, and important entry points, then produce a short session context summary."
+
+policy:
+  allow_implicit_invocation: true

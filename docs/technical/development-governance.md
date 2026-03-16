@@ -1,4 +1,8 @@
 # Development Governance
+Category: Workflow
+Role: Ops Guide
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define the mandatory maintenance rules for code, docs, and project maps as development starts.

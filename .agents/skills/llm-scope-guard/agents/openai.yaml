@@ -1,0 +1,8 @@
+name: llm-scope-guard
+interface:
+  display_name: "LLM Scope Guard"
+  short_description: "Scope drift check comparing the original goal, the current direction, and the correct next step."
+  default_prompt: "Use the $llm-scope-guard skill to check whether the current work has drifted from the original task. Reconstruct the original goal, compare it to the current direction, flag drift, and provide the smallest correct next step."
+
+policy:
+  allow_implicit_invocation: true

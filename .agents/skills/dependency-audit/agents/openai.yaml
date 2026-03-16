@@ -1,0 +1,8 @@
+name: dependency-audit
+interface:
+  display_name: "Dependency Audit"
+  short_description: "Runs a focused dependency, coupling, and complexity audit for a topic using structured documentation sources."
+  default_prompt: "Use the $dependency-audit skill to perform a dependency, coupling, and complexity audit for a given topic. Derive scope from a feature matrix, feature overview, system index, or capability index rather than from a hardcoded subsystem list."
+
+policy:
+  allow_implicit_invocation: true

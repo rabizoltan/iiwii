@@ -10,6 +10,8 @@ class BuildRequest:
 
 	var enemy_name: String = ""
 	var global_position: Vector3 = Vector3.ZERO
+	var target_position: Vector3 = Vector3.ZERO
+	var nav_target_position: Vector3 = Vector3.ZERO
 	var debug_enabled: bool = false
 	var debug_log_enabled: bool = false
 	var melee_hold_debug_enabled: bool = false
@@ -27,6 +29,19 @@ class BuildRequest:
 	var stuck_elapsed: float = 0.0
 	var distance_to_target: float = -1.0
 	var distance_to_next: float = 0.0
+	var horizontal_speed: float = 0.0
+	var commanded_horizontal_speed: float = 0.0
+	var actual_horizontal_displacement: float = 0.0
+	var is_on_floor_now: bool = false
+	var floor_normal: Vector3 = Vector3.ZERO
+	var slide_collision_count: int = 0
+	var slide_collision_names: Array[String] = []
+	var nav_finished: bool = false
+	var recovery_elapsed: float = 0.0
+	var recovery_sign: float = 0.0
+	var local_enemy_count: int = 0
+	var ramp_collision_count: int = 0
+	var enemy_collision_count: int = 0
 	var melee_engage_distance: float = 0.0
 	var engage_hold_tolerance: float = 0.0
 	var melee_hold_displacement_log_threshold: float = 0.01
@@ -42,6 +57,8 @@ static func build(request: BuildRequest) -> EnemyDebugSnapshot:
 	var snapshot: EnemyDebugSnapshot = EnemyDebugSnapshot.new()
 	snapshot.enemy_name = request.enemy_name
 	snapshot.global_position = request.global_position
+	snapshot.target_position = request.target_position
+	snapshot.nav_target_position = request.nav_target_position
 	snapshot.debug_enabled = request.debug_enabled
 	snapshot.debug_log_enabled = request.debug_log_enabled
 	snapshot.melee_hold_debug_enabled = request.melee_hold_debug_enabled
@@ -62,6 +79,19 @@ static func build(request: BuildRequest) -> EnemyDebugSnapshot:
 	snapshot.stuck_elapsed = request.stuck_elapsed
 	snapshot.distance_to_target = request.distance_to_target
 	snapshot.distance_to_next = request.distance_to_next
+	snapshot.horizontal_speed = request.horizontal_speed
+	snapshot.commanded_horizontal_speed = request.commanded_horizontal_speed
+	snapshot.actual_horizontal_displacement = request.actual_horizontal_displacement
+	snapshot.is_on_floor_now = request.is_on_floor_now
+	snapshot.floor_normal = request.floor_normal
+	snapshot.slide_collision_count = request.slide_collision_count
+	snapshot.slide_collision_names = request.slide_collision_names
+	snapshot.nav_finished = request.nav_finished
+	snapshot.recovery_elapsed = request.recovery_elapsed
+	snapshot.recovery_sign = request.recovery_sign
+	snapshot.local_enemy_count = request.local_enemy_count
+	snapshot.ramp_collision_count = request.ramp_collision_count
+	snapshot.enemy_collision_count = request.enemy_collision_count
 	snapshot.debug_candidate_positions = request.goal_debug_state.candidate_positions
 	snapshot.debug_nav_cache_refreshed = request.close_adjust_debug_state.nav_cache_refreshed
 	snapshot.debug_close_adjust_path_distance = request.close_adjust_debug_state.path_distance

@@ -33,6 +33,7 @@ static var _last_melee_hold_flush_msec: int = 0
 const DEBUG_LOG_PATH := "user://debug/enemy_debug.log"
 const GOAL_PROJECTION_DEBUG_PATH := "user://debug/enemy_goal_projection_debug.txt"
 const MELEE_HOLD_DEBUG_PATH := "user://debug/enemy_melee_hold_debug.txt"
+const RAMP_DEBUG_PATH := "user://debug/enemy_ramp_debug.txt"
 const DEBUG_WRITE_INTERVAL_MSEC := 500
 const MELEE_HOLD_DEBUG_INTERVAL_MSEC := 100
 const MELEE_HOLD_DEBUG_FLUSH_INTERVAL_MSEC := 500
@@ -113,6 +114,13 @@ func prepare_debug_log(debug_enabled: bool, debug_log_enabled: bool) -> void:
 
 	goal_projection_file.store_line("--- enemy goal projection debug session start ---")
 	goal_projection_file.flush()
+
+	var ramp_debug_file := FileAccess.open(RAMP_DEBUG_PATH, FileAccess.WRITE)
+	if ramp_debug_file == null:
+		return
+
+	ramp_debug_file.store_line("--- enemy ramp debug session start ---")
+	ramp_debug_file.flush()
 
 
 func prepare_melee_hold_debug_log(melee_hold_debug_enabled: bool) -> void:
@@ -362,6 +370,8 @@ func append_debug_log(snapshot: EnemyDebugSnapshot, state_text: String, next_pos
 		]
 	)
 	goal_projection_file.flush()
+
+	_append_ramp_debug_log(snapshot, state_text, next_position, iteration_id)
 
 
 func clear_nav_path_debug() -> void:
@@ -617,3 +627,81 @@ static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+
+func _append_ramp_debug_log(
+	snapshot: EnemyDebugSnapshot,
+	state_text: String,
+	next_position: Vector3,
+	iteration_id: int
+) -> void:
+	var ramp_center := Vector3(-8.736, 0.8753768, 13.249806)
+	var ramp_radius := 6.5
+	var elevated_y_threshold := 1.5
+	var is_near_ramp := _horizontal_distance(snapshot.global_position, ramp_center) <= ramp_radius
+	var goal_near_ramp := _horizontal_distance(snapshot.current_goal_position, ramp_center) <= ramp_radius
+	var target_elevated := snapshot.target_position.y >= elevated_y_threshold
+	if not is_near_ramp and not goal_near_ramp and not target_elevated:
+		return
+
+	var ramp_file := FileAccess.open(RAMP_DEBUG_PATH, FileAccess.READ_WRITE)
+	if ramp_file == null:
+		return
+
+	var first_path_point := snapshot.current_path[0] if snapshot.current_path.size() >= 1 else Vector3.ZERO
+	var second_path_point := snapshot.current_path[1] if snapshot.current_path.size() >= 2 else Vector3.ZERO
+	ramp_file.seek_end()
+	ramp_file.store_line(
+		"%s | enemy=%s | state=%s | iter=%d | pos=(%.2f, %.2f, %.2f) | target=(%.2f, %.2f, %.2f) | goal=%s | goal_at=(%.2f, %.2f, %.2f) | nav_target=(%.2f, %.2f, %.2f) | next=(%.2f, %.2f, %.2f) | speed=%.2f | cmd_speed=%.2f | actual_disp=%.3f | nav_finished=%s | on_floor=%s | floor_n=(%.2f, %.2f, %.2f) | stuck=%.2f | recovery=%.2f@%.0f | d_target=%.2f | d_next=%.2f | local_enemies=%d | path_pts=%d | path_0=(%.2f, %.2f, %.2f) | path_1=(%.2f, %.2f, %.2f) | goal_proj_err=%.2f | goal_path_err=%.2f | collisions=%d | ramp_hits=%d | enemy_hits=%d | colliders=%s | close_crowd=%.2f | yield_neighbors=%d | yield_strength=%.2f" % [
+			Time.get_datetime_string_from_system(),
+			snapshot.enemy_name,
+			state_text,
+			iteration_id,
+			snapshot.global_position.x,
+			snapshot.global_position.y,
+			snapshot.global_position.z,
+			snapshot.target_position.x,
+			snapshot.target_position.y,
+			snapshot.target_position.z,
+			str(snapshot.has_goal),
+			snapshot.current_goal_position.x,
+			snapshot.current_goal_position.y,
+			snapshot.current_goal_position.z,
+			snapshot.nav_target_position.x,
+			snapshot.nav_target_position.y,
+			snapshot.nav_target_position.z,
+			next_position.x,
+			next_position.y,
+			next_position.z,
+			snapshot.horizontal_speed,
+			snapshot.commanded_horizontal_speed,
+			snapshot.actual_horizontal_displacement,
+			str(snapshot.nav_finished),
+			str(snapshot.is_on_floor_now),
+			snapshot.floor_normal.x,
+			snapshot.floor_normal.y,
+			snapshot.floor_normal.z,
+			snapshot.stuck_elapsed,
+			snapshot.recovery_elapsed,
+			snapshot.recovery_sign,
+			snapshot.distance_to_target,
+			snapshot.distance_to_next,
+			snapshot.local_enemy_count,
+			snapshot.path_point_count,
+			first_path_point.x,
+			first_path_point.y,
+			first_path_point.z,
+			second_path_point.x,
+			second_path_point.y,
+			second_path_point.z,
+			snapshot.debug_goal_projection_error,
+			snapshot.debug_goal_path_end_error,
+			snapshot.slide_collision_count,
+			snapshot.ramp_collision_count,
+			snapshot.enemy_collision_count,
+			",".join(snapshot.slide_collision_names),
+			snapshot.debug_close_adjust_crowd_pressure,
+			snapshot.debug_yield_neighbor_count,
+			snapshot.debug_yield_strength,
+		]
+	)
+	ramp_file.flush()

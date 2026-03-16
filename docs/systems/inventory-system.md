@@ -1,4 +1,8 @@
 # Inventory System (Loadout, Backpack, Town Chest)
+Category: Progression System
+Role: Forward Note
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Scope Note
 - This is a later-phase system doc.

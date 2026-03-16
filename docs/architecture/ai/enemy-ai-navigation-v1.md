@@ -1,4 +1,8 @@
 # Enemy AI Navigation v1
+Category: Runtime Architecture
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Status
 - Partially implemented.

@@ -1,4 +1,8 @@
 # Weapon Mastery (Weapon XP + Town Knowledge Unlocks)
+Category: Progression System
+Role: Forward Note
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define weapon-type XP and town weapon knowledge.

@@ -1,4 +1,8 @@
 # Death and Extraction
+Category: Gameplay System
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Outcome Philosophy
 Failure must be meaningful but not account-invalidating.

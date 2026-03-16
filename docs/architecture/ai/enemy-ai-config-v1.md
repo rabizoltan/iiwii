@@ -1,4 +1,8 @@
 # Enemy AI Config v1
+Category: Runtime Architecture
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 This config centralizes tunables so behavior changes do not require rewrites.
 

@@ -1,0 +1,8 @@
+name: git-guard
+interface:
+  display_name: "Git Guard"
+  short_description: "Keeps Godot cache, import, log, and debug output safely out of Git through focused `.gitignore` review."
+  default_prompt: "Use the $git-guard skill to review the repository and existing `.gitignore` files, and extend them so Godot-regenerable cache, import, editor-temp, log, and debug files do not enter Git."
+
+policy:
+  allow_implicit_invocation: true

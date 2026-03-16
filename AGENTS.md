@@ -1,0 +1,43 @@
+# AGENTS.md instructions for d:\Game\DEV\iiWii\iiwii
+
+## Skills
+A skill is a set of local instructions to follow that is stored in a `SKILL.md` file. Below is the list of skills that can be used. Each entry includes a name, description, and file path so you can open the source for full instructions when using a specific skill.
+
+### Available skills
+- Boss Agent: Use this when a task needs strict scope control, worker routing, and synthesis of delegated results. The Boss Agent may delegate only to `worker-*` skills and never to standalone skills. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/boss-agent/SKILL.md)
+- create-feature-docs: Use this when the project's top-down documentation foundation is missing or needs cleanup. It creates or updates the feature matrix, system architecture docs, subsystem docs, and dependency graph. Supported modes: FeatureMatrix, Architecture, DetailedDocs, DependencyGraph. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/create-feature-docs/SKILL.md)
+- debug-guard: Use this when debug logs, debug-only features, debug input, cheats, or developer helper code need review so they do not stay active in release builds. Supported modes: `Scan` and `Fix`. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/debug-guard/SKILL.md)
+- dependency-audit: Use this when a topic needs a dependency, coupling, or complexity audit. Derive scope from the feature matrix, feature overview, system index, capability index, or similar structured docs instead of from a hardcoded subsystem list. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/dependency-audit/SKILL.md)
+- docs-for-current-scope: Ensures that the current development scope is properly documented. Updates existing documentation when possible, creates new documentation when necessary, and updates the feature matrix so the feature becomes part of the project's documented structure. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/docs-for-current-scope/SKILL.md)
+- docs-review: Use this as the default full docs-review workflow. It assesses docs state, auto-classifies files, moves them into the right layers, stages uncertain cases, and runs the manual-review logic in the internal pipeline. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/docs-review/SKILL.md)
+- docs-update: Use this for aggressive filename, content, and top-level canonical docs cleanup. It is for reorganizing the main `docs/` layer by category, role, ownership, merge/split decisions, guide/system/style distinctions, and discoverability. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/docs-update/SKILL.md)
+- docs-validator: Use this when you need to verify that final documentation in the canonical `docs/` layer actually matches the current code state. It supports file, category, or full validation modes and focuses by default on `Role: Runtime Truth` docs. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/docs-validator/SKILL.md)
+- git-guard: Use this when the repository `.gitignore` files and repo contents need review so Godot-regenerated cache, import, editor-temp, log, and debug output files do not end up in Git while the project still remains runnable after clone. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/git-guard/SKILL.md)
+- llm-end: Use this when a development session ends and the project handover document needs a safe update. The skill summarizes session-end state, modified files, decisions, open problems, and the next step, and primarily updates the existing handover file. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/llm-end/SKILL.md)
+- llm-feature-review: Use this when a feature or subsystem needs a high-level conceptual validation review. Quick: fast conceptual validation that detects obvious contradictions, missing definitions, and major design risks. Deep: broader conceptual validation that inspects documentation, architecture relationships, and related code to identify deeper inconsistencies or design flaws. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/llm-feature-review/SKILL.md)
+- llm-regression-check: Detect possible regressions caused by recent changes, with focus on cross-feature impact, unreachable paths, behavior drift, and subsystem contract violations. Use when checking whether modifications in one subsystem may have negatively affected other features; optional topic narrows scope. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/llm-regression-check/SKILL.md)
+- llm-scope-guard: Use this when you need to check whether the current development work has drifted away from the original task. The skill reconstructs the original scope, compares it against the current direction, flags drift, and proposes the smallest correct next step. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/llm-scope-guard/SKILL.md)
+- llm-start: Use this when a development session starts and you need to quickly reconstruct the current project state. The skill follows a priority context-reconstruction strategy: handover, primary documentation, feature/system indexes, recent changes, entry points, then a short session context summary. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/llm-start/SKILL.md)
+- openai-docs: Use when the user asks how to build with OpenAI products or APIs and needs up-to-date official documentation with citations, help choosing the latest model for a use case, or explicit GPT-5.4 upgrade and prompt-upgrade guidance; prioritize OpenAI docs MCP tools, use bundled references only as helper context, and restrict any fallback browsing to official OpenAI domains. (file: C:/Users/kissg/.codex/skills/.system/openai-docs/SKILL.md)
+- refactor-planner: Use this when you need a refactor plan, not implementation, for an existing codebase. It supports Quick and Deep modes: Quick = short narrow execution plan; Deep = primary and secondary findings, guardrails, stability conditions, detailed slices, and documentation/archive closure. Use it when the user wants to organize a subsystem, file, folder, or architecture-coupling refactor into a structured task document. (file: D:/Game/DEV/iiWii/iiwii/.agents/skills/refactor-planner/SKILL.md)
+- skill-creator: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Codex's capabilities with specialized knowledge, workflows, or tool integrations. (file: C:/Users/kissg/.codex/skills/.system/skill-creator/SKILL.md)
+- skill-installer: Install Codex skills into $CODEX_HOME/skills from a curated list or a GitHub repo path. Use when a user asks to list installable skills, install a curated skill, or install a skill from another repo (including private repos). (file: C:/Users/kissg/.codex/skills/.system/skill-installer/SKILL.md)
+
+### How to use skills
+- Discovery: The list above is the skills available in this session (name + description + file path). Skill bodies live on disk at the listed paths.
+- Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill's description shown above, you must use that skill for that turn. Multiple mentions mean use them all. Do not carry skills across turns unless re-mentioned.
+- Missing/blocked: If a named skill isn't in the list or the path can't be read, say so briefly and continue with the best fallback.
+- How to use a skill (progressive disclosure):
+  1) After deciding to use a skill, open its `SKILL.md`. Read only enough to follow the workflow.
+  2) When `SKILL.md` references relative paths (e.g., `scripts/foo.py`), resolve them relative to the skill directory listed above first, and only consider other paths if needed.
+  3) If `SKILL.md` points to extra folders such as `references/`, load only the specific files needed for the request; don't bulk-load everything.
+  4) If `scripts/` exist, prefer running or patching them instead of retyping large code blocks.
+  5) If `assets/` or templates exist, reuse them instead of recreating from scratch.
+- Coordination and sequencing:
+  - If multiple skills apply, choose the minimal set that covers the request and state the order you'll use them.
+  - Announce which skill(s) you're using and why (one short line). If you skip an obvious skill, say why.
+- Context hygiene:
+  - Keep context small: summarize long sections instead of pasting them; only load extra files when needed.
+  - Avoid deep reference-chasing: prefer opening only files directly linked from `SKILL.md` unless you're blocked.
+  - When variants exist (frameworks, providers, domains), pick only the relevant reference file(s) and note that choice.
+- Safety and fallback: If a skill can't be applied cleanly (missing files, unclear instructions), state the issue, pick the next-best approach, and continue.

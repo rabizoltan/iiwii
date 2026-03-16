@@ -1,4 +1,8 @@
 # Missions and Objectives
+Category: Gameplay System
+Role: Forward Note
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Scope Note
 - This doc describes target mission structure.

@@ -1,4 +1,8 @@
 # Enemy AI Navigation v1 - Test Plan
+Category: Verification
+Role: Verification Guide
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Status
 - Mixed state.

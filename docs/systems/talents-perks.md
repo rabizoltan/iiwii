@@ -1,4 +1,8 @@
 # Talents and Perks
+Category: Progression System
+Role: Forward Note
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Intent
 - Define only the persistence and ownership boundaries for talents and perks.

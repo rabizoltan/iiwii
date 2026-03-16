@@ -1,0 +1,8 @@
+name: llm-end
+interface:
+  display_name: "LLM End"
+  short_description: "End-of-session handover update covering what happened, what changed, what remains open, and what should happen next."
+  default_prompt: "Use the $llm-end skill to update the session handover safely. Prefer updating an existing handover document and record the focus, completed work, touched files, decisions, open problems, and the next recommended step."
+
+policy:
+  allow_implicit_invocation: true

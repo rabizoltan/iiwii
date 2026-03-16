@@ -1,0 +1,8 @@
+name: refactor-planner
+interface:
+  display_name: "Refactor Planner"
+  short_description: "Creates a Quick or Deep refactor plan without code changes, including task structure and archive closure guidance."
+  default_prompt: "Use the $refactor-planner skill in Deep mode for this topic, then produce an executable task document with primary and secondary findings, guardrails, execution slices, and documentation/archive closure steps."
+
+policy:
+  allow_implicit_invocation: true

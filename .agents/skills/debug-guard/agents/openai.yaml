@@ -1,0 +1,8 @@
+name: debug-guard
+interface:
+  display_name: "Debug Guard"
+  short_description: "Review and safely guard debug-only code so it does not remain active in release builds."
+  default_prompt: "Use the $debug-guard skill to inspect project code files. In `Scan` mode, only list suspicious debug-only locations; in `Fix` mode, guard only the clearly debug-only elements using project style."
+
+policy:
+  allow_implicit_invocation: true

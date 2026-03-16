@@ -1,0 +1,8 @@
+name: docs-update
+interface:
+  display_name: "Docs Update"
+  short_description: "Reorganizes the canonical docs layer into a validator-compatible state by fixing category, role, and content metadata."
+  default_prompt: "Use the $docs-update skill for aggressive filename and content reorganization in the canonical docs layer. Apply categories to filenames and document headers, add the `Role` field where needed, and ask when a canonical document's classification is unclear."
+
+policy:
+  allow_implicit_invocation: true

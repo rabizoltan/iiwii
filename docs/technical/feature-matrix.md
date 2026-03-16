@@ -1,4 +1,8 @@
 # Feature Matrix
+Category: Runtime System
+Role: Runtime Truth
+Last updated: 2026-03-16
+Last validated: 2026-03-16
 
 ## Purpose
 - Track actual feature state in one place.

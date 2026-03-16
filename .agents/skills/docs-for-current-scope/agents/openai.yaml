@@ -1,0 +1,8 @@
+name: docs-for-current-scope
+interface:
+  display_name: "Docs For Current Scope"
+  short_description: "Document the current development scope by updating existing docs or creating new ones, plus feature-matrix sync."
+  default_prompt: "Use the $docs-for-current-scope skill to ensure the current development scope is properly documented. Prefer updating existing documentation, create new docs only when necessary, and always update the feature matrix as well."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,4 +1,8 @@
 # Movement Spec
+Category: Runtime System
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 This document defines the intended runtime player locomotion/traversal behavior for the vertical slice.
 

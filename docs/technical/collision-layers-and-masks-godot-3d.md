@@ -1,4 +1,8 @@
 # Collision Layers & Masks (Godot 3D)
+Category: Technical Standards
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 Define a stable collision-layer convention to avoid rework in:

@@ -1,4 +1,8 @@
 # High-Level Architecture
+Category: Runtime Architecture
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define the runtime shape of the project at the highest level.

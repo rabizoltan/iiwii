@@ -1,4 +1,8 @@
 # Classes and Abilities
+Category: Gameplay System
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Describe the target class and ability model.

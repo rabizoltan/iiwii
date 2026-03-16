@@ -1,0 +1,8 @@
+name: docs-validator
+interface:
+  display_name: "Docs Validator"
+  short_description: "Validates final canonical docs and auto-fixes clear factual drift when safe."
+  default_prompt: "Use the $docs-validator skill to verify whether final canonical documentation matches the current code state. By default validate only `Role: Runtime Truth` style docs, auto-fix certain drift when safe, and use `Last validated` to reduce unnecessary rechecks."
+
+policy:
+  allow_implicit_invocation: true

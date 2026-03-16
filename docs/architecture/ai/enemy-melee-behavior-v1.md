@@ -1,4 +1,8 @@
 # Enemy Melee Behavior v1
+Category: Runtime Architecture
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Status
 - Target behavior contract for the melee rebuild.

@@ -1,4 +1,8 @@
 # Code Map
+Category: Runtime Architecture
+Role: Runtime Truth
+Last updated: 2026-03-16
+Last validated: 2026-03-16
 
 ## Purpose
 - Track the actual runtime file relationships once code exists.
@@ -35,6 +39,7 @@ Use one row per important runtime file or scene once implementation starts.
 | `godot/scripts/enemy/movement/enemy_crowd_query.gd` | script | Shared enemy registry ownership, spread-query filtering, and short-lived local-neighbor cache policy for crowd-aware movement lookups | `godot/scripts/enemy/enemy_controller.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
 | `godot/scripts/enemy/movement/enemy_navigation_locomotion.gd` | script | Navigation-cache refresh policy, nav next-position resolution, approach locomotion shaping helpers, and typed locomotion request/result boundaries | `godot/scripts/enemy/enemy_controller.gd` | [enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md), [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
 | `godot/scripts/enemy/movement/enemy_movement_influence.gd` | script | External movement influence intake and decay/application for authored displacement, with typed queue/apply request-result boundaries | `godot/scripts/enemy/enemy_controller.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
+| `godot/scripts/enemy/state/enemy_runtime_state.gd` | script | Typed runtime state containers for goal debug state, close-adjust debug state, yield debug state, hold debug state, and movement influence state used by the enemy controller and movement helpers | `godot/scripts/enemy/enemy_controller.gd`, `godot/scripts/enemy/movement/enemy_movement_influence.gd`, `godot/scripts/enemy/debug/enemy_debug_snapshot_builder.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
 | `godot/scripts/enemy/debug/enemy_debug_snapshot.gd` | script | Typed telemetry transport object assembled by the enemy controller and consumed by enemy debug telemetry | `godot/scripts/enemy/enemy_controller.gd`, `godot/scripts/enemy/debug/enemy_debug_telemetry.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
 | `godot/scripts/enemy/debug/enemy_debug_snapshot_builder.gd` | script | Typed debug snapshot assembly from controller/runtime state into telemetry transport objects | `godot/scripts/enemy/enemy_controller.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md) |
 | `godot/scripts/enemy/debug/enemy_debug_telemetry.gd` | script | Enemy nav-path visualization, typed goal-path debug capture, debug log writing, deduplicated melee-hold debug logging, and shared profiling accumulators | `godot/scripts/enemy/enemy_controller.gd` | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md), [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |

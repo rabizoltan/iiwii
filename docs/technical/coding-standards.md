@@ -1,4 +1,8 @@
 # Coding Standards
+Category: Technical Standards
+Role: Style System
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define repository-wide engineering expectations.

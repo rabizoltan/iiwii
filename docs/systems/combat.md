@@ -1,4 +1,8 @@
 # Combat
+Category: Runtime System
+Role: Runtime Truth
+Last updated: 2026-03-16
+Last validated: 2026-03-16
 
 ## Purpose
 - Define combat behavior for the vertical slice.

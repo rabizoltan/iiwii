@@ -1,0 +1,8 @@
+name: llm-regression-check
+interface:
+  display_name: "LLM Regression Check"
+  short_description: "Detect possible regressions from recent changes with cross-feature impact analysis."
+  default_prompt: "Use the $llm-regression-check skill to assess regression risks based on recent changes, with particular attention to cross-feature impact and contract violations."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,8 @@
+name: create-feature-docs
+interface:
+  display_name: "Create Feature Docs"
+  short_description: "Bootstraps the feature matrix, architecture docs, subsystem docs, and dependency graph inside the project's docs layer."
+  default_prompt: "Use the $create-feature-docs skill for full top-down documentation bootstrap based on the repository: FeatureMatrix, Architecture, DetailedDocs, DependencyGraph."
+
+policy:
+  allow_implicit_invocation: true

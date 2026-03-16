@@ -1,0 +1,8 @@
+name: llm-feature-review
+interface:
+  display_name: "LLM Feature Review"
+  short_description: "Conceptual feature or subsystem validation focused on contradictions, missing definitions, and design risks."
+  default_prompt: "Use the $llm-feature-review skill for conceptual validation of a feature or subsystem. In `Quick` mode, provide a fast sanity check; in `Deep` mode, perform deeper validation across documentation, architecture, and related code."
+
+policy:
+  allow_implicit_invocation: true

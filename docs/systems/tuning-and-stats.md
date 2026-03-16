@@ -1,4 +1,8 @@
 # Tuning And Stats
+Category: Gameplay System
+Role: Reference Contract
+Last updated: 2026-03-16
+Last validated: pending
 
 This document defines the intended ownership and organization of gameplay tuning data.
 

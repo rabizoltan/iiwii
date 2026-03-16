@@ -142,7 +142,7 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 		debug_info.used_fallback = true
 		debug_info.raw_candidate = center
 		debug_info.projected_candidate = fallback_candidate
-		debug_info.projection_error = _horizontal_distance(center, fallback_candidate)
+		debug_info.projection_error = center.distance_to(fallback_candidate)
 		var fallback_path_metrics := measure_candidate_path_metrics(
 			navigation_map,
 			global_position,
@@ -242,7 +242,7 @@ static func measure_candidate_path_metrics(
 
 	var path_end: Vector3 = path[path.size() - 1]
 	result.length = _measure_path_length(path)
-	result.end_error = _horizontal_distance(path_end, candidate)
+	result.end_error = path_end.distance_to(candidate)
 	return result
 
 
@@ -256,7 +256,7 @@ static func _project_candidate_to_nav(
 	if projected_candidate == Vector3.ZERO and NavigationServer3D.map_get_iteration_id(navigation_map) == 0:
 		return invalid_point
 
-	if _horizontal_distance(candidate, projected_candidate) > projection_tolerance:
+	if candidate.distance_to(projected_candidate) > projection_tolerance:
 		return invalid_point
 
 	return projected_candidate

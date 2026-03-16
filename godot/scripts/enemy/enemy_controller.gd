@@ -26,6 +26,8 @@ class PhysicsStepResult:
 @export var move_speed: float = 4.5
 @export var turn_speed: float = 8.0
 @export var target_path: NodePath
+@export var walkable_floor_max_angle_degrees: float = 55.0
+@export var walkable_floor_snap_length: float = 0.35
 
 # Debug and health
 @export var debug_enabled: bool = true
@@ -126,6 +128,10 @@ var _close_adjust_side_commit_remaining: float = 0.0
 var _close_adjust_debug_state: EnemyRuntimeState.CloseAdjustDebugState
 var _yield_debug_state: EnemyRuntimeState.YieldDebugState
 var _hold_debug_state: EnemyRuntimeState.HoldDebugState
+var _last_actual_horizontal_displacement: float = 0.0
+var _last_local_enemy_count: int = 0
+var _last_ramp_collision_count: int = 0
+var _last_enemy_collision_count: int = 0
 
 const MELEE_HOLD_DISPLACEMENT_LOG_THRESHOLD := 0.01
 const INVALID_POINT := Vector3(INF, INF, INF)
@@ -142,6 +148,8 @@ func _exit_tree() -> void:
 
 func _ready() -> void:
 	_current_hp = max_hp
+	floor_max_angle = deg_to_rad(walkable_floor_max_angle_degrees)
+	floor_snap_length = walkable_floor_snap_length
 	_goal_select_cooldown_remaining = randf() * maxf(goal_select_start_jitter, 0.0)
 	_goal_debug_state = EnemyRuntimeState.GoalDebugState.new()
 	_close_adjust_debug_state = EnemyRuntimeState.CloseAdjustDebugState.new()
@@ -756,6 +764,7 @@ func _update_stuck_state(delta: float, pre_move_position: Vector3, attempted_hor
 
 	var horizontal_delta := global_position - pre_move_position
 	horizontal_delta.y = 0.0
+	_last_actual_horizontal_displacement = horizontal_delta.length()
 
 	if horizontal_delta.length() <= stuck_min_progress_distance:
 		_stuck_elapsed += delta
@@ -988,8 +997,31 @@ func _distance_to_target_or_default() -> float:
 func _build_debug_snapshot(distance_to_target: float, distance_to_next: float) -> EnemyDebugSnapshot:
 	var profile_start_usec := _profile_start_usec()
 	var request: EnemyDebugSnapshotBuilder.BuildRequest = EnemyDebugSnapshotBuilder.BuildRequest.new()
+	var current_target_position := _target_node.global_position if _target_node != null else Vector3.ZERO
+	var slide_collision_names: Array[String] = []
+	var ramp_collision_count: int = 0
+	var enemy_collision_count: int = 0
+	for collision_index in range(get_slide_collision_count()):
+		var collision := get_slide_collision(collision_index)
+		if collision == null:
+			continue
+		var collider := collision.get_collider()
+		if collider is Node:
+			var collider_node: Node = collider as Node
+			var collider_name: String = collider_node.name
+			slide_collision_names.append(collider_name)
+			if collider_name == "ShootingTowerRamp" or collider_name == "ShotingTowerRamp":
+				ramp_collision_count += 1
+			if collider_name.begins_with("Enemy"):
+				enemy_collision_count += 1
+		elif collider != null:
+			slide_collision_names.append(str(collider))
+		else:
+			slide_collision_names.append("<null>")
 	request.enemy_name = name
 	request.global_position = global_position
+	request.target_position = current_target_position
+	request.nav_target_position = _nav_agent.target_position
 	request.debug_enabled = debug_enabled
 	request.debug_log_enabled = debug_log_enabled
 	request.melee_hold_debug_enabled = melee_hold_debug_enabled
@@ -1005,8 +1037,24 @@ func _build_debug_snapshot(distance_to_target: float, distance_to_next: float) -
 	request.goal_age = _goal_age
 	request.current_path = _nav_agent.get_current_navigation_path()
 	request.stuck_elapsed = _stuck_elapsed
+	_last_local_enemy_count = _get_cached_local_enemy_positions(crowd_pressure_block_neighbor_radius).size()
+	_last_ramp_collision_count = ramp_collision_count
+	_last_enemy_collision_count = enemy_collision_count
 	request.distance_to_target = distance_to_target
 	request.distance_to_next = distance_to_next
+	request.horizontal_speed = Vector2(velocity.x, velocity.z).length()
+	request.commanded_horizontal_speed = Vector2(velocity.x, velocity.z).length()
+	request.actual_horizontal_displacement = _last_actual_horizontal_displacement
+	request.is_on_floor_now = is_on_floor()
+	request.floor_normal = get_floor_normal() if request.is_on_floor_now else Vector3.ZERO
+	request.slide_collision_count = get_slide_collision_count()
+	request.slide_collision_names = slide_collision_names
+	request.nav_finished = _nav_agent.is_navigation_finished()
+	request.recovery_elapsed = _recovery_elapsed
+	request.recovery_sign = _recovery_sign
+	request.local_enemy_count = _last_local_enemy_count
+	request.ramp_collision_count = _last_ramp_collision_count
+	request.enemy_collision_count = _last_enemy_collision_count
 	request.melee_engage_distance = melee_engage_distance
 	request.engage_hold_tolerance = engage_hold_tolerance
 	request.melee_hold_displacement_log_threshold = MELEE_HOLD_DISPLACEMENT_LOG_THRESHOLD

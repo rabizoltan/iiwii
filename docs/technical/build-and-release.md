@@ -1,4 +1,8 @@
 # Build and Release
+Category: Technical Operations
+Role: Ops Guide
+Last updated: 2026-03-16
+Last validated: pending
 
 ## Purpose
 - Define milestone validation and release handling.
