@@ -20,7 +20,7 @@ Last validated: pending
 | --- | --- | --- | --- |
 | Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for enemy status, nav path, and projectile debug lines | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
-| Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, and dense crowd pressure | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
+| Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
 | Runtime observability and profiling | `godot/scenes/main/DemoMain.tscn`, debug overlay, debug logs under `user://debug` | manual visual checks plus lightweight file/log inspection | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
 
 ## Current Validation Fixtures
@@ -34,6 +34,8 @@ Last validated: pending
   - shared debug overlay and debug-world anchors
 
 ## Shared Validation Aids
+- When debugging enemy traversal, verify the enemy collision capsule, body mesh fit, and NavigationAgent3D dimensions before assuming a navmesh or controller bug.
+
 - `F3` debug menu for central toggle-based runtime visibility
 - enemy status labels
 - enemy nav path visualization
@@ -56,3 +58,5 @@ Last validated: pending
 - Update this file when a behavior slice adds a stable manual validation recipe worth reusing.
 - Update [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) when validation depends on a new runtime-owned debug surface.
 - Update [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md) if validation changes feature readiness or status.
+
+

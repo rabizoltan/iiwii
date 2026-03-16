@@ -56,6 +56,9 @@ This project uses a continuous 3D space model and free aim.
 - Player `VaultDetector` overlaps trigger layer used by `Vaultable` areas.
 
 ## Notes
+- For CharacterBody3D actors, collision-layer correctness is necessary but not sufficient; the collision shape size and offset must also match the visible body and traversal surfaces.
+- Enemy ramp failures in the current project were successfully traced to collision-envelope mismatch rather than nav logic, so physical envelope checks should be part of collision debugging.
+
 - Keep `GroundAim` enabled on floor surfaces.
 - Keep vault/crouch/extract zones non-blocking trigger areas.
 - Separate body and hurtbox colliders where possible.
@@ -65,3 +68,5 @@ This project uses a continuous 3D space model and free aim.
 - Normal player movement should collide with `EnemyBody` and be subject to body pressure or blocking.
 - Player dodge or another explicit escape move should temporarily become `ghosted` or `unhindered` against `EnemyBody`.
 - Prefer implementing that with a temporary player collision mask change during the escape state rather than with continuous body-push logic.
+
+
