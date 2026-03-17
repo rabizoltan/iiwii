@@ -12,6 +12,7 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - Enemy runtime cleanup is now centered on a thinner [enemy_controller.gd](d:/Game/DEV/iiWii/iiwii/godot/scripts/enemy/enemy_controller.gd) plus a dedicated [enemy_runtime_policy.gd](d:/Game/DEV/iiWii/iiwii/godot/scripts/enemy/movement/enemy_runtime_policy.gd).
 - The debug surface is now limited to the shared `F3` menu path: enemy nav path, projectile debug lines, lightweight runtime stats, and enemy profiling.
 - Runtime-truth and validation docs were updated to match the refactor and the removed enemy-status path.
+- Added a short scaling-strategy note in the high-level architecture doc to capture the project preference for reuse, pooling when justified, shared systems, and procedural/data-driven leverage without overstating current implementation.
 
 ## What Was Done
 - Removed the old enemy-status debug path end-to-end from the enemy scene, debug overlay, controller, and telemetry.
@@ -41,6 +42,7 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - `docs/technical/feature-matrix.md`
 - `docs/technical/validation-map.md`
 - `docs/workplans/debug-control-panel-slice.md`
+- `docs/architecture/high-level-architecture.md`
 - `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`
 - `docs/workplans/session-handoff-2026-03-08.md`
 
@@ -49,6 +51,7 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - `enemy_controller.gd` should remain the scene-facing shell, while goal-lifetime and nav-cache policy now belong in `enemy_runtime_policy.gd`.
 - Enemy debug telemetry is now intentionally minimal: nav-path rendering and profiling only.
 - Runtime-truth docs should describe the post-cleanup ownership split rather than the older controller-heavy version.
+- High-level architecture docs may record scaling principles, but they should stay framed as guidance rather than as claims that large-scale systems are already implemented.
 
 ## Open Problems
 - No active gameplay regression is recorded, but the refactor was only lightly validated: the user confirmed the game looked okay, and there was no automated or scripted Godot test run.
@@ -56,9 +59,9 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - The new helper created a Godot `.uid` file in the worktree; that is expected for the new script, but it is still uncommitted.
 
 ## Next Recommended Step
-1. Commit the cleanup/refactor batch if the current diff looks good to the user.
-2. If a final confidence pass is desired, do one short in-engine smoke test focused on enemy nav-path toggle, projectile debug lines, profiling overlay, and baseline enemy approach/hold behavior in `DemoMain`.
-3. After that, move to the next gameplay slice instead of continuing cleanup unless a concrete regression appears.
+1. The cleanup/refactor batch is committed and pushed; treat the current repo state as the new baseline.
+2. When work resumes, move to the next gameplay slice unless a concrete regression appears.
+3. If future scaling/performance work comes up, use the new high-level scaling-strategy note as guidance, not as a mandate to introduce heavier architecture early.
 
 ## Other Threads
 - The architecture/workplan cleanup produced a new planning artifact at `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`.

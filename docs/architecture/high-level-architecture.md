@@ -1,7 +1,7 @@
 # High-Level Architecture
 Category: Runtime Architecture
 Role: Reference Contract
-Last updated: 2026-03-16
+Last updated: 2026-03-18
 Last validated: pending
 
 ## Purpose
@@ -39,3 +39,10 @@ Last validated: pending
 - Isolate gameplay rules from UI and transport.
 - Keep persistence player-owned.
 - Avoid early structure that would block later multiplayer integration.
+
+## Scaling Strategy
+- Prefer systems that scale content and simulation through reuse rather than one-off manual work.
+- For high-activity gameplay, prefer pooled or recycled runtime objects over constant spawn/free churn when profiling justifies it.
+- Prefer shared update paths and explicit subsystem ownership before reaching for per-entity complexity or heavier architecture.
+- Use procedural or data-driven authoring where it meaningfully reduces repeated asset work, but do not force it into areas where hand-authored content is clearer.
+- Treat advanced data-oriented or multi-core architecture as a scale tool, not a default requirement; adopt it only when the real game volume justifies the extra complexity.
