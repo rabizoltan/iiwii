@@ -1,34 +1,31 @@
-[gd_scene load_steps=6 format=3 uid="uid://b2yskxwffqel1"]
+[gd_scene format=3 uid="uid://b2yskxwffqel1"]
 
-[ext_resource type="Script" path="res://scripts/player/player_controller.gd" id="1"]
+[ext_resource type="Script" uid="uid://brcn51ibr5n2m" path="res://scripts/player/player_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/projectiles/Projectile.tscn" id="2"]
 
 [sub_resource type="CapsuleShape3D" id="1"]
 radius = 0.45
-height = 1.0
-
-[sub_resource type="CapsuleMesh" id="2"]
-radius = 0.45
-mid_height = 1.0
+height = 1.8952637
 
 [sub_resource type="StandardMaterial3D" id="3"]
 albedo_color = Color(0.227451, 0.780392, 0.529412, 1)
-roughness = 1.0
 
-[node name="Player" type="CharacterBody3D" groups=["player"]]
-collision_layer = 1
+[sub_resource type="CapsuleMesh" id="2"]
+radius = 0.45
+
+[node name="Player" type="CharacterBody3D" unique_id=719417843 groups=["player"]]
 collision_mask = 3
 script = ExtResource("1")
 projectile_scene = ExtResource("2")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-position = Vector3(0, 0.95, 0)
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1963715558]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95500493, 0)
 shape = SubResource("1")
 
-[node name="BodyMesh" type="MeshInstance3D" parent="."]
-position = Vector3(0, 0.95, 0)
-mesh = SubResource("2")
+[node name="BodyMesh" type="MeshInstance3D" parent="." unique_id=1390417887]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 material_override = SubResource("3")
+mesh = SubResource("2")
 
-[node name="ProjectileSpawn" type="Marker3D" parent="."]
-position = Vector3(0, 1.1, 0)
+[node name="ProjectileSpawn" type="Marker3D" parent="." unique_id=577017908]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
