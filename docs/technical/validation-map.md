@@ -1,7 +1,7 @@
 # Validation Map
 Category: Verification
 Role: Verification Guide
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 Last validated: pending
 
 ## Purpose
@@ -19,9 +19,9 @@ Last validated: pending
 | Validation area | Primary scene / surface | Current method | Main verification docs |
 | --- | --- | --- | --- |
 | Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
-| Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for enemy status, nav path, and projectile debug lines | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
+| Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for enemy nav path, projectile debug lines, runtime stats visibility, and enemy profiling readout | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
 | Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
-| Runtime observability and profiling | `godot/scenes/main/DemoMain.tscn`, debug overlay, debug logs under `user://debug` | manual visual checks plus lightweight file/log inspection | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
+| Runtime observability and profiling | `godot/scenes/main/DemoMain.tscn`, debug overlay, periodic profiling log output | manual visual checks plus lightweight profiling log inspection | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
 
 ## Current Validation Fixtures
 - `DemoMain.tscn` is the main current validation scene.
@@ -37,9 +37,9 @@ Last validated: pending
 - When debugging enemy traversal, verify the enemy collision capsule, body mesh fit, and NavigationAgent3D dimensions before assuming a navmesh or controller bug.
 
 - `F3` debug menu for central toggle-based runtime visibility
-- enemy status labels
 - enemy nav path visualization
 - projectile debug lines
+- lightweight runtime stats
 - enemy profiling readout and periodic profiling log output
 
 ## Validation Ownership Rules

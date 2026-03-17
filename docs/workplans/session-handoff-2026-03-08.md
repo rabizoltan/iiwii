@@ -1,49 +1,65 @@
 # Session Handover
 
 ## Active Scope
-Document the actual root cause behind enemy ramp traversal failure in `DemoMain` after the earlier AI/navigation debugging thread turned out to be misleading.
+Clean up the enemy runtime after navigation stabilization: remove dead debug code, keep only the `F3` menu-driven debug surface, shrink stale telemetry payloads, split controller policy ownership into a dedicated helper, and sync runtime-truth docs to the new structure.
 
 ## Scope Boundaries
-- The real issue in this session was not enemy controller logic.
-- Do not resume speculative AI movement rewrites based on the discarded debug branch.
-- Treat this handoff as scene/collision truth, not as a recommendation to continue nav-controller changes.
+- Preserve current enemy behavior in `DemoMain`; this session was a cleanup/refactor pass, not a gameplay redesign.
+- Keep the nav-path debug and profiling overlay working through the cleanup.
+- Do not re-open the earlier speculative ramp-diagnosis branch; ramp traversal is currently considered scene/collision validated.
 
 ## Current Focus
-- Preserve the correct diagnosis: enemy collision setup was the blocker.
-- Keep the repo aligned with the user's discard of today's temporary AI/debug changes.
-- Leave the next session with the actual scene-side lesson recorded.
+- Enemy runtime cleanup is now centered on a thinner [enemy_controller.gd](d:/Game/DEV/iiWii/iiwii/godot/scripts/enemy/enemy_controller.gd) plus a dedicated [enemy_runtime_policy.gd](d:/Game/DEV/iiWii/iiwii/godot/scripts/enemy/movement/enemy_runtime_policy.gd).
+- The debug surface is now limited to the shared `F3` menu path: enemy nav path, projectile debug lines, lightweight runtime stats, and enemy profiling.
+- Runtime-truth and validation docs were updated to match the refactor and the removed enemy-status path.
 
 ## What Was Done
-- The user discarded all temporary AI/debug code changes made during the investigation.
-- The actual issue was identified in `godot/scenes/enemy/EnemyBasic.tscn`.
-- The enemy `CollisionShape3D` capsule was effectively smaller or shorter than the visible body expectation during ramp traversal, so the enemy could sink into the ramp while climbing.
-- The user corrected the enemy collision setup, and that resolved the traversal problem.
-- The canonical docs were updated so future sessions check collision-envelope fit before reopening AI or navmesh diagnosis.
+- Removed the old enemy-status debug path end-to-end from the enemy scene, debug overlay, controller, and telemetry.
+- Removed non-menu enemy debug/file-log plumbing and other dead debug seams.
+- Shrunk enemy debug snapshot transport down to the live nav-path consumer fields only.
+- Removed stale hold/yield/close-adjust debug payload state that no longer fed any runtime consumer.
+- Extracted goal-lifetime and nav-cache policy out of `enemy_controller.gd` into `enemy_runtime_policy.gd`.
+- Performed a final naming/dead-seam polish pass on the controller/runtime-policy pair.
+- Updated runtime-truth, feature, validation, and workplan docs so they describe the current implementation instead of the removed enemy-status/debug-label path.
+- The user ran the game after the refactor and reported that it looked okay in-engine.
 
 ## Files Touched
+- `godot/scenes/debug/DebugOverlay.tscn`
 - `godot/scenes/enemy/EnemyBasic.tscn`
 - `godot/scenes/main/DemoMain.tscn`
+- `godot/scripts/debug/debug_overlay.gd`
+- `godot/scripts/enemy/debug/enemy_debug_snapshot.gd`
+- `godot/scripts/enemy/debug/enemy_debug_snapshot_builder.gd`
+- `godot/scripts/enemy/debug/enemy_debug_telemetry.gd`
+- `godot/scripts/enemy/enemy_controller.gd`
+- `godot/scripts/enemy/movement/enemy_movement_state_machine.gd`
+- `godot/scripts/enemy/movement/enemy_runtime_policy.gd`
+- `godot/scripts/enemy/movement/enemy_runtime_policy.gd.uid`
+- `godot/scripts/enemy/state/enemy_runtime_state.gd`
+- `docs/architecture/ai/enemy-movement-runtime-ownership.md`
 - `docs/architecture/code-map.md`
+- `docs/technical/feature-matrix.md`
 - `docs/technical/validation-map.md`
-- `docs/technical/collision-layers-and-masks-godot-3d.md`
+- `docs/workplans/debug-control-panel-slice.md`
+- `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`
 - `docs/workplans/session-handoff-2026-03-08.md`
 
 ## Decisions Made
-- Discard all temporary enemy-controller and debug-instrumentation changes from today's failed diagnosis branch.
-- Keep the working conclusion scene-side: verify collision envelopes before rewriting navigation logic.
-- Treat enemy body mesh, collision shape, nav-agent dimensions, and ramp geometry as one physical system during future traversal debugging.
+- The `F3` menu is now the only supported enemy debug authority; removed enemy-local status labels and non-menu debug/file-log paths should stay deleted unless a new shared debug requirement appears.
+- `enemy_controller.gd` should remain the scene-facing shell, while goal-lifetime and nav-cache policy now belong in `enemy_runtime_policy.gd`.
+- Enemy debug telemetry is now intentionally minimal: nav-path rendering and profiling only.
+- Runtime-truth docs should describe the post-cleanup ownership split rather than the older controller-heavy version.
 
 ## Open Problems
-- No active enemy-controller bug is recorded from this session.
-- `DemoMain.tscn` still contains scene-side experimentation, so any future traversal regression should be checked against current ramp/platform geometry before reopening AI diagnosis.
-- This closeout did not include a fresh in-engine rerun from the shell, so final confirmation still depends on the user's last successful Godot test.
+- No active gameplay regression is recorded, but the refactor was only lightly validated: the user confirmed the game looked okay, and there was no automated or scripted Godot test run.
+- `godot/scenes/main/DemoMain.tscn` still has local scene edits in the worktree and should be treated carefully if future scene cleanup or behavior validation happens.
+- The new helper created a Godot `.uid` file in the worktree; that is expected for the new script, but it is still uncommitted.
 
 ## Next Recommended Step
-1. Keep `EnemyBasic.tscn` as the source of truth for the fix.
-2. If ramp traversal regresses again, compare body mesh, collision capsule, nav-agent dimensions, and ramp collision first.
-3. Only investigate enemy controller logic after physical collision alignment is revalidated.
-4. If useful, add a short project note later about checking collision-vs-visual mismatch before deep AI debugging.
+1. Commit the cleanup/refactor batch if the current diff looks good to the user.
+2. If a final confidence pass is desired, do one short in-engine smoke test focused on enemy nav-path toggle, projectile debug lines, profiling overlay, and baseline enemy approach/hold behavior in `DemoMain`.
+3. After that, move to the next gameplay slice instead of continuing cleanup unless a concrete regression appears.
 
 ## Other Threads
-- `DemoMain.tscn` remains modified in the worktree and may contain unrelated scene experimentation.
-- No AI code change from today's discarded debugging branch should be treated as active or authoritative.
+- The architecture/workplan cleanup produced a new planning artifact at `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`.
+- `godot/scenes/main/DemoMain.tscn` and related runtime docs now carry the latest cleanup-era truth; older handoff notes focused on the ramp-diagnosis thread are superseded by this update.

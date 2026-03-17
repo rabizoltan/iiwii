@@ -5,7 +5,6 @@ const ENEMY_CONTROLLER_SCRIPT := preload("res://scripts/enemy/enemy_controller.g
 const ENEMY_PROFILE_LOG_PATH := "user://debug/enemy_profile.log"
 
 @onready var _panel: PanelContainer = $PanelContainer
-@onready var _enemy_status_toggle: CheckButton = $PanelContainer/MarginContainer/VBoxContainer/EnemyStatusToggle
 @onready var _enemy_nav_path_toggle: CheckButton = $PanelContainer/MarginContainer/VBoxContainer/EnemyNavPathToggle
 @onready var _projectile_line_toggle: CheckButton = $PanelContainer/MarginContainer/VBoxContainer/ProjectileLineToggle
 @onready var _enemy_profiler_toggle: CheckButton = $PanelContainer/MarginContainer/VBoxContainer/EnemyProfilerToggle
@@ -13,7 +12,6 @@ const ENEMY_PROFILE_LOG_PATH := "user://debug/enemy_profile.log"
 @onready var _profile_stats_label: Label = $PanelContainer/MarginContainer/VBoxContainer/ProfileStats
 
 var _menu_open: bool = false
-var _enemy_status_enabled: bool = false
 var _enemy_nav_path_enabled: bool = false
 var _projectile_debug_lines_enabled: bool = false
 var _enemy_profiling_enabled: bool = false
@@ -26,7 +24,6 @@ const PROFILE_LOG_INTERVAL_MSEC := 1000
 
 func _ready() -> void:
 	add_to_group("debug_overlay")
-	_enemy_status_toggle.toggled.connect(_on_enemy_status_toggled)
 	_enemy_nav_path_toggle.toggled.connect(_on_enemy_nav_path_toggled)
 	_projectile_line_toggle.toggled.connect(_on_projectile_line_toggled)
 	_enemy_profiler_toggle.toggled.connect(_on_enemy_profiler_toggled)
@@ -39,10 +36,6 @@ func toggle_menu() -> void:
 	if _menu_open:
 		_refresh_perf_stats()
 	_sync_menu_state()
-
-
-func is_enemy_status_enabled() -> bool:
-	return _enemy_status_enabled
 
 
 func is_enemy_nav_path_enabled() -> bool:
@@ -91,14 +84,9 @@ func _process(delta: float) -> void:
 
 func _sync_menu_state() -> void:
 	_panel.visible = _menu_open
-	_enemy_status_toggle.button_pressed = _enemy_status_enabled
 	_enemy_nav_path_toggle.button_pressed = _enemy_nav_path_enabled
 	_projectile_line_toggle.button_pressed = _projectile_debug_lines_enabled
 	_enemy_profiler_toggle.button_pressed = _enemy_profiling_enabled
-
-
-func _on_enemy_status_toggled(enabled: bool) -> void:
-	_enemy_status_enabled = enabled
 
 
 func _on_enemy_nav_path_toggled(enabled: bool) -> void:
@@ -163,7 +151,27 @@ func _format_profile_snapshot(snapshot: Dictionary) -> String:
 	if snapshot.is_empty():
 		return "Enemy profiling warming up..."
 
-	return "Window: %.2fs\nPhysics: %.2f ms total | %.3f ms avg | calls %d\nprep: %.2f ms (%s)\nhoriz: %.2f ms (%s)\nstate: %.2f ms (%s)\nmelee: %.2f ms (%s)\nmotion: %.2f ms (%s)\nfinal: %.2f ms (%s)\nstuck: %.2f ms (%s)\nholddbg: %.2f ms (%s)\nupd_dbg: %.2f ms (%s)\nlocal: %.2f ms (%s)\ngoal: %.2f ms (%s)\nyield: %.2f ms (%s)\ncadj: %.2f ms (%s)\ninfl: %.2f ms (%s)\nnavq: %.2f ms (%s)\nsnap: %.2f ms (%s)\nmove: %.2f ms (%s)\nlabel: %.2f ms (%s)\nnavdbg: %.2f ms (%s)\nenemies: %d | goals %d | yields %d\ncrowd cache h/m: %d/%d | local %d | nearby %d" % [
+	return """Window: %.2fs
+Physics: %.2f ms total | %.3f ms avg | calls %d
+prep: %.2f ms (%s)
+horiz: %.2f ms (%s)
+state: %.2f ms (%s)
+melee: %.2f ms (%s)
+motion: %.2f ms (%s)
+final: %.2f ms (%s)
+stuck: %.2f ms (%s)
+upd_dbg: %.2f ms (%s)
+local: %.2f ms (%s)
+goal: %.2f ms (%s)
+yield: %.2f ms (%s)
+cadj: %.2f ms (%s)
+infl: %.2f ms (%s)
+navq: %.2f ms (%s)
+snap: %.2f ms (%s)
+move: %.2f ms (%s)
+navdbg: %.2f ms (%s)
+enemies: %d | goals %d | yields %d
+crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		float(snapshot.get("window_sec", 0.0)),
 		float(snapshot.get("physics_total_ms", 0.0)),
 		float(snapshot.get("physics_avg_ms", 0.0)),
@@ -182,8 +190,6 @@ func _format_profile_snapshot(snapshot: Dictionary) -> String:
 		_snapshot_percent_text(snapshot, "finalize_share"),
 		float(snapshot.get("stuck_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "stuck_share"),
-		float(snapshot.get("hold_debug_total_ms", 0.0)),
-		_snapshot_percent_text(snapshot, "hold_debug_share"),
 		float(snapshot.get("update_debug_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "update_debug_share"),
 		float(snapshot.get("local_enemy_total_ms", 0.0)),
@@ -202,8 +208,6 @@ func _format_profile_snapshot(snapshot: Dictionary) -> String:
 		_snapshot_percent_text(snapshot, "snapshot_share"),
 		float(snapshot.get("move_slide_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "move_slide_share"),
-		float(snapshot.get("label_total_ms", 0.0)),
-		_snapshot_percent_text(snapshot, "label_share"),
 		float(snapshot.get("nav_debug_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "nav_debug_share"),
 		int(snapshot.get("enemy_count", 0)),
@@ -247,7 +251,7 @@ func _maybe_write_profile_log() -> void:
 
 	file.seek_end()
 	file.store_line(
-		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | hold_debug_ms=%.2f | hold_debug_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | goal_ms=%.2f | goal_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | label_ms=%.2f | label_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
+		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | goal_ms=%.2f | goal_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
 			Time.get_datetime_string_from_system(),
 			float(snapshot.get("window_sec", 0.0)),
 			int(snapshot.get("enemy_count", 0)),
@@ -267,8 +271,6 @@ func _maybe_write_profile_log() -> void:
 			float(snapshot.get("finalize_share", 0.0)),
 			float(snapshot.get("stuck_total_ms", 0.0)),
 			float(snapshot.get("stuck_share", 0.0)),
-			float(snapshot.get("hold_debug_total_ms", 0.0)),
-			float(snapshot.get("hold_debug_share", 0.0)),
 			float(snapshot.get("update_debug_total_ms", 0.0)),
 			float(snapshot.get("update_debug_share", 0.0)),
 			float(snapshot.get("local_enemy_total_ms", 0.0)),
@@ -287,8 +289,6 @@ func _maybe_write_profile_log() -> void:
 			float(snapshot.get("snapshot_share", 0.0)),
 			float(snapshot.get("move_slide_total_ms", 0.0)),
 			float(snapshot.get("move_slide_share", 0.0)),
-			float(snapshot.get("label_total_ms", 0.0)),
-			float(snapshot.get("label_share", 0.0)),
 			float(snapshot.get("nav_debug_total_ms", 0.0)),
 			float(snapshot.get("nav_debug_share", 0.0)),
 			int(snapshot.get("crowd_cache_hits", 0)),

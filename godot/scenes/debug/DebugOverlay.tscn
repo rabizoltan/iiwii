@@ -27,8 +27,6 @@ text = "Debug Menu (F3)"
 [node name="Hint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 text = "Toggle runtime debug features."
 
-[node name="EnemyStatusToggle" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer"]
-text = "Enemy Status"
 
 [node name="EnemyNavPathToggle" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer"]
 text = "Enemy Nav Path"

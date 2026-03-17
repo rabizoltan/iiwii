@@ -20,9 +20,9 @@ Add a shared runtime debug control panel so behavior slices can be validated wit
 1. The debug menu opens and closes with `F3`.
 2. The menu owns shared debug flags instead of per-feature hardcoded hotkeys.
 3. Initial toggle set includes:
-   - enemy status
    - enemy navigation path
    - projectile debug line
+   - lightweight runtime stats and enemy profiling visibility
 4. Debug features are developer-facing and may stay visually simple.
 5. The panel should help validate active behavior slices without redefining gameplay behavior.
 
@@ -53,9 +53,9 @@ Exit gate:
 Status: `completed`
 
 Actions:
-1. Add enemy status toggle support.
-2. Add enemy navigation path toggle support.
-3. Add projectile debug line toggle support.
+1. Add enemy navigation path toggle support.
+2. Add projectile debug line toggle support.
+3. Add lightweight runtime stats and enemy profiling support.
 
 Exit gate:
 - The first debug features can be enabled and disabled from one panel.
@@ -65,24 +65,24 @@ Status: `completed`
 
 Actions:
 1. Verify `F3` opens and closes the panel reliably.
-2. Verify enemy status labels react to the panel toggle.
-3. Verify enemy nav path lines react to the panel toggle.
-4. Verify projectile debug lines appear only when enabled.
+2. Verify enemy nav path lines react to the panel toggle.
+3. Verify projectile debug lines appear only when enabled.
+4. Verify runtime stats and enemy profiling only appear when the panel is active.
 
 Current validation state:
 - `F3` menu toggle works in the demo scene through main-scene global input handling.
-- enemy status default is now off.
 - enemy nav path toggle has been manually checked and corrected for local-space rendering.
 - projectile debug-line toggle has been manually validated in the demo scene.
+- lightweight runtime stats and enemy profiling are available through the shared overlay rather than enemy-local debug labels.
 
 Exit gate:
 - The panel is usable for ongoing behavior slice validation in the demo scene.
 
 ## Success Criteria
 1. Pressing `F3` opens and closes a debug menu.
-2. The menu exposes per-feature toggles for enemy status, nav path, and projectile debug lines.
+2. The menu exposes shared debug controls for enemy nav path, projectile debug lines, runtime stats, and enemy profiling.
 3. Enemy scripts consume shared debug state instead of hardcoded local-only display assumptions.
-4. Projectile debug lines can be toggled without changing gameplay rules.
+4. Projectile debug lines and nav-path rendering can be toggled without changing gameplay rules.
 
 ## Non-Goals
 - final combat hit feedback

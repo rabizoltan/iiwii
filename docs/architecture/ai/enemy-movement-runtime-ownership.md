@@ -1,8 +1,8 @@
 # Enemy Movement Runtime Ownership
 Category: Runtime Architecture
 Role: Runtime Truth
-Last updated: 2026-03-16
-Last validated: 2026-03-16
+Last updated: 2026-03-17
+Last validated: 2026-03-17
 
 ## Purpose
 - Record the current implementation ownership after the enemy movement refactor.
@@ -13,24 +13,25 @@ Last validated: 2026-03-16
   - Scene-facing enemy runtime shell.
   - Physics tick entry, target resolution, scene node wiring, HP/death, and debug/profiling integration.
   - Runs the enemy physics tick in explicit phases: step preparation, horizontal movement dispatch, vertical velocity update, and final movement/debug/stuck handling.
-  - Coordinates movement helpers and applies horizontal movement/facing results.
-  - Those grouped controller-side runtime states are now explicit typed objects rather than ad hoc dictionaries.
+  - Coordinates movement helpers, applies horizontal movement/facing results, and assembles the minimal nav-debug snapshot used by the `F3` overlay.
 - `enemy_close_state.gd`
   - Close-range state classification and naming.
   - Owns the `approach -> close_adjust -> melee_hold` envelope logic.
 - `enemy_movement_state_machine.gd`
-  - Owns movement-state transition evaluation and state dispatch sequencing.
-  - Keeps the controller out of direct `match`-based movement state orchestration.
-  - Its controller-facing transition and dispatch APIs now use typed request/result objects instead of flattened dictionaries.
+  - Owns movement-state transition evaluation for `approach`, `close_adjust`, and `melee_hold`.
+  - Its controller-facing transition API uses typed request/result objects instead of flattened dictionaries.
 - `enemy_goal_selector.gd`
   - Melee engage-goal sampling, nav projection, spread-aware candidate scoring, failed-goal exclusion, and bounded path-length tiebreak.
   - Its controller-facing selection API now uses typed request/result objects instead of a flattened dictionary payload.
+- `enemy_runtime_policy.gd`
+  - Owns goal-lifetime and nav-cache policy that used to live directly in the controller.
+  - Tracks goal commit/cooldown timers, failed-goal memory, nav-cache lifetime, cache invalidation, and the request/response seams for goal refresh and cached next-position reuse.
 - `enemy_crowd_response.gd`
   - Close-adjust lateral bias, hold-time yield behavior, crowd-pressure estimation, and player-push resolution.
   - Its main controller-facing close-adjust, yield, and player-push resolution APIs now use typed request/result objects instead of flattened dictionary payloads.
 - `enemy_navigation_locomotion.gd`
-  - Navigation cache refresh policy, nav refresh interval selection, next-path-point resolution, and approach movement shaping.
-  - Its controller-facing cache/interval/approach APIs now use typed request/result objects instead of flattened dictionary payloads.
+  - Nav refresh heuristics, refresh interval selection, next-path-point resolution, and approach movement shaping.
+  - Its cache/interval helpers are now consumed through `enemy_runtime_policy.gd`, while approach movement shaping is still called directly by the controller.
 - `enemy_crowd_query.gd`
   - Shared enemy registry ownership, spread-query filtering, and short-lived local-neighbor cache policy for crowd-aware movement decisions.
 - `enemy_movement_influence.gd`
@@ -38,16 +39,14 @@ Last validated: 2026-03-16
   - Currently formalizes authored external displacement accumulation/decay so external forces are no longer a special-case velocity path embedded directly in the controller.
   - Its controller-facing queue/apply APIs now use typed request/result objects instead of flattened dictionaries.
 - `enemy_runtime_state.gd`
-  - Typed runtime state containers for goal debug state, close-adjust debug state, yield debug state, hold debug state, and movement influence state.
-  - Centralizes controller-owned transient state objects so the enemy controller and helper modules share stable typed state instead of ad hoc dictionary payloads.
+  - Typed runtime state containers for goal debug candidate storage and movement influence state.
+  - Keeps the remaining shared transient state small after the debug cleanup removed unused hold/yield/close-adjust debug payloads.
 - `enemy_debug_telemetry.gd`
-  - Enemy debug label presentation, nav-path visualization, debug log writing, melee-hold log writing, and shared enemy profiling accumulators.
-  - Goal-path debug capture now also uses a typed transport object instead of a small dictionary seam.
+  - Enemy nav-path visualization controlled by the `F3` overlay and shared enemy profiling accumulators.
 - `enemy_debug_snapshot.gd`
-  - Typed telemetry transport object passed from the enemy controller into telemetry, replacing the previous flattened debug snapshot dictionary boundary.
+  - Minimal typed transport object passed from the enemy controller into telemetry for current path, current goal, and candidate ring data.
 - `enemy_debug_snapshot_builder.gd`
-  - Owns typed debug snapshot assembly from controller/runtime state into `enemy_debug_snapshot.gd`.
-  - Keeps telemetry payload construction out of the main enemy controller flow.
+  - Owns the minimal nav-debug snapshot assembly from controller state into `enemy_debug_snapshot.gd`.
 
 ## Important Boundary
 - Baseline locomotion-driven player push has been removed from `player_controller.gd`.

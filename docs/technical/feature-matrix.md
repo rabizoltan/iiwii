@@ -1,8 +1,8 @@
 # Feature Matrix
 Category: Runtime System
 Role: Runtime Truth
-Last updated: 2026-03-16
-Last validated: 2026-03-16
+Last updated: 2026-03-17
+Last validated: 2026-03-17
 
 ## Purpose
 - Track actual feature state in one place.
@@ -25,7 +25,7 @@ Last validated: 2026-03-16
 | Enemy navigation | working | Enemies now chase engage points near the player, hold/facing at melee range, apply soft local spreading, physically collide with other enemies, use constrained crowd-yield under player pressure, and include a light script-side perf pass plus dedicated profiling support | [enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md) |
 | Enemy death and HP | partial | HP display, damage, and death exist; final verification and feel tuning still pending | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Player attack behavior slice | working | Mouse/world aim, no-fire gating, blocker-aware projectile travel, and demo-scene validation are complete for the current slice scope | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md) |
-| Debug control panel slice | working | `F3` debug menu exposes shared toggles for enemy status, enemy nav path, projectile debug lines, lightweight runtime stats, and aggregated enemy profiling with periodic log output | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
+| Debug control panel slice | working | `F3` debug menu exposes shared toggles for enemy nav path, projectile debug lines, lightweight runtime stats, and aggregated enemy profiling with periodic log output | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
 | Enemy close-range melee behavior slice | working | Engage-point movement, hold/facing, soft spreading, physical crowd collision, constrained crowd-yield behavior, and profiling-guided script-side optimization are implemented and manually validated in the demo scene | [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md) |
 | Combat feedback and debug behavior slice | blocked | Wait until player attack and melee close-range behavior are implemented and validated | [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md) |
 | Traversal features | deferred | After first playable slice | [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md) |
