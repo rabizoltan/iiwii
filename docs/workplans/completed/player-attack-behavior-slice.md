@@ -3,6 +3,11 @@
 ## Status
 - `completed`
 
+## Current Role
+- Historical delivery record for the player attack baseline slice.
+- Exact current attack behavior should now be read from [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [validation-map.md](d:/Game/DEV/iiWii/iiwii/docs/technical/validation-map.md), and [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md).
+- This document preserves the slice scope, execution order, and delivery-time acceptance context.
+
 ## Goal
 Implement the intended baseline player attack behavior on top of the current foundation slice.
 
@@ -17,16 +22,9 @@ Implement the intended baseline player attack behavior on top of the current fou
 - Step 3 - Projectile direction and impact resolution: `completed`
 - Step 4 - Validation pass: `completed`
 
-## Behavior Rules
+## Delivery-Time Baseline
+The exact runtime truth now lives in [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md). The rules below are the slice-specific baseline that was locked for delivery:
 
-### Already Defined By Current Docs
-1. Player attack uses mouse aim, not movement-facing-only aim.
-2. Attack direction is separate from movement direction.
-3. Primary attack input is `Left Mouse Button`.
-4. Shots are driven by cursor/world aim point and fired from player chest toward that point.
-5. Line-of-sight blockers should matter before damage applies.
-
-### Baseline Rules For This Slice
 1. Baseline firing mode is single-click single-shot.
 2. Baseline cooldown is `0.5` second.
 3. Baseline shots do not pierce.
@@ -142,7 +140,9 @@ Exit gate:
 - [ADR-007-input-and-controls.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-007-input-and-controls.md)
 - [ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md](d:/Game/DEV/iiWii/iiwii/docs/decisions/ADR-016-space-model-continuous-world-navmesh-no-tile-diagonals.md)
 
-## Next Slice
-After this slice is implemented and validated, continue with:
-- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md)
-- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
+## Historical Next Slice Note
+After this slice was implemented and validated, the intended follow-on was:
+- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md)
+- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md)
+
+For the current planning entry point, read [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md).

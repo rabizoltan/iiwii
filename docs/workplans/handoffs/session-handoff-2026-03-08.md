@@ -13,6 +13,7 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - The debug surface is now limited to the shared `F3` menu path: enemy nav path, projectile debug lines, lightweight runtime stats, and enemy profiling.
 - Runtime-truth and validation docs were updated to match the refactor and the removed enemy-status path.
 - Added a short scaling-strategy note in the high-level architecture doc to capture the project preference for reuse, pooling when justified, shared systems, and procedural/data-driven leverage without overstating current implementation.
+- This slice is considered stable enough to close unless a concrete regression shows up in later playtesting.
 
 ## What Was Done
 - Removed the old enemy-status debug path end-to-end from the enemy scene, debug overlay, controller, and telemetry.
@@ -23,6 +24,7 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - Performed a final naming/dead-seam polish pass on the controller/runtime-policy pair.
 - Updated runtime-truth, feature, validation, and workplan docs so they describe the current implementation instead of the removed enemy-status/debug-label path.
 - The user ran the game after the refactor and reported that it looked okay in-engine.
+- The slice was reviewed again at session end and accepted for closure without further code changes.
 
 ## Files Touched
 - `godot/scenes/debug/DebugOverlay.tscn`
@@ -41,10 +43,10 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - `docs/architecture/code-map.md`
 - `docs/technical/feature-matrix.md`
 - `docs/technical/validation-map.md`
-- `docs/workplans/debug-control-panel-slice.md`
+- `docs/workplans/completed/debug-control-panel-slice.md`
 - `docs/architecture/high-level-architecture.md`
-- `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`
-- `docs/workplans/session-handoff-2026-03-08.md`
+- `docs/workplans/completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`
+- `docs/workplans/handoffs/session-handoff-2026-03-08.md`
 
 ## Decisions Made
 - The `F3` menu is now the only supported enemy debug authority; removed enemy-local status labels and non-menu debug/file-log paths should stay deleted unless a new shared debug requirement appears.
@@ -54,15 +56,14 @@ Clean up the enemy runtime after navigation stabilization: remove dead debug cod
 - High-level architecture docs may record scaling principles, but they should stay framed as guidance rather than as claims that large-scale systems are already implemented.
 
 ## Open Problems
-- No active gameplay regression is recorded, but the refactor was only lightly validated: the user confirmed the game looked okay, and there was no automated or scripted Godot test run.
-- `godot/scenes/main/DemoMain.tscn` still has local scene edits in the worktree and should be treated carefully if future scene cleanup or behavior validation happens.
-- The new helper created a Godot `.uid` file in the worktree; that is expected for the new script, but it is still uncommitted.
+- No active gameplay regression is recorded, but validation remains light: the user confirmed the game looked okay, and there was no automated or scripted Godot test run.
+- No known cleanup work remains for this slice; only future regression reports should reopen it.
 
 ## Next Recommended Step
-1. The cleanup/refactor batch is committed and pushed; treat the current repo state as the new baseline.
+1. Treat this enemy runtime cleanup/refactor slice as closed and use the current repo state as the baseline.
 2. When work resumes, move to the next gameplay slice unless a concrete regression appears.
-3. If future scaling/performance work comes up, use the new high-level scaling-strategy note as guidance, not as a mandate to introduce heavier architecture early.
+3. If future scaling/performance work comes up, use the high-level scaling-strategy note as guidance, not as a mandate to introduce heavier architecture early.
 
 ## Other Threads
-- The architecture/workplan cleanup produced a new planning artifact at `docs/workplans/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`.
+- The architecture/workplan cleanup produced a new planning artifact at `docs/workplans/completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md`.
 - `godot/scenes/main/DemoMain.tscn` and related runtime docs now carry the latest cleanup-era truth; older handoff notes focused on the ramp-diagnosis thread are superseded by this update.

@@ -3,6 +3,11 @@
 ## Status
 - `stale`
 
+## Current Role
+- Historical slice note preserved for context and link stability.
+- Do not use this file as the current melee behavior contract.
+- Use [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) for current behavior truth and [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md) for the accepted locomotion-contact follow-up baseline.
+
 ## Purpose
 - Preserve the original delivery context for the melee close-range slice.
 - Point future implementation work at the renewed source-of-truth behavior contract.

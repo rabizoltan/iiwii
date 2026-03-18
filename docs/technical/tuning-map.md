@@ -1,7 +1,7 @@
 # Tuning Map
 Category: Runtime Architecture
 Role: Runtime Truth
-Last updated: 2026-03-16
+Last updated: 2026-03-18
 Last validated: pending
 
 ## Purpose
@@ -27,7 +27,7 @@ Last validated: pending
 | Player attack cadence and targeting | `godot/scripts/player/player_controller.gd` | `attack_cooldown`, `aim_collision_mask`, `aim_ray_length` | Current attack cadence and aim query parameters are script-owned. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Projectile runtime | `godot/scripts/projectiles/projectile.gd` | `speed`, `damage`, `hit_collision_mask` | Projectile speed and damage remain code-owned exports in the current slice. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Enemy locomotion and melee behavior | `godot/scripts/enemy/enemy_controller.gd` | movement speed, engage distances, close-adjust values, crowd-pressure values, goal-selection values, stuck-fallback values | The current melee baseline keeps almost all enemy behavior tuning in one script-owned surface. | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md), [enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |
-| Enemy debug and profiling toggles | `godot/scripts/enemy/enemy_controller.gd`, `godot/scripts/debug/debug_overlay.gd` | debug enable flags, profiler enable state, projectile debug line toggle | Debug visualization and profiling control are split between enemy runtime and debug UI shell. | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
+| Enemy debug and profiling toggles | `godot/scripts/enemy/enemy_controller.gd`, `godot/scripts/debug/debug_overlay.gd` | debug enable flags, profiler enable state, projectile debug line toggle | Debug visualization and profiling control are split between enemy runtime and debug UI shell. | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
 
 ## Planned But Not Current Owners
 - Shared enemy AI config resources are still future-facing; see [enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md).

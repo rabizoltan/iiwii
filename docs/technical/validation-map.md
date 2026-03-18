@@ -1,7 +1,7 @@
 # Validation Map
 Category: Verification
 Role: Verification Guide
-Last updated: 2026-03-17
+Last updated: 2026-03-18
 Last validated: pending
 
 ## Purpose
@@ -18,10 +18,10 @@ Last validated: pending
 
 | Validation area | Primary scene / surface | Current method | Main verification docs |
 | --- | --- | --- | --- |
-| Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
-| Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for enemy nav path, projectile debug lines, runtime stats visibility, and enemy profiling readout | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) |
-| Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
-| Runtime observability and profiling | `godot/scenes/main/DemoMain.tscn`, debug overlay, periodic profiling log output | manual visual checks plus lightweight profiling log inspection | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
+| Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
+| Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for enemy nav path, projectile debug lines, runtime stats visibility, and enemy profiling readout | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
+| Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
+| Runtime observability and profiling | `godot/scenes/main/DemoMain.tscn`, debug overlay, periodic profiling log output | manual visual checks plus lightweight profiling log inspection | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) |
 
 ## Current Validation Fixtures
 - `DemoMain.tscn` is the main current validation scene.

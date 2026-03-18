@@ -13,6 +13,13 @@ This folder contains implementation sequencing and delivery plans.
 - Tracking rollout order
 - Capturing validation gates for implementation work
 
+## Folder Layout
+- `active/`: current execution plans that are still actionable once their blockers are cleared.
+- `roadmaps/`: higher-level sequencing docs that point to multiple slices or future branches of work.
+- `completed/`: closed slices and finished implementation plans kept as delivery history.
+- `handoffs/`: session handoff documents for restart context.
+- `stale/`: superseded plans kept only for historical context or link preservation.
+
 ## Status Rules
 - `active`: the plan is the current execution guide for work that should proceed now.
 - `blocked`: design intent is useful, but execution cannot start because required code/assets are not present yet.
@@ -45,9 +52,13 @@ This folder contains implementation sequencing and delivery plans.
   - use that kind of brief only as a bootstrap task prompt, never as project truth
 
 ## Current Workplans
-- [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/first-playable-vertical-slice-execution-plan.md): completed foundation milestone that proved the first runnable gameplay slice.
-- [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md): active planning entry point for the next behavior-specific slices.
-- [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md): completed behavior slice for world-aimed player projectile attacks.
-- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md): stale historical slice note that now points to the renewed melee behavior source of truth.
-- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md): blocked pending design answers.
-- [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md): planned parent roadmap for future dodge/dash, vault, and crouch traversal slices.
+- [active/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md): blocked execution plan pending explicit feedback-scope decisions.
+- [roadmaps/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md): planning entry point for the current behavior-slice sequence.
+- [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, and crouch traversal slices.
+- [completed/first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md): completed foundation milestone that proved the first runnable gameplay slice.
+- [completed/player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md): completed behavior slice for world-aimed player projectile attacks.
+- [completed/debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md): completed shared debug control slice centered on the `F3` overlay.
+- [completed/player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md): completed crowd-pressure baseline cleanup that removed baseline player shove.
+- [completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md): completed runtime cleanup/refactor planning artifact.
+- [handoffs/session-handoff-2026-03-08.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/handoffs/session-handoff-2026-03-08.md): latest session handoff baseline for restart context.
+- [stale/enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md): stale historical slice note that now points to the renewed melee behavior source of truth.

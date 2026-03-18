@@ -11,6 +11,11 @@ Create the first runnable gameplay slice that proves the core runtime foundation
 ## Status
 - `completed`
 
+## Current Role
+- Historical delivery record for the first playable foundation milestone.
+- Current implementation status should now be read from [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md) and [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md).
+- Current gameplay and runtime truth should now be read from the relevant docs under `docs/systems/`, `docs/architecture/`, and `docs/technical/`.
+
 ## Step Status Board
 - Step 0 - Governance setup: `completed`
 - Step 1 - Project bootstrap: `completed`
@@ -179,9 +184,11 @@ The next work should happen in separate behavior slices with explicit success cr
 - navmesh obstacle test scene with U-shape
 - basic debug visibility if needed
 
-## Next Step After This Plan
-After this slice is complete, the next likely work item should be one of:
+## Historical Next-Step Note
+At the time this plan closed, the next likely work item was one of:
 1. traversal feature foundation
 2. enemy combat behavior improvement
 3. movement/combat tuning cleanup
 4. early code structure cleanup based on what actually exists
+
+For the current planning entry point, read [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md).

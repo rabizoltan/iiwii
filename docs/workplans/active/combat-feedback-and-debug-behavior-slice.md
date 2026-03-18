@@ -3,6 +3,11 @@
 ## Status
 - `blocked`
 
+## Current Role
+- Blocked execution-plan stub for a future feedback-focused slice.
+- This document should stay lightweight until the open presentation and UX questions are answered.
+- Current runtime truth for combat and debug ownership already lives in [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), and [validation-map.md](d:/Game/DEV/iiWii/iiwii/docs/technical/validation-map.md).
+
 ## Goal
 Define the minimum player-facing combat feedback and the remaining developer-facing debug visibility required after the movement and crowd-pressure rules are stable.
 
@@ -45,3 +50,7 @@ Once specified, success criteria should define:
 2. exact debug toggle rule
 3. exact minimum hit/death feedback
 4. validation method in the demo scene
+
+## Restart Rule
+- Do not start implementation from this file alone.
+- First answer the open scope questions here, then update this file into a concrete execution plan.

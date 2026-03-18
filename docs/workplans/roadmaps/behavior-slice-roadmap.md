@@ -30,12 +30,12 @@
 6. Player traversal and movement slices after scope is chosen
 
 ## Current Planned Sequence
-1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
-2. Add [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md) so current and follow-up behavior slices share the same runtime debug controls
-3. After player attack and debug control are validated, continue with [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
-4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
-5. After the movement and collision rules are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
-6. When traversal work becomes a priority, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md)
+1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md)
+2. Add [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) so current and follow-up behavior slices share the same runtime debug controls
+3. After player attack and debug control are validated, continue with the historical slice note at [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md) while treating [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) as the current behavior source of truth
+4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
+5. After the movement and collision rules are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md)
+6. When traversal work becomes a priority, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -45,7 +45,7 @@ Rule:
 Status: `completed`
 
 Plan file:
-- [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-attack-behavior-slice.md)
+- [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md)
 
 Why first:
 - Current attack exists only as a minimal proof.
@@ -62,7 +62,7 @@ Execution priority:
 Status: `completed`
 
 Plan file:
-- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/debug-control-panel-slice.md)
+- [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md)
 
 Why second:
 - Shared runtime debug controls improve validation for both player attack and enemy behavior work.
@@ -78,7 +78,7 @@ Execution priority:
 Status: `completed`
 
 Plan file:
-- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
+- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md)
 
 Why second:
 - Enemy stop distance, spreading, overlap avoidance, and local positioning should be defined against the finalized attack model.
@@ -94,7 +94,7 @@ Execution priority:
 Status: `stable-baseline`
 
 Plan file:
-- [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
+- [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
 
 Why next:
 - The current dense-pack pressure model still carries prototype-era baseline player push behavior.
@@ -114,7 +114,7 @@ Execution priority:
 Status: `blocked`
 
 Plan file:
-- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/combat-feedback-and-debug-behavior-slice.md)
+- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md)
 
 Why third:
 - It should be built on top of the chosen combat and enemy behavior rules.
@@ -131,7 +131,7 @@ Current dependency state:
 Status: `planned`
 
 Plan file:
-- [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-traversal-and-movement-slice-roadmap.md)
+- [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Why separate:
 - Dodge or dash, vault, and crouch affect collision, input priority, combat flow, and traversal geometry in different ways.

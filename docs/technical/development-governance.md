@@ -1,7 +1,7 @@
 # Development Governance
 Category: Workflow
 Role: Ops Guide
-Last updated: 2026-03-16
+Last updated: 2026-03-18
 Last validated: pending
 
 ## Purpose
@@ -22,7 +22,7 @@ The following files must be kept current once code exists:
 
 1. [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md)
 2. [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md)
-3. active execution plans in `docs/workplans/`
+3. active execution plans under `docs/workplans/active/` and `docs/workplans/roadmaps/`
 3. the relevant source-of-truth docs in:
    - `docs/decisions/`
    - `docs/architecture/`

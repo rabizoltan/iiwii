@@ -3,6 +3,11 @@
 ## Status
 - `completed`
 
+## Current Role
+- Historical delivery record for the shared debug control panel slice.
+- Current runtime ownership and reusable validation entry points should now be read from [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) and [validation-map.md](d:/Game/DEV/iiWii/iiwii/docs/technical/validation-map.md).
+- This document preserves the execution scope and delivery-time validation gates.
+
 ## Goal
 Add a shared runtime debug control panel so behavior slices can be validated without hardcoded one-off debug toggles.
 
@@ -90,6 +95,8 @@ Exit gate:
 - production UI styling
 - persistence of debug preferences across launches
 
-## Next Slice
-After this slice is validated, continue with:
-- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/enemy-close-range-behavior-slice.md)
+## Historical Next Slice Note
+After this slice was validated, the intended follow-on was:
+- [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md)
+
+For the current planning entry point, read [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md).

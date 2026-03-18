@@ -6,7 +6,12 @@
 ## Purpose
 - Replace the current baseline "player walks into enemies and pushes them" behavior with a clearer and cheaper collision model.
 - Keep dense melee crowds readable without relying on continuous shove feedback loops.
-- Define the next implementation slice before code changes begin.
+- Preserve the accepted current baseline and the follow-up boundaries after the cleanup landed.
+
+## Current Role
+- Historical delivery record for the crowd-pressure baseline cleanup.
+- The current close-range enemy behavior contract should now be read from [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), and [validation-map.md](d:/Game/DEV/iiWii/iiwii/docs/technical/validation-map.md).
+- This document preserves the accepted baseline and the deferred follow-up boundaries for traversal and authored displacement work.
 
 ## Design Decision
 1. Normal player locomotion should not push enemies away.

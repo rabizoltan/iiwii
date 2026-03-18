@@ -3,6 +3,11 @@
 ## Status
 - `planned`
 
+## Current Role
+- Parent planning document for future traversal slices.
+- This roadmap is not an implementation spec by itself; each traversal feature should still get its own narrower slice before code starts.
+- Current movement and collision truth should be read from [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), and the crowd-pressure baseline at [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md).
+
 ## Purpose
 - Preserve the deferred player movement work as an explicit next-day planning artifact.
 - Keep traversal work separate from combat and enemy crowd-pressure slices.
@@ -68,8 +73,8 @@ Why third:
 
 ## Source Documents To Revisit
 - [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md)
-- [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/player-enemy-collision-and-crowd-pressure-slice.md)
-- [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/behavior-slice-roadmap.md)
+- [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
+- [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md)
 
 ## Suggested Restart Point
 When work resumes, start by deciding whether Slice A should be:
@@ -78,3 +83,5 @@ When work resumes, start by deciding whether Slice A should be:
 3. or a single movement skill with tuning values that can later branch
 
 That decision should be made before code changes begin.
+
+After that decision, create or update a focused active slice doc before implementation.
