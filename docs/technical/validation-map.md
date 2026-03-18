@@ -40,7 +40,7 @@ Last validated: pending
 - enemy nav path visualization
 - projectile debug lines
 - lightweight runtime stats
-- enemy profiling readout and periodic profiling log output
+- enemy profiling readout and periodic profiling log output with goal-refresh, nav-cache, crowd-query, and frontline counters
 
 ## Validation Ownership Rules
 - If a workplan defines the current execution gate, keep its concrete pass steps there.

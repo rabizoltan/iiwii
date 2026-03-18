@@ -36,7 +36,7 @@ Define melee enemy movement and crowd interaction that is:
 ### Enemy vs Enemy
 1. Enemies should physically collide with each other.
 2. Enemy-enemy separation should stay soft near the player.
-3. Rear enemies may slowly work their way into the pack by causing slight sideways displacement in front enemies.
+3. Rear enemies must not push through or propagate inward pressure through settled front-line enemies.
 4. Frontline enemies must not behave like rigid wall elements.
 5. Frontline enemies must also not slide around continuously once already settled in melee.
 6. Only a limited number of enemies should act as the active melee front line at once.
@@ -79,6 +79,7 @@ Rules:
 - do not repeatedly resample nearby ring points in this band
 - do not keep replacing a close-range goal every few tenths of a second
 - prefer local steering over repeated fresh goal ownership
+- if the enemy is already inside valid melee hold, do not demote it into renewed inward motion just to enforce front-line ranking
 
 ### 3. Melee Hold
 Enemy is inside acceptable melee range.
@@ -92,6 +93,7 @@ Rules:
 - do not actively reposition unless the enemy actually leaves the acceptable melee envelope
 - do not let small nudges turn into visible locomotion churn
 - do not let loss of cached goal ownership alone break hold
+- do not keep trying to move closer just because the current spot is not ideal
 
 ## Spreading Policy
 1. Use soft spreading, not hard slot locking as the default.
@@ -132,6 +134,7 @@ Recommended rules:
 3. `close_adjust` should be local and simple.
 4. `melee_hold` should suppress unnecessary replanning.
 5. Near the player, local interaction should be lateral-first.
+6. Front-line gating should prevent new inward movers, not force already-valid melee holders to keep improving position.
 
 ## What Is Technically Reasonable
 1. Soft spreading around the player is reasonable.
@@ -157,6 +160,7 @@ Recommended rules:
 6. Enemies already in melee range do not continually replan.
 7. If the player moves away, enemies resume approach cleanly.
 8. The player has a reliable explicit escape move that can break body contact.
+9. Rear enemies do not transmit push through the whole pack.
 
 ## Implementation Guidance
 1. Keep debug and profiling separate from core movement decisions.
