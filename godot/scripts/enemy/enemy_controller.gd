@@ -288,6 +288,7 @@ func _finalize_physics_step(
 
 # Goal selection and candidate scoring
 func _should_refresh_goal() -> bool:
+	EnemyDebugTelemetry.increment_counter("goal_refresh_checks")
 	var request := EnemyRuntimePolicy.GoalRefreshRequest.new()
 	request.has_valid_target = _has_valid_target()
 	request.goal_select_cooldown_remaining = _goal_runtime_state.goal_select_cooldown_remaining
@@ -299,7 +300,10 @@ func _should_refresh_goal() -> bool:
 	request.global_position = global_position
 	request.current_goal_position = _goal_runtime_state.current_goal_position
 	request.engage_hold_tolerance = engage_hold_tolerance
-	return EnemyRuntimePolicy.should_refresh_goal(request)
+	var should_refresh := EnemyRuntimePolicy.should_refresh_goal(request)
+	if should_refresh:
+		EnemyDebugTelemetry.increment_counter("goal_refresh_triggers")
+	return should_refresh
 
 
 func _select_engage_goal() -> void:
@@ -312,17 +316,20 @@ func _select_engage_goal() -> void:
 		return
 
 	var target_position := _target_node.global_position
+	var nearby_enemy_start_usec := _profile_start_usec()
+	var nearby_enemy_positions := EnemyCrowdQuery.collect_nearby_enemy_positions(
+		self,
+		target_position,
+		melee_engage_distance + spread_penalty_radius
+	)
+	_record_profile_duration("nearby_enemy", Time.get_ticks_usec() - nearby_enemy_start_usec)
 	var goal_request: EnemyGoalSelector.SelectGoalRequest = EnemyGoalSelector.SelectGoalRequest.new()
 	goal_request.target_position = target_position
 	goal_request.global_position = global_position
 	goal_request.melee_engage_distance = melee_engage_distance
 	goal_request.engage_candidate_count = engage_candidate_count
 	goal_request.capture_candidate_debug = _should_capture_candidate_debug()
-	goal_request.nearby_enemy_positions = EnemyCrowdQuery.collect_nearby_enemy_positions(
-		self,
-		target_position,
-		melee_engage_distance + spread_penalty_radius
-	)
+	goal_request.nearby_enemy_positions = nearby_enemy_positions
 	goal_request.navigation_map = _nav_agent.get_navigation_map()
 	goal_request.navigation_layers = _nav_agent.navigation_layers
 	goal_request.candidate_projection_tolerance = candidate_projection_tolerance
@@ -342,6 +349,7 @@ func _select_engage_goal() -> void:
 	_goal_debug_state.candidate_positions = goal_result.candidate_positions
 
 	if not goal_result.has_goal:
+		EnemyDebugTelemetry.increment_counter("goal_selection_failures")
 		_clear_goal_navigation_state()
 		_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 		return
@@ -352,6 +360,9 @@ func _select_engage_goal() -> void:
 	apply_goal_request.goal_commit_duration = goal_commit_duration
 	apply_goal_request.invalid_point = INVALID_POINT
 	EnemyRuntimePolicy.apply_goal_selection(_goal_runtime_state, _nav_cache_state, apply_goal_request)
+	EnemyDebugTelemetry.increment_counter("goal_selection_successes")
+	if goal_result.debug != null and goal_result.debug.used_fallback:
+		EnemyDebugTelemetry.increment_counter("goal_selection_fallbacks")
 	_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 
 
@@ -377,8 +388,13 @@ func _update_melee_state(target_position: Vector3) -> void:
 	request.engage_hold_tolerance = engage_hold_tolerance
 	request.engage_vertical_tolerance = engage_vertical_tolerance
 	var next_state := EnemyMovementStateMachine.compute_next_state(request)
-	if next_state != EnemyCloseState.APPROACH and not _is_in_active_melee_frontline(target_position):
-		next_state = EnemyCloseState.APPROACH
+	if next_state != EnemyCloseState.APPROACH:
+		EnemyDebugTelemetry.increment_counter("frontline_checks")
+		var frontline_start_usec := _profile_start_usec()
+		var is_in_frontline := _is_in_active_melee_frontline(target_position)
+		_record_profile_duration("frontline", Time.get_ticks_usec() - frontline_start_usec)
+		if not is_in_frontline:
+			next_state = EnemyCloseState.APPROACH
 
 	if next_state == _melee_state:
 		return
@@ -486,6 +502,7 @@ func _compute_close_adjust_velocity(next_position: Vector3) -> Vector3:
 		_record_profile_duration("close_adjust", Time.get_ticks_usec() - profile_start_usec)
 		return Vector3.ZERO
 
+	EnemyDebugTelemetry.increment_counter("close_adjust_calls")
 	var request: EnemyCrowdResponse.CloseAdjustRequest = EnemyCrowdResponse.CloseAdjustRequest.new()
 	request.next_position = next_position
 	request.global_position = global_position

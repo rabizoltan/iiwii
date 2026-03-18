@@ -22,9 +22,21 @@ static var _profile_finalize_total_usec: int = 0
 static var _profile_stuck_total_usec: int = 0
 static var _profile_update_debug_total_usec: int = 0
 static var _profile_local_enemy_total_usec: int = 0
+static var _profile_nearby_enemy_total_usec: int = 0
+static var _profile_goal_path_total_usec: int = 0
+static var _profile_frontline_total_usec: int = 0
 static var _profile_physics_calls: int = 0
 static var _profile_goal_calls: int = 0
 static var _profile_yield_calls: int = 0
+static var _profile_goal_refresh_checks: int = 0
+static var _profile_goal_refresh_triggers: int = 0
+static var _profile_goal_selection_successes: int = 0
+static var _profile_goal_selection_failures: int = 0
+static var _profile_goal_selection_fallbacks: int = 0
+static var _profile_nav_cache_hits: int = 0
+static var _profile_nav_cache_refreshes: int = 0
+static var _profile_close_adjust_calls: int = 0
+static var _profile_frontline_checks: int = 0
 
 const NAV_DEBUG_REFRESH_INTERVAL_SEC := 0.12
 
@@ -154,6 +166,21 @@ static func get_profile_snapshot(enemy_count: int) -> Dictionary:
 		"update_debug_share": _safe_profile_share(_profile_update_debug_total_usec, _profile_physics_total_usec),
 		"local_enemy_total_ms": float(_profile_local_enemy_total_usec) / 1000.0,
 		"local_enemy_share": _safe_profile_share(_profile_local_enemy_total_usec, _profile_physics_total_usec),
+		"nearby_enemy_total_ms": float(_profile_nearby_enemy_total_usec) / 1000.0,
+		"nearby_enemy_share": _safe_profile_share(_profile_nearby_enemy_total_usec, _profile_physics_total_usec),
+		"goal_path_total_ms": float(_profile_goal_path_total_usec) / 1000.0,
+		"goal_path_share": _safe_profile_share(_profile_goal_path_total_usec, _profile_physics_total_usec),
+		"frontline_total_ms": float(_profile_frontline_total_usec) / 1000.0,
+		"frontline_share": _safe_profile_share(_profile_frontline_total_usec, _profile_physics_total_usec),
+		"goal_refresh_checks": _profile_goal_refresh_checks,
+		"goal_refresh_triggers": _profile_goal_refresh_triggers,
+		"goal_selection_successes": _profile_goal_selection_successes,
+		"goal_selection_failures": _profile_goal_selection_failures,
+		"goal_selection_fallbacks": _profile_goal_selection_fallbacks,
+		"nav_cache_hits": _profile_nav_cache_hits,
+		"nav_cache_refreshes": _profile_nav_cache_refreshes,
+		"close_adjust_calls": _profile_close_adjust_calls,
+		"frontline_checks": _profile_frontline_checks,
 	}
 
 
@@ -211,6 +238,39 @@ static func record_profile_duration(section: String, duration_usec: int) -> void
 			_profile_update_debug_total_usec += duration_usec
 		"local_enemy":
 			_profile_local_enemy_total_usec += duration_usec
+		"nearby_enemy":
+			_profile_nearby_enemy_total_usec += duration_usec
+		"goal_path":
+			_profile_goal_path_total_usec += duration_usec
+		"frontline":
+			_profile_frontline_total_usec += duration_usec
+
+
+static func increment_counter(counter: String, amount: int = 1) -> void:
+	if not _profiling_enabled:
+		return
+	if _profile_window_start_usec <= 0:
+		_profile_window_start_usec = Time.get_ticks_usec()
+
+	match counter:
+		"goal_refresh_checks":
+			_profile_goal_refresh_checks += amount
+		"goal_refresh_triggers":
+			_profile_goal_refresh_triggers += amount
+		"goal_selection_successes":
+			_profile_goal_selection_successes += amount
+		"goal_selection_failures":
+			_profile_goal_selection_failures += amount
+		"goal_selection_fallbacks":
+			_profile_goal_selection_fallbacks += amount
+		"nav_cache_hits":
+			_profile_nav_cache_hits += amount
+		"nav_cache_refreshes":
+			_profile_nav_cache_refreshes += amount
+		"close_adjust_calls":
+			_profile_close_adjust_calls += amount
+		"frontline_checks":
+			_profile_frontline_checks += amount
 
 
 func draw_current_path(path: PackedVector3Array) -> void:
@@ -290,7 +350,19 @@ static func _reset_profile_accumulators() -> void:
 	_profile_stuck_total_usec = 0
 	_profile_update_debug_total_usec = 0
 	_profile_local_enemy_total_usec = 0
+	_profile_nearby_enemy_total_usec = 0
+	_profile_goal_path_total_usec = 0
+	_profile_frontline_total_usec = 0
 	_profile_physics_calls = 0
 	_profile_goal_calls = 0
 	_profile_yield_calls = 0
+	_profile_goal_refresh_checks = 0
+	_profile_goal_refresh_triggers = 0
+	_profile_goal_selection_successes = 0
+	_profile_goal_selection_failures = 0
+	_profile_goal_selection_fallbacks = 0
+	_profile_nav_cache_hits = 0
+	_profile_nav_cache_refreshes = 0
+	_profile_close_adjust_calls = 0
+	_profile_frontline_checks = 0
 

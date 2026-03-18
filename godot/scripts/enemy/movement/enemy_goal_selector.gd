@@ -1,5 +1,7 @@
 extends RefCounted
 
+const EnemyDebugTelemetry = preload("res://scripts/enemy/debug/enemy_debug_telemetry.gd")
+
 
 class SelectGoalRequest:
 	extends RefCounted
@@ -235,14 +237,17 @@ static func measure_candidate_path_metrics(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> CandidatePathMetrics:
+	var profile_start_usec := EnemyDebugTelemetry.profile_start_usec()
 	var result := CandidatePathMetrics.new()
 	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
 	if path.is_empty():
+		EnemyDebugTelemetry.record_profile_duration("goal_path", Time.get_ticks_usec() - profile_start_usec)
 		return result
 
 	var path_end: Vector3 = path[path.size() - 1]
 	result.length = _measure_path_length(path)
 	result.end_error = path_end.distance_to(candidate)
+	EnemyDebugTelemetry.record_profile_duration("goal_path", Time.get_ticks_usec() - profile_start_usec)
 	return result
 
 

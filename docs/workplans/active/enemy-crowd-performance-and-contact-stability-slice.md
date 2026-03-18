@@ -69,7 +69,8 @@ Date: 2026-03-18
    - `finalize_share` is about `0.48`
    - `physics_avg_ms` ramps from about `0.149` to `0.195`
    - dense corner-surround behavior degrades over time as compression increases
-5. Working interpretation for the restart:
+5. The richer enemy profiling overlay and log counters have been restored so the restart can proceed with the same observability used during the earlier diagnosis.
+6. Working interpretation for the restart:
    - collision/compression is still the dominant hotspot
    - nav refresh and near-player movement churn are still strong secondary suspects
    - the reported mid-run spike looks more like the normal crowd-compression ramp than a unique subsystem burst
@@ -172,10 +173,11 @@ Date: 2026-03-18
 - [ ] Define the before/after profiler checkpoints for validation.
 
 ## In Progress
-- [ ] No code slice currently in progress. The implementation is being restarted from a clean code baseline.
+- [ ] No behavior-change slice is currently in progress. The implementation is being restarted from a clean code baseline after restoring the richer profiling instrumentation.
 
 ## Done
 - [x] Profile the dense corner-surround slowdown and capture the first hotspot breakdown.
 - [x] Confirm that the current issue is dominated by dense contact plus nav refresh churn rather than by crowd-neighbor query cost.
 - [x] Update the close-range behavior contract to match the no-push-through-front-line rule.
 - [x] Preserve the implementation plan and profiler findings after discarding the experimental code changes.
+- [x] Restore the richer enemy profiling overlay and log counters needed for the restart.

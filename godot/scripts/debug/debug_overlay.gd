@@ -162,7 +162,10 @@ final: %.2f ms (%s)
 stuck: %.2f ms (%s)
 upd_dbg: %.2f ms (%s)
 local: %.2f ms (%s)
+nearby: %.2f ms (%s)
+front: %.2f ms (%s)
 goal: %.2f ms (%s)
+gpath: %.2f ms (%s)
 yield: %.2f ms (%s)
 cadj: %.2f ms (%s)
 infl: %.2f ms (%s)
@@ -171,6 +174,8 @@ snap: %.2f ms (%s)
 move: %.2f ms (%s)
 navdbg: %.2f ms (%s)
 enemies: %d | goals %d | yields %d
+goal chk/trig/s/f/fb: %d/%d/%d/%d/%d
+nav hit/ref: %d/%d | front %d | cadj %d
 crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		float(snapshot.get("window_sec", 0.0)),
 		float(snapshot.get("physics_total_ms", 0.0)),
@@ -194,8 +199,14 @@ crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		_snapshot_percent_text(snapshot, "update_debug_share"),
 		float(snapshot.get("local_enemy_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "local_enemy_share"),
+		float(snapshot.get("nearby_enemy_total_ms", 0.0)),
+		_snapshot_percent_text(snapshot, "nearby_enemy_share"),
+		float(snapshot.get("frontline_total_ms", 0.0)),
+		_snapshot_percent_text(snapshot, "frontline_share"),
 		float(snapshot.get("goal_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "goal_share"),
+		float(snapshot.get("goal_path_total_ms", 0.0)),
+		_snapshot_percent_text(snapshot, "goal_path_share"),
 		float(snapshot.get("yield_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "yield_share"),
 		float(snapshot.get("close_adjust_total_ms", 0.0)),
@@ -213,6 +224,15 @@ crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		int(snapshot.get("enemy_count", 0)),
 		int(snapshot.get("goal_calls", 0)),
 		int(snapshot.get("yield_calls", 0)),
+		int(snapshot.get("goal_refresh_checks", 0)),
+		int(snapshot.get("goal_refresh_triggers", 0)),
+		int(snapshot.get("goal_selection_successes", 0)),
+		int(snapshot.get("goal_selection_failures", 0)),
+		int(snapshot.get("goal_selection_fallbacks", 0)),
+		int(snapshot.get("nav_cache_hits", 0)),
+		int(snapshot.get("nav_cache_refreshes", 0)),
+		int(snapshot.get("frontline_checks", 0)),
+		int(snapshot.get("close_adjust_calls", 0)),
 		int(snapshot.get("crowd_cache_hits", 0)),
 		int(snapshot.get("crowd_cache_misses", 0)),
 		int(snapshot.get("crowd_local_queries", 0)),
@@ -251,7 +271,7 @@ func _maybe_write_profile_log() -> void:
 
 	file.seek_end()
 	file.store_line(
-		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | goal_ms=%.2f | goal_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
+		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | nearby_enemy_ms=%.2f | nearby_enemy_share=%.2f | frontline_ms=%.2f | frontline_share=%.2f | goal_ms=%.2f | goal_share=%.2f | goal_path_ms=%.2f | goal_path_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | goal_refresh_checks=%d | goal_refresh_triggers=%d | goal_successes=%d | goal_failures=%d | goal_fallbacks=%d | nav_cache_hits=%d | nav_cache_refreshes=%d | frontline_checks=%d | close_adjust_calls=%d | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
 			Time.get_datetime_string_from_system(),
 			float(snapshot.get("window_sec", 0.0)),
 			int(snapshot.get("enemy_count", 0)),
@@ -275,8 +295,14 @@ func _maybe_write_profile_log() -> void:
 			float(snapshot.get("update_debug_share", 0.0)),
 			float(snapshot.get("local_enemy_total_ms", 0.0)),
 			float(snapshot.get("local_enemy_share", 0.0)),
+			float(snapshot.get("nearby_enemy_total_ms", 0.0)),
+			float(snapshot.get("nearby_enemy_share", 0.0)),
+			float(snapshot.get("frontline_total_ms", 0.0)),
+			float(snapshot.get("frontline_share", 0.0)),
 			float(snapshot.get("goal_total_ms", 0.0)),
 			float(snapshot.get("goal_share", 0.0)),
+			float(snapshot.get("goal_path_total_ms", 0.0)),
+			float(snapshot.get("goal_path_share", 0.0)),
 			float(snapshot.get("yield_total_ms", 0.0)),
 			float(snapshot.get("yield_share", 0.0)),
 			float(snapshot.get("close_adjust_total_ms", 0.0)),
@@ -291,6 +317,15 @@ func _maybe_write_profile_log() -> void:
 			float(snapshot.get("move_slide_share", 0.0)),
 			float(snapshot.get("nav_debug_total_ms", 0.0)),
 			float(snapshot.get("nav_debug_share", 0.0)),
+			int(snapshot.get("goal_refresh_checks", 0)),
+			int(snapshot.get("goal_refresh_triggers", 0)),
+			int(snapshot.get("goal_selection_successes", 0)),
+			int(snapshot.get("goal_selection_failures", 0)),
+			int(snapshot.get("goal_selection_fallbacks", 0)),
+			int(snapshot.get("nav_cache_hits", 0)),
+			int(snapshot.get("nav_cache_refreshes", 0)),
+			int(snapshot.get("frontline_checks", 0)),
+			int(snapshot.get("close_adjust_calls", 0)),
 			int(snapshot.get("crowd_cache_hits", 0)),
 			int(snapshot.get("crowd_cache_misses", 0)),
 			int(snapshot.get("crowd_local_queries", 0)),
