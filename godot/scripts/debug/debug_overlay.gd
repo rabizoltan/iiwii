@@ -176,6 +176,9 @@ navdbg: %.2f ms (%s)
 enemies: %d | goals %d | yields %d
 goal chk/trig/s/f/fb: %d/%d/%d/%d/%d
 nav hit/ref: %d/%d | front %d | cadj %d
+states a/q/c/h: %d/%d/%d/%d
+move/idle: %d/%d
+queue enter/reuse/reject/acap: %d/%d/%d/%d
 crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		float(snapshot.get("window_sec", 0.0)),
 		float(snapshot.get("physics_total_ms", 0.0)),
@@ -233,6 +236,16 @@ crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		int(snapshot.get("nav_cache_refreshes", 0)),
 		int(snapshot.get("frontline_checks", 0)),
 		int(snapshot.get("close_adjust_calls", 0)),
+		int(snapshot.get("state_approach_frames", 0)),
+		int(snapshot.get("state_queue_frames", 0)),
+		int(snapshot.get("state_close_adjust_frames", 0)),
+		int(snapshot.get("state_melee_hold_frames", 0)),
+		int(snapshot.get("state_move_frames", 0)),
+		int(snapshot.get("state_idle_frames", 0)),
+		int(snapshot.get("queue_entries", 0)),
+		int(snapshot.get("queue_hold_reuses", 0)),
+		int(snapshot.get("frontline_rejections", 0)),
+		int(snapshot.get("approach_cap_rejections", 0)),
 		int(snapshot.get("crowd_cache_hits", 0)),
 		int(snapshot.get("crowd_cache_misses", 0)),
 		int(snapshot.get("crowd_local_queries", 0)),
@@ -271,7 +284,7 @@ func _maybe_write_profile_log() -> void:
 
 	file.seek_end()
 	file.store_line(
-		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | nearby_enemy_ms=%.2f | nearby_enemy_share=%.2f | frontline_ms=%.2f | frontline_share=%.2f | goal_ms=%.2f | goal_share=%.2f | goal_path_ms=%.2f | goal_path_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | goal_refresh_checks=%d | goal_refresh_triggers=%d | goal_successes=%d | goal_failures=%d | goal_fallbacks=%d | nav_cache_hits=%d | nav_cache_refreshes=%d | frontline_checks=%d | close_adjust_calls=%d | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
+		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | nearby_enemy_ms=%.2f | nearby_enemy_share=%.2f | frontline_ms=%.2f | frontline_share=%.2f | goal_ms=%.2f | goal_share=%.2f | goal_path_ms=%.2f | goal_path_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | goal_refresh_checks=%d | goal_refresh_triggers=%d | goal_successes=%d | goal_failures=%d | goal_fallbacks=%d | nav_cache_hits=%d | nav_cache_refreshes=%d | frontline_checks=%d | close_adjust_calls=%d | state_approach_frames=%d | state_queue_frames=%d | state_close_adjust_frames=%d | state_melee_hold_frames=%d | state_move_frames=%d | state_idle_frames=%d | queue_entries=%d | queue_hold_reuses=%d | frontline_rejections=%d | approach_cap_rejections=%d | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
 			Time.get_datetime_string_from_system(),
 			float(snapshot.get("window_sec", 0.0)),
 			int(snapshot.get("enemy_count", 0)),
@@ -326,6 +339,16 @@ func _maybe_write_profile_log() -> void:
 			int(snapshot.get("nav_cache_refreshes", 0)),
 			int(snapshot.get("frontline_checks", 0)),
 			int(snapshot.get("close_adjust_calls", 0)),
+			int(snapshot.get("state_approach_frames", 0)),
+			int(snapshot.get("state_queue_frames", 0)),
+			int(snapshot.get("state_close_adjust_frames", 0)),
+			int(snapshot.get("state_melee_hold_frames", 0)),
+			int(snapshot.get("state_move_frames", 0)),
+			int(snapshot.get("state_idle_frames", 0)),
+			int(snapshot.get("queue_entries", 0)),
+			int(snapshot.get("queue_hold_reuses", 0)),
+			int(snapshot.get("frontline_rejections", 0)),
+			int(snapshot.get("approach_cap_rejections", 0)),
 			int(snapshot.get("crowd_cache_hits", 0)),
 			int(snapshot.get("crowd_cache_misses", 0)),
 			int(snapshot.get("crowd_local_queries", 0)),

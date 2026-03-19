@@ -37,6 +37,16 @@ static var _profile_nav_cache_hits: int = 0
 static var _profile_nav_cache_refreshes: int = 0
 static var _profile_close_adjust_calls: int = 0
 static var _profile_frontline_checks: int = 0
+static var _profile_state_approach_frames: int = 0
+static var _profile_state_queue_frames: int = 0
+static var _profile_state_close_adjust_frames: int = 0
+static var _profile_state_melee_hold_frames: int = 0
+static var _profile_state_move_frames: int = 0
+static var _profile_state_idle_frames: int = 0
+static var _profile_queue_entries: int = 0
+static var _profile_queue_hold_reuses: int = 0
+static var _profile_frontline_rejections: int = 0
+static var _profile_approach_cap_rejections: int = 0
 
 const NAV_DEBUG_REFRESH_INTERVAL_SEC := 0.12
 
@@ -181,6 +191,16 @@ static func get_profile_snapshot(enemy_count: int) -> Dictionary:
 		"nav_cache_refreshes": _profile_nav_cache_refreshes,
 		"close_adjust_calls": _profile_close_adjust_calls,
 		"frontline_checks": _profile_frontline_checks,
+		"state_approach_frames": _profile_state_approach_frames,
+		"state_queue_frames": _profile_state_queue_frames,
+		"state_close_adjust_frames": _profile_state_close_adjust_frames,
+		"state_melee_hold_frames": _profile_state_melee_hold_frames,
+		"state_move_frames": _profile_state_move_frames,
+		"state_idle_frames": _profile_state_idle_frames,
+		"queue_entries": _profile_queue_entries,
+		"queue_hold_reuses": _profile_queue_hold_reuses,
+		"frontline_rejections": _profile_frontline_rejections,
+		"approach_cap_rejections": _profile_approach_cap_rejections,
 	}
 
 
@@ -271,6 +291,26 @@ static func increment_counter(counter: String, amount: int = 1) -> void:
 			_profile_close_adjust_calls += amount
 		"frontline_checks":
 			_profile_frontline_checks += amount
+		"state_approach_frames":
+			_profile_state_approach_frames += amount
+		"state_queue_frames":
+			_profile_state_queue_frames += amount
+		"state_close_adjust_frames":
+			_profile_state_close_adjust_frames += amount
+		"state_melee_hold_frames":
+			_profile_state_melee_hold_frames += amount
+		"state_move_frames":
+			_profile_state_move_frames += amount
+		"state_idle_frames":
+			_profile_state_idle_frames += amount
+		"queue_entries":
+			_profile_queue_entries += amount
+		"queue_hold_reuses":
+			_profile_queue_hold_reuses += amount
+		"frontline_rejections":
+			_profile_frontline_rejections += amount
+		"approach_cap_rejections":
+			_profile_approach_cap_rejections += amount
 
 
 func draw_current_path(path: PackedVector3Array) -> void:
@@ -365,4 +405,14 @@ static func _reset_profile_accumulators() -> void:
 	_profile_nav_cache_refreshes = 0
 	_profile_close_adjust_calls = 0
 	_profile_frontline_checks = 0
+	_profile_state_approach_frames = 0
+	_profile_state_queue_frames = 0
+	_profile_state_close_adjust_frames = 0
+	_profile_state_melee_hold_frames = 0
+	_profile_state_move_frames = 0
+	_profile_state_idle_frames = 0
+	_profile_queue_entries = 0
+	_profile_queue_hold_reuses = 0
+	_profile_frontline_rejections = 0
+	_profile_approach_cap_rejections = 0
 

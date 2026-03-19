@@ -212,6 +212,7 @@ func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
 		return result
 
 	var state_result: EnemyMovementStateMachine.StateDispatchResult = _dispatch_movement_state(delta, distance_to_target)
+	_record_state_participation(state_result.attempted_move)
 	var state_motion_start_usec := _profile_start_usec()
 	_apply_state_motion(state_result, delta)
 	_record_profile_duration("state_motion", Time.get_ticks_usec() - state_motion_start_usec)
@@ -394,6 +395,7 @@ func _update_melee_state(target_position: Vector3) -> void:
 		var is_in_frontline := _is_in_active_melee_frontline(target_position)
 		_record_profile_duration("frontline", Time.get_ticks_usec() - frontline_start_usec)
 		if not is_in_frontline:
+			EnemyDebugTelemetry.increment_counter("frontline_rejections")
 			next_state = EnemyCloseState.APPROACH
 
 	if next_state == _melee_state:
@@ -810,6 +812,21 @@ func _profile_start_usec() -> int:
 
 func _record_profile_duration(section: String, duration_usec: int) -> void:
 	EnemyDebugTelemetry.record_profile_duration(section, duration_usec)
+
+
+func _record_state_participation(attempted_move: bool) -> void:
+	match _melee_state:
+		EnemyCloseState.APPROACH:
+			EnemyDebugTelemetry.increment_counter("state_approach_frames")
+		EnemyCloseState.CLOSE_ADJUST:
+			EnemyDebugTelemetry.increment_counter("state_close_adjust_frames")
+		EnemyCloseState.MELEE_HOLD:
+			EnemyDebugTelemetry.increment_counter("state_melee_hold_frames")
+
+	if attempted_move:
+		EnemyDebugTelemetry.increment_counter("state_move_frames")
+	else:
+		EnemyDebugTelemetry.increment_counter("state_idle_frames")
 
 
 func _horizontal_distance_to(target_position: Vector3) -> float:
