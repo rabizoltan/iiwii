@@ -47,6 +47,8 @@ static var _profile_queue_entries: int = 0
 static var _profile_queue_hold_reuses: int = 0
 static var _profile_frontline_rejections: int = 0
 static var _profile_approach_cap_rejections: int = 0
+static var _profile_physics_samples_usec: Array[int] = []
+static var _profile_physics_sample_limit: int = 512
 
 const NAV_DEBUG_REFRESH_INTERVAL_SEC := 0.12
 
@@ -134,11 +136,19 @@ static func get_profile_snapshot(enemy_count: int) -> Dictionary:
 	var now_usec: int = Time.get_ticks_usec()
 	var window_usec: int = maxi(now_usec - _profile_window_start_usec, 1)
 	var physics_total_ms: float = float(_profile_physics_total_usec) / 1000.0
+	var physics_p50_ms: float = _percentile_usec_to_ms(0.50)
+	var physics_p90_ms: float = _percentile_usec_to_ms(0.90)
+	var physics_p95_ms: float = _percentile_usec_to_ms(0.95)
+	var physics_p99_ms: float = _percentile_usec_to_ms(0.99)
 	return {
 		"window_sec": float(window_usec) / 1000000.0,
 		"enemy_count": enemy_count,
 		"physics_total_ms": physics_total_ms,
 		"physics_avg_ms": physics_total_ms / maxf(float(_profile_physics_calls), 1.0),
+		"physics_p50_ms": physics_p50_ms,
+		"physics_p90_ms": physics_p90_ms,
+		"physics_p95_ms": physics_p95_ms,
+		"physics_p99_ms": physics_p99_ms,
 		"physics_calls": _profile_physics_calls,
 		"goal_total_ms": float(_profile_goal_total_usec) / 1000.0,
 		"goal_calls": _profile_goal_calls,
@@ -222,6 +232,7 @@ static func record_profile_duration(section: String, duration_usec: int) -> void
 		"physics":
 			_profile_physics_total_usec += duration_usec
 			_profile_physics_calls += 1
+			_record_physics_sample(duration_usec)
 		"goal":
 			_profile_goal_total_usec += duration_usec
 			_profile_goal_calls += 1
@@ -370,6 +381,24 @@ static func _safe_profile_share(part_usec: int, total_usec: int) -> float:
 	return float(part_usec) / float(total_usec)
 
 
+static func _record_physics_sample(duration_usec: int) -> void:
+	_profile_physics_samples_usec.append(duration_usec)
+	if _profile_physics_samples_usec.size() > _profile_physics_sample_limit:
+		_profile_physics_samples_usec.remove_at(0)
+
+
+static func _percentile_usec_to_ms(percentile: float) -> float:
+	if _profile_physics_samples_usec.is_empty():
+		return 0.0
+
+	var sorted_samples: Array[int] = _profile_physics_samples_usec.duplicate()
+	sorted_samples.sort()
+	var sample_count: int = sorted_samples.size()
+	var clamped_percentile: float = clampf(percentile, 0.0, 1.0)
+	var sample_index: int = int(floor(clamped_percentile * float(sample_count - 1)))
+	return float(sorted_samples[sample_index]) / 1000.0
+
+
 static func _reset_profile_accumulators() -> void:
 	_profile_window_start_usec = Time.get_ticks_usec() if _profiling_enabled else 0
 	_profile_physics_total_usec = 0
@@ -415,4 +444,5 @@ static func _reset_profile_accumulators() -> void:
 	_profile_queue_hold_reuses = 0
 	_profile_frontline_rejections = 0
 	_profile_approach_cap_rejections = 0
+	_profile_physics_samples_usec.clear()
 

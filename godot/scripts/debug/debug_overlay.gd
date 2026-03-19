@@ -152,7 +152,7 @@ func _format_profile_snapshot(snapshot: Dictionary) -> String:
 		return "Enemy profiling warming up..."
 
 	return """Window: %.2fs
-Physics: %.2f ms total | %.3f ms avg | calls %d
+Physics: %.2f ms total | %.3f ms avg | p50 %.3f | p90 %.3f | p95 %.3f | p99 %.3f | calls %d
 prep: %.2f ms (%s)
 horiz: %.2f ms (%s)
 state: %.2f ms (%s)
@@ -183,6 +183,10 @@ crowd cache h/m: %d/%d | local %d | nearby %d""" % [
 		float(snapshot.get("window_sec", 0.0)),
 		float(snapshot.get("physics_total_ms", 0.0)),
 		float(snapshot.get("physics_avg_ms", 0.0)),
+		float(snapshot.get("physics_p50_ms", 0.0)),
+		float(snapshot.get("physics_p90_ms", 0.0)),
+		float(snapshot.get("physics_p95_ms", 0.0)),
+		float(snapshot.get("physics_p99_ms", 0.0)),
 		int(snapshot.get("physics_calls", 0)),
 		float(snapshot.get("prepare_total_ms", 0.0)),
 		_snapshot_percent_text(snapshot, "prepare_share"),
@@ -284,12 +288,16 @@ func _maybe_write_profile_log() -> void:
 
 	file.seek_end()
 	file.store_line(
-		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | nearby_enemy_ms=%.2f | nearby_enemy_share=%.2f | frontline_ms=%.2f | frontline_share=%.2f | goal_ms=%.2f | goal_share=%.2f | goal_path_ms=%.2f | goal_path_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | goal_refresh_checks=%d | goal_refresh_triggers=%d | goal_successes=%d | goal_failures=%d | goal_fallbacks=%d | nav_cache_hits=%d | nav_cache_refreshes=%d | frontline_checks=%d | close_adjust_calls=%d | state_approach_frames=%d | state_queue_frames=%d | state_close_adjust_frames=%d | state_melee_hold_frames=%d | state_move_frames=%d | state_idle_frames=%d | queue_entries=%d | queue_hold_reuses=%d | frontline_rejections=%d | approach_cap_rejections=%d | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
+		"%s | window=%.2fs | enemies=%d | physics_total_ms=%.2f | physics_avg_ms=%.3f | physics_p50_ms=%.3f | physics_p90_ms=%.3f | physics_p95_ms=%.3f | physics_p99_ms=%.3f | prepare_ms=%.2f | prepare_share=%.2f | horizontal_phase_ms=%.2f | horizontal_phase_share=%.2f | state_dispatch_ms=%.2f | state_dispatch_share=%.2f | melee_state_ms=%.2f | melee_state_share=%.2f | state_motion_ms=%.2f | state_motion_share=%.2f | finalize_ms=%.2f | finalize_share=%.2f | stuck_ms=%.2f | stuck_share=%.2f | update_debug_ms=%.2f | update_debug_share=%.2f | local_enemy_ms=%.2f | local_enemy_share=%.2f | nearby_enemy_ms=%.2f | nearby_enemy_share=%.2f | frontline_ms=%.2f | frontline_share=%.2f | goal_ms=%.2f | goal_share=%.2f | goal_path_ms=%.2f | goal_path_share=%.2f | yield_ms=%.2f | yield_share=%.2f | close_adjust_ms=%.2f | close_adjust_share=%.2f | influence_ms=%.2f | influence_share=%.2f | nav_query_ms=%.2f | nav_query_share=%.2f | snapshot_ms=%.2f | snapshot_share=%.2f | move_slide_ms=%.2f | move_slide_share=%.2f | nav_debug_ms=%.2f | nav_debug_share=%.2f | goal_refresh_checks=%d | goal_refresh_triggers=%d | goal_successes=%d | goal_failures=%d | goal_fallbacks=%d | nav_cache_hits=%d | nav_cache_refreshes=%d | frontline_checks=%d | close_adjust_calls=%d | state_approach_frames=%d | state_queue_frames=%d | state_close_adjust_frames=%d | state_melee_hold_frames=%d | state_move_frames=%d | state_idle_frames=%d | queue_entries=%d | queue_hold_reuses=%d | frontline_rejections=%d | approach_cap_rejections=%d | crowd_cache_hits=%d | crowd_cache_misses=%d | crowd_local_queries=%d | crowd_nearby_queries=%d | physics_calls=%d | goal_calls=%d | yield_calls=%d" % [
 			Time.get_datetime_string_from_system(),
 			float(snapshot.get("window_sec", 0.0)),
 			int(snapshot.get("enemy_count", 0)),
 			float(snapshot.get("physics_total_ms", 0.0)),
 			float(snapshot.get("physics_avg_ms", 0.0)),
+			float(snapshot.get("physics_p50_ms", 0.0)),
+			float(snapshot.get("physics_p90_ms", 0.0)),
+			float(snapshot.get("physics_p95_ms", 0.0)),
+			float(snapshot.get("physics_p99_ms", 0.0)),
 			float(snapshot.get("prepare_total_ms", 0.0)),
 			float(snapshot.get("prepare_share", 0.0)),
 			float(snapshot.get("horizontal_phase_total_ms", 0.0)),

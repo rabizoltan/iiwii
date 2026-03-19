@@ -151,6 +151,8 @@ Date: 2026-03-19
    - When comparing runs, compare at similar elapsed windows because the hotspot ramps over time as compression grows.
 2. Compare before/after values for:
    - `move_slide_share`
+   - `physics_p90_ms`
+   - `physics_p95_ms`
    - `nav_cache_refreshes`
    - `nav_cache_hits`
    - `goal_refresh_triggers`
@@ -196,3 +198,4 @@ Date: 2026-03-19
 - [x] Preserve the implementation plan and profiler findings after discarding the experimental code changes.
 - [x] Restore the richer enemy profiling overlay and log counters needed for the restart.
 - [x] Restore movement-state participation counters so the next restart can measure how many enemies remain active near the player.
+- [x] Add `physics_p90_ms` and `physics_p95_ms` support so crowd-spike tail latency can be tracked, not just averages.
