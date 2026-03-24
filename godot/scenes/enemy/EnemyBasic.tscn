@@ -31,7 +31,3 @@ mesh = SubResource("2")
 path_max_distance = 10.0
 height = 1.9
 radius = 0.45
-
-
-[node name="NavPathDebug" type="MeshInstance3D" parent="." unique_id=79330398]
-cast_shadow = 0

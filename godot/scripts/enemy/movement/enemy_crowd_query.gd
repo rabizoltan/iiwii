@@ -10,10 +10,6 @@ class LocalEnemyCacheState:
 
 
 static var _enemy_registry: Array[Node3D] = []
-static var _profile_cache_hits: int = 0
-static var _profile_cache_misses: int = 0
-static var _profile_local_query_calls: int = 0
-static var _profile_nearby_query_calls: int = 0
 
 
 static func register_enemy(enemy: Node3D) -> void:
@@ -29,22 +25,6 @@ static func unregister_enemy(enemy: Node3D) -> void:
 
 static func get_registered_enemy_count() -> int:
 	return _enemy_registry.size()
-
-
-static func reset_profile_counters() -> void:
-	_profile_cache_hits = 0
-	_profile_cache_misses = 0
-	_profile_local_query_calls = 0
-	_profile_nearby_query_calls = 0
-
-
-static func get_profile_counters() -> Dictionary:
-	return {
-		"crowd_cache_hits": _profile_cache_hits,
-		"crowd_cache_misses": _profile_cache_misses,
-		"crowd_local_queries": _profile_local_query_calls,
-		"crowd_nearby_queries": _profile_nearby_query_calls,
-	}
 
 
 static func tick_local_cache(state: LocalEnemyCacheState, delta: float) -> void:
@@ -65,10 +45,8 @@ static func get_cached_local_enemy_positions(
 		return []
 
 	if state != null and state.remaining > 0.0 and state.radius >= radius:
-		_profile_cache_hits += 1
 		return state.positions
 
-	_profile_cache_misses += 1
 	var positions: Array[Vector3] = collect_local_enemy_positions(owner, owner_position, radius)
 	if state != null:
 		state.positions = positions
@@ -84,7 +62,6 @@ static func collect_local_enemy_positions(
 	radius: float
 ) -> Array[Vector3]:
 	var local_positions: Array[Vector3] = []
-	_profile_local_query_calls += 1
 	if radius <= 0.0:
 		return local_positions
 
@@ -109,7 +86,6 @@ static func collect_nearby_enemy_positions(
 	relevant_radius: float
 ) -> Array[Vector3]:
 	var nearby_positions: Array[Vector3] = []
-	_profile_nearby_query_calls += 1
 	if relevant_radius <= 0.0:
 		return nearby_positions
 

@@ -1,7 +1,6 @@
 extends RefCounted
 
 const EnemyNavigationLocomotion = preload("res://scripts/enemy/movement/enemy_navigation_locomotion.gd")
-const EnemyDebugTelemetry = preload("res://scripts/enemy/debug/enemy_debug_telemetry.gd")
 
 
 class GoalRuntimeState:
@@ -59,6 +58,7 @@ class GoalCooldownRequest:
 
 	var goal_select_min_interval: float = 0.0
 
+
 class NavigationNextPositionRequest:
 	extends RefCounted
 
@@ -85,7 +85,6 @@ static func tick_goal_runtime(state: GoalRuntimeState, delta: float) -> void:
 		state.goal_select_cooldown_remaining = maxf(state.goal_select_cooldown_remaining - delta, 0.0)
 
 
-
 static func tick_navigation_cache(state: NavigationCacheState, delta: float) -> void:
 	if state.nav_refresh_remaining > 0.0:
 		state.nav_refresh_remaining = maxf(state.nav_refresh_remaining - delta, 0.0)
@@ -94,13 +93,10 @@ static func tick_navigation_cache(state: NavigationCacheState, delta: float) -> 
 static func should_refresh_goal(request: GoalRefreshRequest) -> bool:
 	if not request.has_valid_target:
 		return false
-
 	if request.goal_select_cooldown_remaining > 0.0:
 		return false
-
 	if not request.has_goal:
 		return true
-
 	if request.goal_commit_remaining > 0.0:
 		return false
 
@@ -155,12 +151,9 @@ static func invalidate_navigation_cache(state: NavigationCacheState, invalid_poi
 
 static func get_navigation_next_position(request: NavigationNextPositionRequest) -> Vector3:
 	if _should_refresh_navigation_cache(request):
-		EnemyDebugTelemetry.increment_counter("nav_cache_refreshes")
 		request.cache_state.cached_nav_next_position = request.resolve_next_position.call(request.move_target)
 		request.cache_state.cached_nav_move_target = request.move_target
 		request.cache_state.nav_refresh_remaining = _compute_nav_refresh_interval(request)
-	elif request.cache_state.cached_nav_next_position != Vector3.ZERO:
-		EnemyDebugTelemetry.increment_counter("nav_cache_hits")
 
 	if request.cache_state.cached_nav_next_position != Vector3.ZERO:
 		return request.cache_state.cached_nav_next_position

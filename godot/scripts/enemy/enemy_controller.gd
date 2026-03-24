@@ -8,20 +8,16 @@ const EnemyCrowdQuery = preload("res://scripts/enemy/movement/enemy_crowd_query.
 const EnemyRuntimePolicy = preload("res://scripts/enemy/movement/enemy_runtime_policy.gd")
 const EnemyNavigationLocomotion = preload("res://scripts/enemy/movement/enemy_navigation_locomotion.gd")
 const EnemyMovementInfluence = preload("res://scripts/enemy/movement/enemy_movement_influence.gd")
-const EnemyDebugTelemetry = preload("res://scripts/enemy/debug/enemy_debug_telemetry.gd")
-const EnemyDebugSnapshot = preload("res://scripts/enemy/debug/enemy_debug_snapshot.gd")
-const EnemyDebugSnapshotBuilder = preload("res://scripts/enemy/debug/enemy_debug_snapshot_builder.gd")
 const EnemyRuntimeState = preload("res://scripts/enemy/state/enemy_runtime_state.gd")
 
 
 class PhysicsStepResult:
 	extends RefCounted
 
-	var debug_state: String = "idle"
-	var debug_next_position: Vector3 = Vector3.ZERO
-	var debug_iteration_id: int = 0
+
 	var attempted_horizontal_move: bool = false
 	var nav_not_ready: bool = false
+
 
 # Movement and targeting
 @export var move_speed: float = 4.5
@@ -94,20 +90,15 @@ class PhysicsStepResult:
 @export var stuck_min_progress_distance: float = 0.02
 
 @onready var _nav_agent: NavigationAgent3D = $NavigationAgent3D
-@onready var _nav_path_debug: MeshInstance3D = $NavPathDebug
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _target_node: Node3D
-var _telemetry: EnemyDebugTelemetry
 var _stuck_elapsed: float = 0.0
 var _recovery_elapsed: float = 0.0
 var _recovery_sign: float = 1.0
 var _current_hp: float = 0.0
 var _melee_state: int = EnemyCloseState.APPROACH
-var _melee_state_age: float = 0.0
-var _melee_state_transition_count: int = 0
 var _goal_runtime_state: EnemyRuntimePolicy.GoalRuntimeState
-var _goal_debug_state: EnemyRuntimeState.GoalDebugState
 var _crowd_query_state: EnemyCrowdQuery.LocalEnemyCacheState
 var _nav_cache_state: EnemyRuntimePolicy.NavigationCacheState
 var _movement_influence_state: EnemyRuntimeState.MovementInfluenceState
@@ -132,13 +123,10 @@ func _ready() -> void:
 	floor_snap_length = walkable_floor_snap_length
 	_goal_runtime_state = EnemyRuntimePolicy.GoalRuntimeState.new()
 	_goal_runtime_state.goal_select_cooldown_remaining = randf() * maxf(goal_select_start_jitter, 0.0)
-	_goal_debug_state = EnemyRuntimeState.GoalDebugState.new()
 	_nav_cache_state = EnemyRuntimePolicy.NavigationCacheState.new()
 	_nav_cache_state.cached_nav_move_target = INVALID_POINT
 	_movement_influence_state = EnemyRuntimeState.MovementInfluenceState.new()
 	_crowd_query_state = EnemyCrowdQuery.LocalEnemyCacheState.new()
-	_telemetry = EnemyDebugTelemetry.new()
-	_telemetry.setup(self, _nav_path_debug)
 	_nav_agent.set_navigation_map(get_world_3d().navigation_map)
 	_nav_agent.path_desired_distance = 0.5
 	_nav_agent.target_desired_distance = engage_hold_tolerance
@@ -156,36 +144,24 @@ func _resolve_target() -> void:
 
 # Main update loop
 func _physics_process(delta: float) -> void:
-	var physics_start_usec := Time.get_ticks_usec()
 	var pre_move_position := global_position
-	var prepare_start_usec := _profile_start_usec()
 	_prepare_physics_step(delta)
-	_record_profile_duration("prepare", Time.get_ticks_usec() - prepare_start_usec)
-	var horizontal_phase_start_usec := _profile_start_usec()
 	var step_result: PhysicsStepResult = _run_horizontal_movement_phase(delta)
-	_record_profile_duration("horizontal_phase", Time.get_ticks_usec() - horizontal_phase_start_usec)
 	if step_result.nav_not_ready:
-		_finalize_nav_not_ready(physics_start_usec, step_result)
+		_finalize_nav_not_ready()
 		return
 
 	_apply_vertical_velocity(delta)
-	_finalize_physics_step(physics_start_usec, pre_move_position, delta, step_result)
+	_finalize_physics_step(pre_move_position, delta, step_result)
 
 
 func _prepare_physics_step(delta: float) -> void:
 	EnemyRuntimePolicy.tick_goal_runtime(_goal_runtime_state, delta)
-
 	EnemyCrowdQuery.tick_local_cache(_crowd_query_state, delta)
-
 	EnemyRuntimePolicy.tick_navigation_cache(_nav_cache_state, delta)
-
-	if _telemetry != null:
-		_telemetry.tick(delta)
 
 	if _close_adjust_side_commit_remaining > 0.0:
 		_close_adjust_side_commit_remaining = maxf(_close_adjust_side_commit_remaining - delta, 0.0)
-
-	_melee_state_age += delta
 
 
 func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
@@ -197,27 +173,18 @@ func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
 	if not _has_valid_target():
 		_clear_goal_navigation_state()
 		_set_horizontal_velocity(Vector3.ZERO)
-		result.debug_state = "no target"
 		return result
 
 	var distance_to_target: float = _horizontal_distance_to(_target_node.global_position)
-	var melee_state_start_usec := _profile_start_usec()
 	_update_melee_state(_target_node.global_position)
-	_record_profile_duration("melee_state", Time.get_ticks_usec() - melee_state_start_usec)
-	result.debug_iteration_id = NavigationServer3D.map_get_iteration_id(_nav_agent.get_navigation_map())
-	if result.debug_iteration_id == 0:
+	if NavigationServer3D.map_get_iteration_id(_nav_agent.get_navigation_map()) == 0:
 		_set_horizontal_velocity(Vector3.ZERO)
-		result.debug_state = "nav not ready"
 		result.nav_not_ready = true
 		return result
 
 	var state_result: EnemyMovementStateMachine.StateDispatchResult = _dispatch_movement_state(delta, distance_to_target)
-	_record_state_participation(state_result.attempted_move)
-	var state_motion_start_usec := _profile_start_usec()
 	_apply_state_motion(state_result, delta)
-	_record_profile_duration("state_motion", Time.get_ticks_usec() - state_motion_start_usec)
-	result.debug_state = state_result.state
-	result.debug_next_position = state_result.next_position
+
 	result.attempted_horizontal_move = state_result.attempted_move
 
 	if _apply_external_displacement(delta):
@@ -227,7 +194,6 @@ func _run_horizontal_movement_phase(delta: float) -> PhysicsStepResult:
 
 
 func _dispatch_movement_state(delta: float, distance_to_target: float) -> EnemyMovementStateMachine.StateDispatchResult:
-	var profile_start_usec := _profile_start_usec()
 	if _should_refresh_goal():
 		_select_engage_goal()
 		_reset_goal_select_cooldown()
@@ -248,16 +214,11 @@ func _dispatch_movement_state(delta: float, distance_to_target: float) -> EnemyM
 				Vector3.ZERO,
 				_target_node.global_position
 			)
-	_record_profile_duration("state_dispatch", Time.get_ticks_usec() - profile_start_usec)
 	return result
 
 
-func _finalize_nav_not_ready(physics_start_usec: int, step_result: PhysicsStepResult) -> void:
-	_update_debug()
-	var move_slide_start_usec := _profile_start_usec()
+func _finalize_nav_not_ready() -> void:
 	move_and_slide()
-	_record_profile_duration("move_slide", Time.get_ticks_usec() - move_slide_start_usec)
-	_record_profile_duration("physics", Time.get_ticks_usec() - physics_start_usec)
 
 
 func _apply_vertical_velocity(delta: float) -> void:
@@ -268,28 +229,16 @@ func _apply_vertical_velocity(delta: float) -> void:
 
 
 func _finalize_physics_step(
-	physics_start_usec: int,
 	pre_move_position: Vector3,
 	delta: float,
 	step_result: PhysicsStepResult
 ) -> void:
-	var finalize_start_usec := _profile_start_usec()
-	var move_slide_start_usec := _profile_start_usec()
 	move_and_slide()
-	_record_profile_duration("move_slide", Time.get_ticks_usec() - move_slide_start_usec)
-	var stuck_start_usec := _profile_start_usec()
 	_update_stuck_state(delta, pre_move_position, step_result.attempted_horizontal_move)
-	_record_profile_duration("stuck", Time.get_ticks_usec() - stuck_start_usec)
-	var update_debug_start_usec := _profile_start_usec()
-	_update_debug()
-	_record_profile_duration("update_debug", Time.get_ticks_usec() - update_debug_start_usec)
-	_record_profile_duration("finalize", Time.get_ticks_usec() - finalize_start_usec)
-	_record_profile_duration("physics", Time.get_ticks_usec() - physics_start_usec)
 
 
-# Goal selection and candidate scoring
+# Goal selection
 func _should_refresh_goal() -> bool:
-	EnemyDebugTelemetry.increment_counter("goal_refresh_checks")
 	var request := EnemyRuntimePolicy.GoalRefreshRequest.new()
 	request.has_valid_target = _has_valid_target()
 	request.goal_select_cooldown_remaining = _goal_runtime_state.goal_select_cooldown_remaining
@@ -301,35 +250,25 @@ func _should_refresh_goal() -> bool:
 	request.global_position = global_position
 	request.current_goal_position = _goal_runtime_state.current_goal_position
 	request.engage_hold_tolerance = engage_hold_tolerance
-	var should_refresh := EnemyRuntimePolicy.should_refresh_goal(request)
-	if should_refresh:
-		EnemyDebugTelemetry.increment_counter("goal_refresh_triggers")
-	return should_refresh
+	return EnemyRuntimePolicy.should_refresh_goal(request)
 
 
 func _select_engage_goal() -> void:
-	var profile_start_usec := _profile_start_usec()
-	_reset_goal_debug_state()
 	if _target_node == null:
 		_clear_goal_navigation_state()
-		_goal_debug_state.candidate_positions = PackedVector3Array()
-		_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 		return
 
 	var target_position := _target_node.global_position
-	var nearby_enemy_start_usec := _profile_start_usec()
 	var nearby_enemy_positions := EnemyCrowdQuery.collect_nearby_enemy_positions(
 		self,
 		target_position,
 		melee_engage_distance + spread_penalty_radius
 	)
-	_record_profile_duration("nearby_enemy", Time.get_ticks_usec() - nearby_enemy_start_usec)
 	var goal_request: EnemyGoalSelector.SelectGoalRequest = EnemyGoalSelector.SelectGoalRequest.new()
 	goal_request.target_position = target_position
 	goal_request.global_position = global_position
 	goal_request.melee_engage_distance = melee_engage_distance
 	goal_request.engage_candidate_count = engage_candidate_count
-	goal_request.capture_candidate_debug = _should_capture_candidate_debug()
 	goal_request.nearby_enemy_positions = nearby_enemy_positions
 	goal_request.navigation_map = _nav_agent.get_navigation_map()
 	goal_request.navigation_layers = _nav_agent.navigation_layers
@@ -347,12 +286,9 @@ func _select_engage_goal() -> void:
 	goal_request.distance_to_target = _horizontal_distance_to(target_position)
 	goal_request.invalid_point = INVALID_POINT
 	var goal_result: EnemyGoalSelector.GoalSelectionResult = EnemyGoalSelector.select_engage_goal(goal_request)
-	_goal_debug_state.candidate_positions = goal_result.candidate_positions
 
 	if not goal_result.has_goal:
-		EnemyDebugTelemetry.increment_counter("goal_selection_failures")
 		_clear_goal_navigation_state()
-		_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 		return
 
 	var apply_goal_request := EnemyRuntimePolicy.ApplyGoalSelectionRequest.new()
@@ -361,10 +297,6 @@ func _select_engage_goal() -> void:
 	apply_goal_request.goal_commit_duration = goal_commit_duration
 	apply_goal_request.invalid_point = INVALID_POINT
 	EnemyRuntimePolicy.apply_goal_selection(_goal_runtime_state, _nav_cache_state, apply_goal_request)
-	EnemyDebugTelemetry.increment_counter("goal_selection_successes")
-	if goal_result.debug != null and goal_result.debug.used_fallback:
-		EnemyDebugTelemetry.increment_counter("goal_selection_fallbacks")
-	_record_profile_duration("goal", Time.get_ticks_usec() - profile_start_usec)
 
 
 func _reset_goal_select_cooldown() -> void:
@@ -380,6 +312,7 @@ func _remember_failed_goal(goal_position: Vector3) -> void:
 	EnemyRuntimePolicy.remember_failed_goal(_goal_runtime_state, memory_request)
 
 
+# Melee state and locomotion
 func _update_melee_state(target_position: Vector3) -> void:
 	var request: EnemyMovementStateMachine.TransitionRequest = EnemyMovementStateMachine.TransitionRequest.new()
 	request.global_position = global_position
@@ -390,20 +323,14 @@ func _update_melee_state(target_position: Vector3) -> void:
 	request.engage_vertical_tolerance = engage_vertical_tolerance
 	var next_state := EnemyMovementStateMachine.compute_next_state(request)
 	if next_state != EnemyCloseState.APPROACH:
-		EnemyDebugTelemetry.increment_counter("frontline_checks")
-		var frontline_start_usec := _profile_start_usec()
 		var is_in_frontline := _is_in_active_melee_frontline(target_position)
-		_record_profile_duration("frontline", Time.get_ticks_usec() - frontline_start_usec)
 		if not is_in_frontline:
-			EnemyDebugTelemetry.increment_counter("frontline_rejections")
 			next_state = EnemyCloseState.APPROACH
 
 	if next_state == _melee_state:
 		return
 
 	_melee_state = next_state
-	_melee_state_age = 0.0
-	_melee_state_transition_count += 1
 	if _melee_state != EnemyCloseState.APPROACH:
 		_stuck_elapsed = 0.0
 		_recovery_elapsed = 0.0
@@ -499,12 +426,9 @@ func _run_close_adjust_state(distance_to_target: float) -> EnemyMovementStateMac
 
 
 func _compute_close_adjust_velocity(next_position: Vector3) -> Vector3:
-	var profile_start_usec := _profile_start_usec()
 	if _target_node == null:
-		_record_profile_duration("close_adjust", Time.get_ticks_usec() - profile_start_usec)
 		return Vector3.ZERO
 
-	EnemyDebugTelemetry.increment_counter("close_adjust_calls")
 	var request: EnemyCrowdResponse.CloseAdjustRequest = EnemyCrowdResponse.CloseAdjustRequest.new()
 	request.next_position = next_position
 	request.global_position = global_position
@@ -527,7 +451,6 @@ func _compute_close_adjust_velocity(next_position: Vector3) -> Vector3:
 	var close_adjust_result: EnemyCrowdResponse.CloseAdjustResult = EnemyCrowdResponse.compute_close_adjust_velocity(request)
 	_close_adjust_side_sign = close_adjust_result.close_adjust_side_sign
 	_close_adjust_side_commit_remaining = close_adjust_result.close_adjust_side_commit_remaining
-	_record_profile_duration("close_adjust", Time.get_ticks_usec() - profile_start_usec)
 	return close_adjust_result.velocity
 
 
@@ -571,11 +494,9 @@ func _get_melee_state_name() -> String:
 	return EnemyCloseState.get_state_name(_melee_state)
 
 
-# Crowd-pressure response
+# Crowd pressure response
 func _compute_player_yield_velocity(allow_chain_pressure: bool = true) -> Vector3:
-	var profile_start_usec := _profile_start_usec()
 	if _target_node == null or crowd_pressure_yield_distance <= 0.0:
-		_record_profile_duration("yield", Time.get_ticks_usec() - profile_start_usec)
 		return Vector3.ZERO
 
 	var request: EnemyCrowdResponse.PlayerYieldRequest = EnemyCrowdResponse.PlayerYieldRequest.new()
@@ -592,25 +513,19 @@ func _compute_player_yield_velocity(allow_chain_pressure: bool = true) -> Vector
 	request.crowd_pressure_yield_speed = crowd_pressure_yield_speed
 	request.allow_chain_pressure = allow_chain_pressure
 	var yield_result: EnemyCrowdResponse.PlayerYieldResult = EnemyCrowdResponse.compute_player_yield_velocity(request)
-	var result: Vector3 = yield_result.velocity
-	_record_profile_duration("yield", Time.get_ticks_usec() - profile_start_usec)
-	return result
+	return yield_result.velocity
 
 
 func _get_cached_local_enemy_positions(radius: float) -> Array[Vector3]:
-	var profile_start_usec := _profile_start_usec()
-	var positions: Array[Vector3] = EnemyCrowdQuery.get_cached_local_enemy_positions(
+	return EnemyCrowdQuery.get_cached_local_enemy_positions(
 		self,
 		global_position,
 		radius,
 		local_enemy_cache_interval,
 		_crowd_query_state
 	)
-	_record_profile_duration("local_enemy", Time.get_ticks_usec() - profile_start_usec)
-	return positions
 
 
-# Locomotion and fallback
 func _make_state_dispatch_result(
 	state_text: String,
 	next_position: Vector3,
@@ -685,7 +600,6 @@ func _apply_external_displacement(delta: float) -> bool:
 	if _movement_influence_state == null or _movement_influence_state.is_empty():
 		return false
 
-	var profile_start_usec := _profile_start_usec()
 	var request: EnemyMovementInfluence.InfluenceVelocityRequest = EnemyMovementInfluence.InfluenceVelocityRequest.new()
 	request.state = _movement_influence_state
 	request.base_velocity = Vector3(velocity.x, 0.0, velocity.z)
@@ -696,7 +610,6 @@ func _apply_external_displacement(delta: float) -> bool:
 	var push_result: EnemyMovementInfluence.InfluenceVelocityResult = EnemyMovementInfluence.apply_influence_velocity(request)
 	_set_horizontal_velocity(push_result.velocity)
 	_movement_influence_state = push_result.state
-	_record_profile_duration("influence", Time.get_ticks_usec() - profile_start_usec)
 	return push_result.applied
 
 
@@ -726,16 +639,7 @@ func _update_stuck_state(delta: float, pre_move_position: Vector3, attempted_hor
 		_recovery_sign *= -1.0
 
 
-
-# Debug presentation and logging
-func _update_debug() -> void:
-	if _telemetry == null:
-		return
-	if not _should_build_debug_snapshot():
-		return
-	_telemetry.update_debug(_build_debug_snapshot())
-
-
+# Navigation helpers
 func _get_navigation_next_position(move_target: Vector3, distance_to_target: float) -> Vector3:
 	var request := EnemyRuntimePolicy.NavigationNextPositionRequest.new()
 	request.cache_state = _nav_cache_state
@@ -766,69 +670,14 @@ func _clear_goal_navigation_state() -> void:
 
 func _refresh_navigation_cache(move_target: Vector3) -> Vector3:
 	_nav_agent.target_position = move_target
-	return _resolve_navigation_next_position(move_target)
-
-
-func _resolve_navigation_next_position(move_target: Vector3) -> Vector3:
-	var profile_start_usec := _profile_start_usec()
-	var next_position := EnemyNavigationLocomotion.resolve_navigation_next_position(
+	return EnemyNavigationLocomotion.resolve_navigation_next_position(
 		_nav_agent,
 		global_position,
 		move_target
 	)
-	_record_profile_duration("nav_query", Time.get_ticks_usec() - profile_start_usec)
-	return next_position
-
-
-func _should_capture_candidate_debug() -> bool:
-	return _telemetry != null and _telemetry.is_enemy_nav_path_enabled()
-
-
-func _should_build_debug_snapshot() -> bool:
-	return _telemetry != null and _telemetry.needs_debug_snapshot()
-
-
-func _reset_goal_debug_state() -> void:
-	_goal_debug_state.reset()
 
 
 # Utility helpers
-static func set_profiling_enabled(enabled: bool) -> void:
-	EnemyDebugTelemetry.set_profiling_enabled(enabled)
-	EnemyCrowdQuery.reset_profile_counters()
-
-
-static func get_profile_snapshot() -> Dictionary:
-	var snapshot: Dictionary = EnemyDebugTelemetry.get_profile_snapshot(EnemyCrowdQuery.get_registered_enemy_count())
-	if snapshot.is_empty():
-		return snapshot
-	snapshot.merge(EnemyCrowdQuery.get_profile_counters(), true)
-	return snapshot
-
-
-func _profile_start_usec() -> int:
-	return EnemyDebugTelemetry.profile_start_usec()
-
-
-func _record_profile_duration(section: String, duration_usec: int) -> void:
-	EnemyDebugTelemetry.record_profile_duration(section, duration_usec)
-
-
-func _record_state_participation(attempted_move: bool) -> void:
-	match _melee_state:
-		EnemyCloseState.APPROACH:
-			EnemyDebugTelemetry.increment_counter("state_approach_frames")
-		EnemyCloseState.CLOSE_ADJUST:
-			EnemyDebugTelemetry.increment_counter("state_close_adjust_frames")
-		EnemyCloseState.MELEE_HOLD:
-			EnemyDebugTelemetry.increment_counter("state_melee_hold_frames")
-
-	if attempted_move:
-		EnemyDebugTelemetry.increment_counter("state_move_frames")
-	else:
-		EnemyDebugTelemetry.increment_counter("state_idle_frames")
-
-
 func _horizontal_distance_to(target_position: Vector3) -> float:
 	return _horizontal_distance(global_position, target_position)
 
@@ -847,17 +696,3 @@ func apply_damage(amount: float) -> void:
 	_current_hp = maxf(_current_hp - amount, 0.0)
 	if _current_hp <= 0.0:
 		queue_free()
-
-
-
-
-func _build_debug_snapshot() -> EnemyDebugSnapshot:
-	var profile_start_usec := _profile_start_usec()
-	var request: EnemyDebugSnapshotBuilder.BuildRequest = EnemyDebugSnapshotBuilder.BuildRequest.new()
-	request.current_path = _nav_agent.get_current_navigation_path()
-	request.has_goal = _goal_runtime_state.has_goal
-	request.current_goal_position = _goal_runtime_state.current_goal_position
-	request.debug_candidate_positions = _goal_debug_state.candidate_positions
-	var snapshot: EnemyDebugSnapshot = EnemyDebugSnapshotBuilder.build(request)
-	_record_profile_duration("snapshot", Time.get_ticks_usec() - profile_start_usec)
-	return snapshot

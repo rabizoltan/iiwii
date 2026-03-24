@@ -1,7 +1,5 @@
 extends RefCounted
 
-const EnemyDebugTelemetry = preload("res://scripts/enemy/debug/enemy_debug_telemetry.gd")
-
 
 class SelectGoalRequest:
 	extends RefCounted
@@ -10,7 +8,6 @@ class SelectGoalRequest:
 	var global_position: Vector3 = Vector3.ZERO
 	var melee_engage_distance: float = 0.0
 	var engage_candidate_count: int = 0
-	var capture_candidate_debug: bool = false
 	var nearby_enemy_positions: Array[Vector3] = []
 	var navigation_map: RID = RID()
 	var navigation_layers: int = 0
@@ -56,29 +53,15 @@ class GoalSelectionResult:
 	var has_goal: bool = false
 	var goal_position: Vector3 = Vector3.ZERO
 	var goal_center: Vector3 = Vector3.ZERO
-	var candidate_positions: PackedVector3Array = PackedVector3Array()
 	var debug: GoalDebugInfo = GoalDebugInfo.new()
 
 
 static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResult:
-	var target_position: Vector3 = request.target_position
-	var center := target_position
-	var candidate_positions: PackedVector3Array = PackedVector3Array()
-	var capture_candidate_debug: bool = request.capture_candidate_debug
-	var nearby_enemy_positions: Array[Vector3] = request.nearby_enemy_positions
+	var center := request.target_position
 	var candidate_infos: Array[Dictionary] = []
 	var best_score := INF
 	var best_candidate := Vector3.ZERO
-	var global_position: Vector3 = request.global_position
-	var melee_engage_distance: float = request.melee_engage_distance
-	var navigation_map: RID = request.navigation_map
-	var candidate_projection_tolerance: float = request.candidate_projection_tolerance
-	var invalid_point: Vector3 = request.invalid_point
-	var recent_failed_goals: Array[Vector3] = request.recent_failed_goals
-	var failed_goal_exclusion_radius: float = request.failed_goal_exclusion_radius
-	var spread_penalty_radius: float = request.spread_penalty_radius
-	var spread_penalty_weight: float = request.spread_penalty_weight
-	var base_direction: Vector3 = global_position - center
+	var base_direction: Vector3 = request.global_position - center
 	base_direction.y = 0.0
 	if base_direction.length_squared() == 0.0:
 		base_direction = Vector3.FORWARD
@@ -90,35 +73,32 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 
 	for candidate_index in range(candidate_count):
 		var angle := base_angle + (TAU * float(candidate_index) / float(candidate_count))
-		var raw_candidate: Vector3 = center + Vector3(cos(angle), 0.0, sin(angle)) * melee_engage_distance
+		var raw_candidate: Vector3 = center + Vector3(cos(angle), 0.0, sin(angle)) * request.melee_engage_distance
 		var projected_candidate: Vector3 = _project_candidate_to_nav(
 			raw_candidate,
-			navigation_map,
-			candidate_projection_tolerance,
-			invalid_point
+			request.navigation_map,
+			request.candidate_projection_tolerance,
+			request.invalid_point
 		)
-		if projected_candidate == invalid_point:
+		if projected_candidate == request.invalid_point:
 			debug_info.rejected_projection_count += 1
 			continue
 
-		if capture_candidate_debug:
-			candidate_positions.append(projected_candidate)
-
 		if _is_failed_goal_candidate(
 			projected_candidate,
-			recent_failed_goals,
-			failed_goal_exclusion_radius
+			request.recent_failed_goals,
+			request.failed_goal_exclusion_radius
 		):
 			debug_info.rejected_failed_count += 1
 			continue
 
 		var spread_score := _score_spread_penalty(
 			projected_candidate,
-			nearby_enemy_positions,
-			spread_penalty_radius,
-			spread_penalty_weight
+			request.nearby_enemy_positions,
+			request.spread_penalty_radius,
+			request.spread_penalty_weight
 		)
-		var score: float = _horizontal_distance(global_position, projected_candidate) + spread_score
+		var score: float = _horizontal_distance(request.global_position, projected_candidate) + spread_score
 		candidate_infos.append({
 			"raw_candidate": raw_candidate,
 			"projected_candidate": projected_candidate,
@@ -131,13 +111,12 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 	if best_score == INF:
 		var fallback_candidate: Vector3 = _project_candidate_to_nav(
 			center,
-			navigation_map,
-			candidate_projection_tolerance,
-			invalid_point
+			request.navigation_map,
+			request.candidate_projection_tolerance,
+			request.invalid_point
 		)
-		if fallback_candidate == invalid_point:
+		if fallback_candidate == request.invalid_point:
 			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
-			empty_result.candidate_positions = candidate_positions
 			empty_result.debug = debug_info
 			return empty_result
 
@@ -146,15 +125,14 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 		debug_info.projected_candidate = fallback_candidate
 		debug_info.projection_error = center.distance_to(fallback_candidate)
 		var fallback_path_metrics := measure_candidate_path_metrics(
-			navigation_map,
-			global_position,
+			request.navigation_map,
+			request.global_position,
 			fallback_candidate,
 			request.navigation_layers
 		)
 		debug_info.selected_path_length = fallback_path_metrics.length
 		if is_inf(debug_info.selected_path_length) or fallback_path_metrics.end_error > request.goal_path_endpoint_tolerance:
 			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
-			empty_result.candidate_positions = candidate_positions
 			empty_result.debug = debug_info
 			return empty_result
 
@@ -164,7 +142,6 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 		debug_info.unreachable_path_count = int(selected_candidate_info.get("unreachable_path_count", 0))
 		if not selected_candidate_info.has("projected_candidate"):
 			var empty_result: GoalSelectionResult = GoalSelectionResult.new()
-			empty_result.candidate_positions = candidate_positions
 			empty_result.debug = debug_info
 			return empty_result
 
@@ -181,7 +158,6 @@ static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResul
 	result.has_goal = true
 	result.goal_position = best_candidate
 	result.goal_center = center
-	result.candidate_positions = candidate_positions
 	result.debug = debug_info
 	return result
 
@@ -237,17 +213,14 @@ static func measure_candidate_path_metrics(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> CandidatePathMetrics:
-	var profile_start_usec := EnemyDebugTelemetry.profile_start_usec()
 	var result := CandidatePathMetrics.new()
 	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
 	if path.is_empty():
-		EnemyDebugTelemetry.record_profile_duration("goal_path", Time.get_ticks_usec() - profile_start_usec)
 		return result
 
 	var path_end: Vector3 = path[path.size() - 1]
 	result.length = _measure_path_length(path)
 	result.end_error = path_end.distance_to(candidate)
-	EnemyDebugTelemetry.record_profile_duration("goal_path", Time.get_ticks_usec() - profile_start_usec)
 	return result
 
 

@@ -1,15 +1,6 @@
 extends RefCounted
 
 
-class GoalDebugState:
-	extends RefCounted
-
-	var candidate_positions: PackedVector3Array = PackedVector3Array()
-
-	func reset() -> void:
-		candidate_positions = PackedVector3Array()
-
-
 class MovementInfluenceState:
 	extends RefCounted
 

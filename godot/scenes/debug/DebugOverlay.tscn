@@ -9,7 +9,7 @@ script = ExtResource("1")
 offset_left = 16.0
 offset_top = 16.0
 offset_right = 360.0
-offset_bottom = 420.0
+offset_bottom = 260.0
 visible = false
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
@@ -27,15 +27,8 @@ text = "Debug Menu (F3)"
 [node name="Hint" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 text = "Toggle runtime debug features."
 
-
-[node name="EnemyNavPathToggle" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer"]
-text = "Enemy Nav Path"
-
 [node name="ProjectileLineToggle" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer"]
 text = "Projectile Debug Line"
-
-[node name="EnemyProfilerToggle" type="CheckButton" parent="PanelContainer/MarginContainer/VBoxContainer"]
-text = "Enemy Profiling"
 
 [node name="PerfSeparator" type="HSeparator" parent="PanelContainer/MarginContainer/VBoxContainer"]
 
@@ -44,11 +37,3 @@ text = "Runtime Stats"
 
 [node name="PerfStats" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
 text = "FPS: --\nFrame: -- ms\nEnemies: --\nProjectiles: --\nDebug Lines: --"
-
-[node name="ProfileSeparator" type="HSeparator" parent="PanelContainer/MarginContainer/VBoxContainer"]
-
-[node name="ProfileTitle" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
-text = "Enemy Profile"
-
-[node name="ProfileStats" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
-text = "Enemy profiling disabled."

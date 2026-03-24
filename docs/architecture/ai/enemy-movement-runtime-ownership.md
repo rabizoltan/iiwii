@@ -11,9 +11,9 @@ Last validated: 2026-03-17
 ## Current Ownership
 - `enemy_controller.gd`
   - Scene-facing enemy runtime shell.
-  - Physics tick entry, target resolution, scene node wiring, HP/death, and debug/profiling integration.
-  - Runs the enemy physics tick in explicit phases: step preparation, horizontal movement dispatch, vertical velocity update, and final movement/debug/stuck handling.
-  - Coordinates movement helpers, applies horizontal movement/facing results, and assembles the minimal nav-debug snapshot used by the `F3` overlay.
+  - Physics tick entry, target resolution, scene node wiring, HP/death, and movement orchestration.
+  - Runs the enemy physics tick in explicit phases: step preparation, horizontal movement dispatch, vertical velocity update, and final movement/stuck handling.
+  - Coordinates movement helpers and applies horizontal movement/facing results.
 - `enemy_close_state.gd`
   - Close-range state classification and naming.
   - Owns the `approach -> close_adjust -> melee_hold` envelope logic.
@@ -39,14 +39,7 @@ Last validated: 2026-03-17
   - Currently formalizes authored external displacement accumulation/decay so external forces are no longer a special-case velocity path embedded directly in the controller.
   - Its controller-facing queue/apply APIs now use typed request/result objects instead of flattened dictionaries.
 - `enemy_runtime_state.gd`
-  - Typed runtime state containers for goal debug candidate storage and movement influence state.
-  - Keeps the remaining shared transient state small after the debug cleanup removed unused hold/yield/close-adjust debug payloads.
-- `enemy_debug_telemetry.gd`
-  - Enemy nav-path visualization controlled by the `F3` overlay and shared enemy profiling accumulators.
-- `enemy_debug_snapshot.gd`
-  - Minimal typed transport object passed from the enemy controller into telemetry for current path, current goal, and candidate ring data.
-- `enemy_debug_snapshot_builder.gd`
-  - Owns the minimal nav-debug snapshot assembly from controller state into `enemy_debug_snapshot.gd`.
+  - Typed runtime state container for movement influence state used by the enemy controller and movement helpers.
 
 ## Important Boundary
 - Baseline locomotion-driven player push has been removed from `player_controller.gd`.
@@ -63,3 +56,4 @@ Last validated: 2026-03-17
 - Re-scope external movement influence to combat-authored displacement.
 - Introduce a limited active melee front line near the player so dense packs stay readable and cheaper.
 - Baseline player walk-push behavior is already removed; the remaining follow-up work belongs to traversal and combat-authored displacement slices.
+
