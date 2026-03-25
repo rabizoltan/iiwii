@@ -121,39 +121,55 @@ Current issue:
 - That means refresh timing exists, but expensive next-position work is not truly being skipped.
 - This should be treated as an optimization-correctness problem, not just as a tuning problem.
 
+Failed attempt already observed:
+- A direct cache of the returned next navigation position was tested and then discarded.
+- In-engine result: enemies showed stop-and-go movement instead of continuous path following.
+- This failure should remain documented so the same invalid optimization boundary is not retried later.
+- A follow-up attempt that throttled `NavigationAgent3D.target_position` refresh while preserving per-frame `get_next_path_position()` was also tested and rejected.
+- In-engine result: enemy movement still became noticeably jerky.
+- This means Slice 2 is not yet ready for another blind implementation pass; safer observation and narrower diagnosis are needed before retrying.
+
 Why this matters:
 - `_refresh_navigation_cache()` currently updates `NavigationAgent3D.target_position`.
 - `EnemyNavigationLocomotion.resolve_navigation_next_position()` then pulls fresh navigation data through `get_next_path_position()` and, when needed, `get_current_navigation_path()`.
 - If that resolver still runs every time the controller asks for a next position, the near/far refresh intervals do not suppress the expensive part of navigation work.
 
+Godot API constraint confirmed:
+- Godot documentation states that after setting `NavigationAgent3D.target_position`, `get_next_path_position()` should be used once every physics frame to update the agent's internal path logic.
+- This means the returned next path position is not a safe cross-frame cache target for this slice.
+- The safe optimization boundary is target refresh / repath churn, not the per-frame path-follow update call itself.
+
 Planning focus:
 - separate "refresh policy exists" from "refresh policy actually avoids work"
 - verify how often `_refresh_navigation_cache()` currently runs
-- make cached next-position reuse real before layering on stronger stagger
+- keep continuous `get_next_path_position()` usage intact
+- reduce unnecessary `target_position` updates and repath churn before layering on stronger stagger
 - keep current near/far refresh tuning only if it starts paying off in practice
 
 Decision taken for this slice:
 - Do not add more cadence complexity before the cache actually skips work.
-- First make cached next-position reuse real.
+- Do not cache the returned next navigation position across physics frames.
+- Keep per-frame path-follow progression continuous.
+- Treat target-refresh throttling as unproven and currently rejected until better evidence shows a safe boundary.
 - Only after that, measure whether additional staggering is still necessary.
 
 Likely levers:
-- conditional cached next-position reuse
+- conditional target-position refresh
 - explicit cache invalidation rules
 - per-enemy initial offsets if more staggering is still needed after cache correctness is fixed
 
 Required behavior change:
-- `EnemyRuntimePolicy.get_navigation_next_position()` should recompute only when refresh is actually needed.
-- Otherwise it should return `cache_state.cached_nav_next_position` directly.
+- Continuous `get_next_path_position()` calls should remain in the physics loop.
+- Do not currently assume that suppressing `_nav_agent.target_position = move_target` is safe in this implementation.
+- Before another Slice 2 implementation attempt, identify a narrower repath-churn boundary that does not introduce jerky motion.
 
 Required invalidation thinking:
-- Recompute when:
+- Re-issue or refresh the target when:
 - the move target changed meaningfully
 - the refresh timer expired
 - recovery or stuck handling is active
-- the cached point is invalid or unusable
 - movement state changed in a way that affects nav sampling behavior
-- Do not recompute just because `_physics_process()` ran.
+- Do not suppress `get_next_path_position()` just because the target did not change.
 
 Near-vs-far interaction:
 - Far enemies should benefit the most from slower refresh and direct chase behavior.
@@ -161,23 +177,27 @@ Near-vs-far interaction:
 - The near-vs-far rule from Slice 1 should stay compatible with this slice rather than introducing a separate contradictory timing model.
 
 Implementation order inside Slice 2:
-1. Fix unconditional `resolve_next_position` execution.
-2. Verify and document the correct cache invalidation rules.
-3. Measure actual refresh frequency after the cache fix.
-4. Add stronger per-enemy staggering only if burst alignment is still a visible or measured problem.
+1. Keep `get_next_path_position()` continuous.
+2. Measure when and why target refresh / repath work is actually happening.
+3. Verify and document the correct refresh / invalidation rules.
+4. Identify a safer, narrower optimization boundary than the rejected target-refresh throttling attempt.
+5. Add stronger per-enemy staggering only if burst alignment is still a visible or measured problem.
 
 Principle to preserve:
-- Navigation refresh timing should suppress navigation work, not only track when work would ideally be suppressed.
+- Navigation refresh timing should suppress repath churn without breaking continuous path following.
+- If a candidate optimization introduces visible jerkiness, reject it even if it looks correct in code.
 
 Acceptance checks:
 - lower `_refresh_navigation_cache()` frequency in the dense scene
 - lower NavigationAgent next-position churn
 - no visible movement stutter or synchronized bursts
-- the cache layer demonstrably returns cached next-position values between meaningful refresh events
+- no stop-and-go movement caused by stale cached path points
 
 Risk:
 - timing logic can become harder to reason about if cadence and invalidation rules are overcomplicated
 - adding extra stagger too early could hide the real cache bug instead of solving it
+- caching the final next path position across physics ticks is explicitly rejected for this slice because it breaks continuous movement
+- naive target-refresh throttling is also currently rejected because it still produced jerky movement in-engine
 
 ## Slice 3
 ### Crowd and rank scan reduction
@@ -230,6 +250,13 @@ Preferred optimization direction:
 - avoid querying local neighbors in states that do not need crowd response
 - narrow how often frontline rank must be recalculated instead of computing it every relevant physics tick
 - delay spatial buckets or partitions until after simpler reuse has been measured
+
+First implementation pass landed:
+- keep Slice 3 controller-centered before changing `enemy_crowd_query.gd` internals
+- reuse one shared local-neighbor query result across close-adjust, yield, and external displacement resolution
+- add short-lived controller-side reuse for frontline rank checks
+- leave `enemy_crowd_response.gd` behavior logic unchanged
+- leave stronger spatial structures out of this pass
 
 Implementation order inside Slice 3:
 1. Identify which queries are duplicated across the same enemy update path.

@@ -105,8 +105,14 @@ var _nav_cache_state: EnemyRuntimePolicy.NavigationCacheState
 var _movement_influence_state: EnemyRuntimeState.MovementInfluenceState
 var _close_adjust_side_sign: float = 0.0
 var _close_adjust_side_commit_remaining: float = 0.0
+var _frontline_rank_cache_remaining: float = 0.0
+var _frontline_rank_cache_target_position: Vector3 = Vector3.ZERO
+var _frontline_rank_cache_owner_position: Vector3 = Vector3.ZERO
+var _frontline_rank_cache_radius: float = 0.0
+var _frontline_rank_cache_value: int = 0
 
 const INVALID_POINT := Vector3(INF, INF, INF)
+const FRONTLINE_RANK_CACHE_POSITION_TOLERANCE := 0.1
 
 
 # Lifecycle
@@ -160,6 +166,9 @@ func _prepare_physics_step(delta: float) -> void:
 	EnemyRuntimePolicy.tick_goal_runtime(_goal_runtime_state, delta)
 	EnemyCrowdQuery.tick_local_cache(_crowd_query_state, delta)
 	EnemyRuntimePolicy.tick_navigation_cache(_nav_cache_state, delta)
+	if _frontline_rank_cache_remaining > 0.0:
+		_frontline_rank_cache_remaining = maxf(_frontline_rank_cache_remaining - delta, 0.0)
+
 
 	if _close_adjust_side_commit_remaining > 0.0:
 		_close_adjust_side_commit_remaining = maxf(_close_adjust_side_commit_remaining - delta, 0.0)
@@ -352,12 +361,7 @@ func _is_in_active_melee_frontline(target_position: Vector3) -> bool:
 	if _melee_state != EnemyCloseState.APPROACH:
 		allowed_rank += max(melee_frontline_release_buffer, 0)
 
-	var distance_rank: int = EnemyCrowdQuery.get_target_distance_rank(
-		self,
-		global_position,
-		target_position,
-		contender_radius
-	)
+	var distance_rank := _get_cached_frontline_distance_rank(target_position, contender_radius)
 	return distance_rank < allowed_rank
 
 
@@ -435,7 +439,7 @@ func _compute_close_adjust_velocity(next_position: Vector3) -> Vector3:
 	request.global_position = global_position
 	request.target_position = _target_node.global_position
 	request.distance_to_target = _horizontal_distance_to(_target_node.global_position)
-	request.local_enemy_positions = _get_cached_local_enemy_positions(close_adjust_neighbor_radius)
+	request.local_enemy_positions = _get_shared_local_enemy_positions()
 	request.crowd_chain_neighbor_radius = crowd_chain_neighbor_radius
 	request.melee_engage_distance = melee_engage_distance
 	request.engage_hold_tolerance = engage_hold_tolerance
@@ -503,7 +507,7 @@ func _compute_player_yield_velocity(allow_chain_pressure: bool = true) -> Vector
 	var request: EnemyCrowdResponse.PlayerYieldRequest = EnemyCrowdResponse.PlayerYieldRequest.new()
 	request.global_position = global_position
 	request.target_position = _target_node.global_position
-	request.local_enemy_positions = _get_cached_local_enemy_positions(crowd_pressure_block_neighbor_radius)
+	request.local_enemy_positions = _get_shared_local_enemy_positions()
 	request.crowd_pressure_yield_distance = crowd_pressure_yield_distance
 	request.crowd_chain_yield_distance = crowd_chain_yield_distance
 	request.crowd_chain_yield_bonus = crowd_chain_yield_bonus
@@ -524,6 +528,13 @@ func _get_cached_local_enemy_positions(radius: float) -> Array[Vector3]:
 		radius,
 		local_enemy_cache_interval,
 		_crowd_query_state
+	)
+
+
+
+func _get_shared_local_enemy_positions() -> Array[Vector3]:
+	return _get_cached_local_enemy_positions(
+		maxf(close_adjust_neighbor_radius, crowd_pressure_block_neighbor_radius)
 	)
 
 
@@ -590,7 +601,7 @@ func _choose_external_displacement_resolution_direction(away_direction: Vector3,
 	request.global_position = global_position
 	request.away_direction = away_direction
 	request.push_direction = push_direction
-	request.local_enemy_positions = _get_cached_local_enemy_positions(crowd_pressure_block_neighbor_radius)
+	request.local_enemy_positions = _get_shared_local_enemy_positions()
 	request.block_check_distance = crowd_pressure_block_check_distance
 	request.lateral_weight = external_displacement_lateral_weight
 	request.outward_weight = external_displacement_outward_weight
@@ -687,6 +698,28 @@ func _horizontal_distance(from_position: Vector3, to_position: Vector3) -> float
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+
+
+
+func _get_cached_frontline_distance_rank(target_position: Vector3, relevant_radius: float) -> int:
+	if _frontline_rank_cache_remaining > 0.0:
+		if absf(_frontline_rank_cache_radius - relevant_radius) <= 0.001:
+			if _horizontal_distance(_frontline_rank_cache_target_position, target_position) <= FRONTLINE_RANK_CACHE_POSITION_TOLERANCE:
+				if _horizontal_distance(_frontline_rank_cache_owner_position, global_position) <= FRONTLINE_RANK_CACHE_POSITION_TOLERANCE:
+					return _frontline_rank_cache_value
+
+	var distance_rank: int = EnemyCrowdQuery.get_target_distance_rank(
+		self,
+		global_position,
+		target_position,
+		relevant_radius
+	)
+	_frontline_rank_cache_value = distance_rank
+	_frontline_rank_cache_target_position = target_position
+	_frontline_rank_cache_owner_position = global_position
+	_frontline_rank_cache_radius = relevant_radius
+	_frontline_rank_cache_remaining = maxf(local_enemy_cache_interval, 0.0)
+	return distance_rank
 
 
 func _has_valid_target() -> bool:
