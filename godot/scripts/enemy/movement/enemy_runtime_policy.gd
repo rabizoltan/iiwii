@@ -151,13 +151,11 @@ static func invalidate_navigation_cache(state: NavigationCacheState, invalid_poi
 
 static func get_navigation_next_position(request: NavigationNextPositionRequest) -> Vector3:
 	if _should_refresh_navigation_cache(request):
-		request.cache_state.cached_nav_next_position = request.resolve_next_position.call(request.move_target)
 		request.cache_state.cached_nav_move_target = request.move_target
 		request.cache_state.nav_refresh_remaining = _compute_nav_refresh_interval(request)
 
-	if request.cache_state.cached_nav_next_position != Vector3.ZERO:
-		return request.cache_state.cached_nav_next_position
-	return request.move_target
+	request.cache_state.cached_nav_next_position = request.resolve_next_position.call(request.move_target)
+	return request.cache_state.cached_nav_next_position
 
 
 static func _should_refresh_navigation_cache(request: NavigationNextPositionRequest) -> bool:
@@ -190,3 +188,4 @@ static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+

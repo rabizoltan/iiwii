@@ -80,9 +80,9 @@ class PhysicsStepResult:
 @export var candidate_projection_tolerance: float = 1.0
 @export var failed_goal_exclusion_radius: float = 0.75
 @export var failed_goal_memory_count: int = 2
-@export var nav_refresh_interval_near: float = 0.0
-@export var nav_refresh_interval_far: float = 0.02
-@export var nav_refresh_far_distance: float = 10.0
+@export var nav_refresh_interval_near: float = 0.1
+@export var nav_refresh_interval_far: float = 0.5
+@export var nav_refresh_far_distance: float = 3.0
 
 # Minimal stuck fallback
 @export var stuck_timeout: float = 0.35

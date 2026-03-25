@@ -50,8 +50,6 @@ static func should_refresh_navigation_cache(request: NavigationCacheRequest) -> 
 	if request.recovery_elapsed > 0.0:
 		return true
 
-	if request.melee_state == request.approach_state and request.distance_to_target <= request.nav_refresh_far_distance:
-		return true
 
 	return false
 
@@ -123,3 +121,4 @@ static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+
