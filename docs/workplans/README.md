@@ -53,6 +53,7 @@ This folder contains implementation sequencing and delivery plans.
 
 ## Current Workplans
 - [active/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md): blocked execution plan pending explicit feedback-scope decisions.
+- [active/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-dense-scene-navigation-performance-slice.md): current execution guide for the revised dense-scene enemy navigation performance pass.
 - [roadmaps/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md): planning entry point for the current behavior-slice sequence.
 - [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, and crouch traversal slices.
 - [completed/first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md): completed foundation milestone that proved the first runnable gameplay slice.
@@ -62,3 +63,4 @@ This folder contains implementation sequencing and delivery plans.
 - [completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md): completed runtime cleanup/refactor planning artifact.
 - [handoffs/session-handoff-2026-03-08.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/handoffs/session-handoff-2026-03-08.md): latest session handoff baseline for restart context.
 - [stale/enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md): stale historical slice note that now points to the renewed melee behavior source of truth.
+- [stale/enemy-navigation-and-movement-performance-optimization-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-navigation-and-movement-performance-optimization-slice.md): earlier restart plan kept only as superseded historical context.

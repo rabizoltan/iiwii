@@ -75,6 +75,7 @@ class PhysicsStepResult:
 @export var goal_path_tiebreak_max_target_distance: float = 8.0
 @export var goal_path_tiebreak_enemy_count_soft_limit: int = 24
 @export var goal_path_endpoint_tolerance: float = 0.9
+@export var surround_goal_activation_distance: float = 3.0
 @export var spread_penalty_radius: float = 1.2
 @export var spread_penalty_weight: float = 0.35
 @export var candidate_projection_tolerance: float = 1.0
@@ -283,7 +284,7 @@ func _select_engage_goal() -> void:
 	goal_request.goal_path_tiebreak_max_target_distance = goal_path_tiebreak_max_target_distance
 	goal_request.goal_path_endpoint_tolerance = goal_path_endpoint_tolerance
 	goal_request.enemy_count = EnemyCrowdQuery.get_registered_enemy_count()
-	goal_request.distance_to_target = _horizontal_distance_to(target_position)
+	goal_request.direct_chase_distance = surround_goal_activation_distance
 	goal_request.invalid_point = INVALID_POINT
 	var goal_result: EnemyGoalSelector.GoalSelectionResult = EnemyGoalSelector.select_engage_goal(goal_request)
 

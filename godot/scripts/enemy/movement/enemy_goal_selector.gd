@@ -23,6 +23,7 @@ class SelectGoalRequest:
 	var goal_path_endpoint_tolerance: float = 0.0
 	var enemy_count: int = 0
 	var distance_to_target: float = 0.0
+	var direct_chase_distance: float = 0.0
 	var invalid_point: Vector3 = Vector3.ZERO
 
 
@@ -57,6 +58,9 @@ class GoalSelectionResult:
 
 
 static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResult:
+	if request.distance_to_target > request.direct_chase_distance:
+		return _select_direct_chase_goal(request)
+
 	var center := request.target_position
 	var candidate_infos: Array[Dictionary] = []
 	var best_score := INF
@@ -280,15 +284,23 @@ static func _is_failed_goal_candidate(
 static func _select_candidate_with_path_tiebreak(
 	request: SelectGoalRequest,
 	candidate_infos: Array[Dictionary],
-	_best_cheap_score: float
+	best_cheap_score: float
 ) -> Dictionary:
 	if candidate_infos.is_empty():
 		return {}
 
+	var shortlist := _build_path_tiebreak_shortlist(
+		candidate_infos,
+		best_cheap_score,
+		request.goal_path_tiebreak_candidate_count,
+		request.goal_path_tiebreak_score_window
+	)
+	if shortlist.is_empty():
+		return {}
+
 	var valid_candidate_infos: Array[Dictionary] = []
 	var unreachable_path_count := 0
-	var best_valid_cheap_score := INF
-	for candidate_info in candidate_infos:
+	for candidate_info in shortlist:
 		var projected_candidate := candidate_info["projected_candidate"] as Vector3
 		var path_metrics := measure_candidate_path_metrics(
 			request.navigation_map,
@@ -309,7 +321,6 @@ static func _select_candidate_with_path_tiebreak(
 			continue
 
 		valid_candidate_infos.append(candidate_info)
-		best_valid_cheap_score = minf(best_valid_cheap_score, float(candidate_info["cheap_score"]))
 
 	if valid_candidate_infos.is_empty():
 		return {
@@ -324,39 +335,18 @@ static func _select_candidate_with_path_tiebreak(
 		request.goal_path_tiebreak_enemy_count_soft_limit,
 		request.goal_path_tiebreak_max_target_distance
 	):
-		var shortlist_without_tiebreak := _build_path_tiebreak_shortlist(
-			valid_candidate_infos,
-			best_valid_cheap_score,
-			request.goal_path_tiebreak_candidate_count,
-			request.goal_path_tiebreak_score_window
-		)
-		if shortlist_without_tiebreak.is_empty():
-			return {
-				"unreachable_path_count": unreachable_path_count,
-			}
-
-		var best_without_tiebreak: Dictionary = shortlist_without_tiebreak[0]
+		var best_without_tiebreak: Dictionary = valid_candidate_infos[0]
 		best_without_tiebreak["unreachable_path_count"] = unreachable_path_count
 		return best_without_tiebreak
 
-	var shortlist := _build_path_tiebreak_shortlist(
-		valid_candidate_infos,
-		best_valid_cheap_score,
-		request.goal_path_tiebreak_candidate_count,
-		request.goal_path_tiebreak_score_window
-	)
-	if shortlist.is_empty():
-		return {
-			"unreachable_path_count": unreachable_path_count,
-		}
-	if shortlist.size() == 1:
-		var single_shortlist_info: Dictionary = shortlist[0]
+	if valid_candidate_infos.size() == 1:
+		var single_shortlist_info: Dictionary = valid_candidate_infos[0]
 		single_shortlist_info["unreachable_path_count"] = unreachable_path_count
 		return single_shortlist_info
 
-	var best_info: Dictionary = shortlist[0]
+	var best_info: Dictionary = valid_candidate_infos[0]
 	var best_path_score := INF
-	for candidate_info in shortlist:
+	for candidate_info in valid_candidate_infos:
 		var path_length := float(candidate_info["path_length"])
 		var final_score := path_length + float(candidate_info["spread_score"])
 		if final_score < best_path_score:
@@ -379,31 +369,48 @@ static func _build_path_tiebreak_shortlist(
 	var shortlist: Array[Dictionary] = []
 	var max_shortlist_size := maxi(shortlist_size, 1)
 	var score_limit := best_cheap_score + maxf(score_window, 0.0)
-	var used_indices: Array[int] = []
+	var ranked_indices: Array[int] = []
 
-	while shortlist.size() < max_shortlist_size:
-		var best_index := -1
-		var next_score := INF
-		for candidate_index in range(candidate_infos.size()):
-			if used_indices.has(candidate_index):
-				continue
+	for candidate_index in range(candidate_infos.size()):
+		var cheap_score := float(candidate_infos[candidate_index]["cheap_score"])
+		if cheap_score > score_limit:
+			continue
+		ranked_indices.append(candidate_index)
 
-			var cheap_score := float(candidate_infos[candidate_index]["cheap_score"])
-			if cheap_score > score_limit and not shortlist.is_empty():
-				continue
+	ranked_indices.sort_custom(func(a: int, b: int) -> bool:
+		return float(candidate_infos[a]["cheap_score"]) < float(candidate_infos[b]["cheap_score"])
+	)
 
-			if cheap_score < next_score:
-				next_score = cheap_score
-				best_index = candidate_index
-
-		if best_index == -1:
-			break
-
-		used_indices.append(best_index)
-		shortlist.append(candidate_infos[best_index])
+	for shortlist_index in range(mini(max_shortlist_size, ranked_indices.size())):
+		shortlist.append(candidate_infos[ranked_indices[shortlist_index]])
 
 	return shortlist
 
+
+
+static func _select_direct_chase_goal(request: SelectGoalRequest) -> GoalSelectionResult:
+	var result := GoalSelectionResult.new()
+	var debug_info := GoalDebugInfo.new()
+	debug_info.candidate_count = 1
+	debug_info.used_fallback = true
+	debug_info.raw_candidate = request.target_position
+	var projected_candidate := _project_candidate_to_nav(
+		request.target_position,
+		request.navigation_map,
+		request.candidate_projection_tolerance,
+		request.invalid_point
+	)
+	if projected_candidate == request.invalid_point:
+		result.debug = debug_info
+		return result
+
+	debug_info.projected_candidate = projected_candidate
+	debug_info.projection_error = request.target_position.distance_to(projected_candidate)
+	result.has_goal = true
+	result.goal_position = projected_candidate
+	result.goal_center = request.target_position
+	result.debug = debug_info
+	return result
 
 static func _measure_path_length(path: PackedVector3Array) -> float:
 	if path.size() < 2:
@@ -435,3 +442,4 @@ static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
+
