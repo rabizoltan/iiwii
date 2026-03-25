@@ -1,6 +1,7 @@
 extends RefCounted
 
 const EnemyNavigationLocomotion = preload("res://scripts/enemy/movement/enemy_navigation_locomotion.gd")
+const EnemyNavPerfMonitor = preload("res://scripts/debug/enemy_nav_perf_monitor.gd")
 
 
 class GoalRuntimeState:
@@ -150,10 +151,13 @@ static func invalidate_navigation_cache(state: NavigationCacheState, invalid_poi
 
 
 static func get_navigation_next_position(request: NavigationNextPositionRequest) -> Vector3:
-	if _should_refresh_navigation_cache(request):
+	var should_refresh := _should_refresh_navigation_cache(request)
+	EnemyNavPerfMonitor.record_nav_cache_decision(should_refresh)
+	if should_refresh:
 		request.cache_state.cached_nav_move_target = request.move_target
 		request.cache_state.nav_refresh_remaining = _compute_nav_refresh_interval(request)
 
+	EnemyNavPerfMonitor.record_nav_resolve_call()
 	request.cache_state.cached_nav_next_position = request.resolve_next_position.call(request.move_target)
 	return request.cache_state.cached_nav_next_position
 
@@ -188,4 +192,3 @@ static func _horizontal_distance(from_position: Vector3, to_position: Vector3) -
 	var offset := to_position - from_position
 	offset.y = 0.0
 	return offset.length()
-

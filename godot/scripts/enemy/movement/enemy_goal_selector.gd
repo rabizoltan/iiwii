@@ -1,8 +1,11 @@
 extends RefCounted
 
+const EnemyNavPerfMonitor = preload("res://scripts/debug/enemy_nav_perf_monitor.gd")
+
 
 class SelectGoalRequest:
 	extends RefCounted
+
 
 	var target_position: Vector3 = Vector3.ZERO
 	var global_position: Vector3 = Vector3.ZERO
@@ -30,6 +33,7 @@ class SelectGoalRequest:
 class GoalDebugInfo:
 	extends RefCounted
 
+
 	var candidate_count: int = 0
 	var rejected_projection_count: int = 0
 	var rejected_failed_count: int = 0
@@ -44,12 +48,14 @@ class GoalDebugInfo:
 class CandidatePathMetrics:
 	extends RefCounted
 
+
 	var length: float = INF
 	var end_error: float = INF
 
 
 class GoalSelectionResult:
 	extends RefCounted
+
 
 	var has_goal: bool = false
 	var goal_position: Vector3 = Vector3.ZERO
@@ -58,6 +64,14 @@ class GoalSelectionResult:
 
 
 static func select_engage_goal(request: SelectGoalRequest) -> GoalSelectionResult:
+	var use_direct_chase: bool = request.distance_to_target > request.direct_chase_distance
+	var actual_distance_to_target := _horizontal_distance(request.global_position, request.target_position)
+	EnemyNavPerfMonitor.record_goal_selection(
+		actual_distance_to_target,
+		request.distance_to_target,
+		request.direct_chase_distance,
+		use_direct_chase
+	)
 	if request.distance_to_target > request.direct_chase_distance:
 		return _select_direct_chase_goal(request)
 
@@ -217,6 +231,7 @@ static func measure_candidate_path_metrics(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> CandidatePathMetrics:
+	EnemyNavPerfMonitor.record_path_metric_call()
 	var result := CandidatePathMetrics.new()
 	var path := _get_candidate_path(navigation_map, from_position, candidate, navigation_layers)
 	if path.is_empty():
@@ -429,6 +444,7 @@ static func _get_candidate_path(
 	candidate: Vector3,
 	navigation_layers: int
 ) -> PackedVector3Array:
+	EnemyNavPerfMonitor.record_map_get_path_call()
 	return NavigationServer3D.map_get_path(
 		navigation_map,
 		from_position,

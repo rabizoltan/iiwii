@@ -1,8 +1,11 @@
 extends RefCounted
 
+const EnemyNavPerfMonitor = preload("res://scripts/debug/enemy_nav_perf_monitor.gd")
+
 
 class NavigationCacheRequest:
 	extends RefCounted
+
 
 	var cached_nav_move_target: Vector3 = Vector3.ZERO
 	var invalid_point: Vector3 = Vector3.ZERO
@@ -18,6 +21,7 @@ class NavigationCacheRequest:
 class NavRefreshIntervalRequest:
 	extends RefCounted
 
+
 	var melee_state: int = -1
 	var close_adjust_state: int = -1
 	var close_adjust_nav_refresh_interval: float = 0.0
@@ -29,6 +33,7 @@ class NavRefreshIntervalRequest:
 
 class ApproachVelocityResult:
 	extends RefCounted
+
 
 	var velocity: Vector3 = Vector3.ZERO
 	var attempted_move: bool = false
@@ -69,12 +74,14 @@ static func resolve_navigation_next_position(
 	global_position: Vector3,
 	move_target: Vector3
 ) -> Vector3:
+	EnemyNavPerfMonitor.record_nav_step_query()
 	var next_position := nav_agent.get_next_path_position()
 	var horizontal_offset := next_position - global_position
 	horizontal_offset.y = 0.0
 	if horizontal_offset.length_squared() > 0.04:
 		return next_position
 
+	EnemyNavPerfMonitor.record_nav_path_scan()
 	var path := nav_agent.get_current_navigation_path()
 	for path_point in path:
 		var path_offset := path_point - global_position

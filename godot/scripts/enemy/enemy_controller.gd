@@ -9,6 +9,7 @@ const EnemyRuntimePolicy = preload("res://scripts/enemy/movement/enemy_runtime_p
 const EnemyNavigationLocomotion = preload("res://scripts/enemy/movement/enemy_navigation_locomotion.gd")
 const EnemyMovementInfluence = preload("res://scripts/enemy/movement/enemy_movement_influence.gd")
 const EnemyRuntimeState = preload("res://scripts/enemy/state/enemy_runtime_state.gd")
+const EnemyNavPerfMonitor = preload("res://scripts/debug/enemy_nav_perf_monitor.gd")
 
 
 class PhysicsStepResult:
@@ -269,6 +270,7 @@ func _select_engage_goal() -> void:
 		return
 
 	var target_position := _target_node.global_position
+	EnemyNavPerfMonitor.record_nearby_enemy_query()
 	var nearby_enemy_positions := EnemyCrowdQuery.collect_nearby_enemy_positions(
 		self,
 		target_position,
@@ -335,6 +337,7 @@ func _update_melee_state(target_position: Vector3) -> void:
 	if next_state != EnemyCloseState.APPROACH:
 		var is_in_frontline := _is_in_active_melee_frontline(target_position)
 		if not is_in_frontline:
+			EnemyNavPerfMonitor.record_frontline_rejection()
 			next_state = EnemyCloseState.APPROACH
 
 	if next_state == _melee_state:
@@ -522,6 +525,7 @@ func _compute_player_yield_velocity(allow_chain_pressure: bool = true) -> Vector
 
 
 func _get_cached_local_enemy_positions(radius: float) -> Array[Vector3]:
+	EnemyNavPerfMonitor.record_local_enemy_query()
 	return EnemyCrowdQuery.get_cached_local_enemy_positions(
 		self,
 		global_position,
@@ -643,6 +647,7 @@ func _update_stuck_state(delta: float, pre_move_position: Vector3, attempted_hor
 		_stuck_elapsed = 0.0
 
 	if _stuck_elapsed >= stuck_timeout:
+		EnemyNavPerfMonitor.record_stuck_recovery()
 		_stuck_elapsed = 0.0
 		if _goal_runtime_state.has_goal:
 			_remember_failed_goal(_goal_runtime_state.current_goal_position)
@@ -708,6 +713,7 @@ func _get_cached_frontline_distance_rank(target_position: Vector3, relevant_radi
 				if _horizontal_distance(_frontline_rank_cache_owner_position, global_position) <= FRONTLINE_RANK_CACHE_POSITION_TOLERANCE:
 					return _frontline_rank_cache_value
 
+	EnemyNavPerfMonitor.record_frontline_rank_query()
 	var distance_rank: int = EnemyCrowdQuery.get_target_distance_rank(
 		self,
 		global_position,
