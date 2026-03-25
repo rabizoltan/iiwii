@@ -260,18 +260,14 @@ static func choose_external_displacement_resolution_direction(request: PushResol
 	var local_enemy_positions: Array[Vector3] = request.local_enemy_positions
 	var left_direction := Vector3(-away_direction.z, 0.0, away_direction.x)
 	var right_direction := -left_direction
-	var left_penalty := score_direction_penalty(
+	var penalties := score_direction_penalties(
 		request.global_position,
-		left_direction,
+		[left_direction, right_direction],
 		local_enemy_positions,
 		request.block_check_distance
 	)
-	var right_penalty := score_direction_penalty(
-		request.global_position,
-		right_direction,
-		local_enemy_positions,
-		request.block_check_distance
-	)
+	var left_penalty := penalties[0]
+	var right_penalty := penalties[1]
 	var lateral_direction := left_direction if left_penalty <= right_penalty else right_direction
 
 	var outward_direction := away_direction
@@ -323,8 +319,14 @@ static func choose_close_adjust_lateral_direction(
 ) -> Dictionary:
 	var left_direction := Vector3(-away_direction.z, 0.0, away_direction.x)
 	var right_direction := -left_direction
-	var left_penalty := score_direction_penalty(global_position, left_direction, local_enemy_positions, probe_distance)
-	var right_penalty := score_direction_penalty(global_position, right_direction, local_enemy_positions, probe_distance)
+	var penalties := score_direction_penalties(
+		global_position,
+		[left_direction, right_direction],
+		local_enemy_positions,
+		probe_distance
+	)
+	var left_penalty := penalties[0]
+	var right_penalty := penalties[1]
 
 	var preferred_sign := -1.0 if left_penalty <= right_penalty else 1.0
 	var preferred_penalty := left_penalty if preferred_sign < 0.0 else right_penalty
@@ -367,20 +369,25 @@ static func choose_best_yield_response(
 		{"direction": (away_direction + side_direction * side_yield_weight).normalized(), "bias": 1.08},
 		{"direction": (away_direction - side_direction * side_yield_weight).normalized(), "bias": 1.08},
 	]
+	var penalty_inputs: Array[Vector3] = []
+	for candidate in candidate_directions:
+		penalty_inputs.append(candidate["direction"])
+	var penalties := score_direction_penalties(
+		global_position,
+		penalty_inputs,
+		local_enemy_positions,
+		block_check_distance
+	)
 
 	var best_direction := Vector3.ZERO
 	var best_penalty := INF
-	for candidate in candidate_directions:
+	for index in range(candidate_directions.size()):
+		var candidate := candidate_directions[index]
 		var direction: Vector3 = candidate["direction"]
 		if direction.length_squared() <= 0.0001:
 			continue
 
-		var penalty := score_direction_penalty(
-			global_position,
-			direction,
-			local_enemy_positions,
-			block_check_distance
-		) * float(candidate["bias"])
+		var penalty := penalties[index] * float(candidate["bias"])
 		if penalty < best_penalty:
 			best_penalty = penalty
 			best_direction = direction
@@ -401,20 +408,50 @@ static func score_direction_penalty(
 	local_enemy_positions: Array[Vector3],
 	probe_distance: float
 ) -> float:
-	if probe_distance <= 0.0 or direction.length_squared() <= 0.0001:
-		return 0.0
+	return score_direction_penalties(
+		global_position,
+		[direction],
+		local_enemy_positions,
+		probe_distance
+	)[0]
 
-	var probe_position := global_position + direction * probe_distance
+
+static func score_direction_penalties(
+	global_position: Vector3,
+	directions: Array[Vector3],
+	local_enemy_positions: Array[Vector3],
+	probe_distance: float
+) -> Array[float]:
+	var penalties: Array[float] = []
+	for _direction in directions:
+		penalties.append(0.0)
+
+	if probe_distance <= 0.0 or directions.is_empty() or local_enemy_positions.is_empty():
+		return penalties
+
 	var probe_distance_sq := probe_distance * probe_distance
-	var penalty := 0.0
+	var probe_positions: Array[Vector3] = []
+	var active_directions: Array[bool] = []
+	for direction in directions:
+		var is_active := direction.length_squared() > 0.0001
+		active_directions.append(is_active)
+		if is_active:
+			probe_positions.append(global_position + direction * probe_distance)
+		else:
+			probe_positions.append(global_position)
+
 	for enemy_position in local_enemy_positions:
-		var offset := enemy_position - probe_position
-		offset.y = 0.0
-		var distance_sq := offset.length_squared()
-		if distance_sq >= probe_distance_sq:
-			continue
+		for index in range(directions.size()):
+			if not active_directions[index]:
+				continue
 
-		var distance_to_enemy := sqrt(distance_sq)
-		penalty += 1.0 - (distance_to_enemy / probe_distance)
+			var offset := enemy_position - probe_positions[index]
+			offset.y = 0.0
+			var distance_sq := offset.length_squared()
+			if distance_sq >= probe_distance_sq:
+				continue
 
-	return penalty
+			var distance_to_enemy := sqrt(distance_sq)
+			penalties[index] += 1.0 - (distance_to_enemy / probe_distance)
+
+	return penalties

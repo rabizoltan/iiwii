@@ -1,16 +1,16 @@
 # Enemy Dense-Scene Navigation Performance Slice
 
 ## Status
-- `active`
+- `completed`
 
 ## Purpose
 - Track the current dense-scene enemy navigation performance pass.
 - Keep the revised optimization direction separate from the earlier failed attempt.
 - Preserve a clean execution plan focused on measurable runtime-cost reduction without sacrificing readable melee surround behavior.
+- Record the accepted dense-scene optimization changes that landed for this pass.
 
 ## Scope
 - Goal-selection cost in dense scenes.
-- Navigation next-position refresh cost and refresh cadence correctness.
 - Registry-wide crowd and rank scan cost.
 - Repeated close-range steering cost.
 
@@ -32,7 +32,7 @@
 - Prefer cheaper decision policy before heavier structural redesign.
 - Treat path-query count as the first major cost to reduce.
 - Do not keep expensive surround-solving active for far-away enemies.
-- Fix timing/caching behavior before adding more timing complexity.
+- Keep rejected navigation-refresh ideas out of this active plan.
 
 ## Slice 1
 ### Goal-selection cost reduction
@@ -105,101 +105,6 @@ Risk:
 - over-reducing candidate quality can make surround distribution visibly worse
 
 ## Slice 2
-### Navigation refresh correctness and cadence
-
-Purpose:
-- make nav caching actually suppress expensive next-position refresh work
-- only then evaluate stronger stagger or cadence changes
-
-Files:
-- `godot/scripts/enemy/enemy_controller.gd`
-- `godot/scripts/enemy/movement/enemy_runtime_policy.gd`
-- `godot/scripts/enemy/movement/enemy_navigation_locomotion.gd`
-
-Current issue:
-- `EnemyRuntimePolicy.get_navigation_next_position()` stores cache timing state, but still calls `resolve_next_position` unconditionally.
-- That means refresh timing exists, but expensive next-position work is not truly being skipped.
-- This should be treated as an optimization-correctness problem, not just as a tuning problem.
-
-Failed attempt already observed:
-- A direct cache of the returned next navigation position was tested and then discarded.
-- In-engine result: enemies showed stop-and-go movement instead of continuous path following.
-- This failure should remain documented so the same invalid optimization boundary is not retried later.
-- A follow-up attempt that throttled `NavigationAgent3D.target_position` refresh while preserving per-frame `get_next_path_position()` was also tested and rejected.
-- In-engine result: enemy movement still became noticeably jerky.
-- This means Slice 2 is not yet ready for another blind implementation pass; safer observation and narrower diagnosis are needed before retrying.
-
-Why this matters:
-- `_refresh_navigation_cache()` currently updates `NavigationAgent3D.target_position`.
-- `EnemyNavigationLocomotion.resolve_navigation_next_position()` then pulls fresh navigation data through `get_next_path_position()` and, when needed, `get_current_navigation_path()`.
-- If that resolver still runs every time the controller asks for a next position, the near/far refresh intervals do not suppress the expensive part of navigation work.
-
-Godot API constraint confirmed:
-- Godot documentation states that after setting `NavigationAgent3D.target_position`, `get_next_path_position()` should be used once every physics frame to update the agent's internal path logic.
-- This means the returned next path position is not a safe cross-frame cache target for this slice.
-- The safe optimization boundary is target refresh / repath churn, not the per-frame path-follow update call itself.
-
-Planning focus:
-- separate "refresh policy exists" from "refresh policy actually avoids work"
-- verify how often `_refresh_navigation_cache()` currently runs
-- keep continuous `get_next_path_position()` usage intact
-- reduce unnecessary `target_position` updates and repath churn before layering on stronger stagger
-- keep current near/far refresh tuning only if it starts paying off in practice
-
-Decision taken for this slice:
-- Do not add more cadence complexity before the cache actually skips work.
-- Do not cache the returned next navigation position across physics frames.
-- Keep per-frame path-follow progression continuous.
-- Treat target-refresh throttling as unproven and currently rejected until better evidence shows a safe boundary.
-- Only after that, measure whether additional staggering is still necessary.
-
-Likely levers:
-- conditional target-position refresh
-- explicit cache invalidation rules
-- per-enemy initial offsets if more staggering is still needed after cache correctness is fixed
-
-Required behavior change:
-- Continuous `get_next_path_position()` calls should remain in the physics loop.
-- Do not currently assume that suppressing `_nav_agent.target_position = move_target` is safe in this implementation.
-- Before another Slice 2 implementation attempt, identify a narrower repath-churn boundary that does not introduce jerky motion.
-
-Required invalidation thinking:
-- Re-issue or refresh the target when:
-- the move target changed meaningfully
-- the refresh timer expired
-- recovery or stuck handling is active
-- movement state changed in a way that affects nav sampling behavior
-- Do not suppress `get_next_path_position()` just because the target did not change.
-
-Near-vs-far interaction:
-- Far enemies should benefit the most from slower refresh and direct chase behavior.
-- Near enemies may still need more responsive nav updates, but those updates should remain cached between meaningful changes.
-- The near-vs-far rule from Slice 1 should stay compatible with this slice rather than introducing a separate contradictory timing model.
-
-Implementation order inside Slice 2:
-1. Keep `get_next_path_position()` continuous.
-2. Measure when and why target refresh / repath work is actually happening.
-3. Verify and document the correct refresh / invalidation rules.
-4. Identify a safer, narrower optimization boundary than the rejected target-refresh throttling attempt.
-5. Add stronger per-enemy staggering only if burst alignment is still a visible or measured problem.
-
-Principle to preserve:
-- Navigation refresh timing should suppress repath churn without breaking continuous path following.
-- If a candidate optimization introduces visible jerkiness, reject it even if it looks correct in code.
-
-Acceptance checks:
-- lower `_refresh_navigation_cache()` frequency in the dense scene
-- lower NavigationAgent next-position churn
-- no visible movement stutter or synchronized bursts
-- no stop-and-go movement caused by stale cached path points
-
-Risk:
-- timing logic can become harder to reason about if cadence and invalidation rules are overcomplicated
-- adding extra stagger too early could hide the real cache bug instead of solving it
-- caching the final next path position across physics ticks is explicitly rejected for this slice because it breaks continuous movement
-- naive target-refresh throttling is also currently rejected because it still produced jerky movement in-engine
-
-## Slice 3
 ### Crowd and rank scan reduction
 
 Purpose:
@@ -252,13 +157,13 @@ Preferred optimization direction:
 - delay spatial buckets or partitions until after simpler reuse has been measured
 
 First implementation pass landed:
-- keep Slice 3 controller-centered before changing `enemy_crowd_query.gd` internals
+- keep Slice 2 controller-centered before changing `enemy_crowd_query.gd` internals
 - reuse one shared local-neighbor query result across close-adjust, yield, and external displacement resolution
 - add short-lived controller-side reuse for frontline rank checks
 - leave `enemy_crowd_response.gd` behavior logic unchanged
 - leave stronger spatial structures out of this pass
 
-Implementation order inside Slice 3:
+Implementation order inside Slice 2:
 1. Identify which queries are duplicated across the same enemy update path.
 2. Broaden local-neighbor reuse where the current behavior can tolerate it.
 3. Reduce unnecessary frontline-rank recomputation.
@@ -282,7 +187,7 @@ Risk:
 - overly aggressive reuse can delay crowd reactions and make melee packs feel sluggish
 - introducing spatial partitioning too early can increase complexity before the real low-risk wins are taken
 
-## Slice 4
+## Slice 3
 ### Close-range steering cleanup
 
 Purpose:
@@ -310,11 +215,21 @@ Acceptance checks:
 Risk:
 - this slice is the easiest one to accidentally turn into a behavior change
 
+First implementation pass direction:
+- keep this slice behavior-preserving and local to `enemy_crowd_response.gd`
+- fold repeated left/right penalty probes into one shared helper
+- fold repeated yield-direction penalty probes into one shared helper
+- do not change crowd-pressure math, state transitions, or nav-agent usage
+
+Current implementation status:
+- Slice 3 cleanup has started in `enemy_crowd_response.gd`
+- repeated directional penalty scans now share one helper path
+- behavior validation was accepted before closure
+
 ## Recommended Order
 1. Slice 1: goal-selection cost reduction
-2. Slice 2: navigation refresh correctness and cadence
-3. Slice 3: crowd and rank scan reduction
-4. Slice 4: close-range steering cleanup
+2. Slice 2: crowd and rank scan reduction
+3. Slice 3: close-range steering cleanup
 
 ## Validation Notes
 - Use `godot/scenes/main/DemoMain.tscn` as the primary repro scene.
@@ -322,18 +237,16 @@ Risk:
 - Check corner and wall-adjacent behavior immediately after any goal-selection change.
 - Use the shared `F3` debug surface only as support; do not mistake overlay stats for a full profiling pass.
 
-## Restart Notes
-1. Treat this document as the active current plan.
+## Closure Notes
+1. Treat this document as the completed record for the dense-scene navigation performance pass.
 2. Treat the earlier enemy navigation performance plan as historical context only.
-3. Validate each slice in isolation before moving to the next one.
-4. Revert only the current slice if behavior quality drops.
+3. Slice 2 from the earlier draft was rejected and intentionally removed from this final plan.
+4. If future dense-scene work resumes, start a new slice rather than reopening this one.
 
 ## Progress Tracker
-- [ ] Slice 1 started
-- [ ] Slice 1 validated
-- [ ] Slice 2 started
-- [ ] Slice 2 validated
-- [ ] Slice 3 started
-- [ ] Slice 3 validated
-- [ ] Slice 4 started
-- [ ] Slice 4 validated
+- [x] Slice 1 started
+- [x] Slice 1 validated
+- [x] Slice 2 started
+- [x] Slice 2 validated
+- [x] Slice 3 started
+- [x] Slice 3 validated

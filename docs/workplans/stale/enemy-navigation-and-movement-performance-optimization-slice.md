@@ -16,7 +16,7 @@
 - registry-scan reduction and close-range steering cleanup order
 
 ## Current Replacement
-- Use [enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-dense-scene-navigation-performance-slice.md) as the active current execution guide.
+- Use [enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md) as the completed record for the revised dense-scene pass.
 
 ## Historical Notes
 - This older plan remains useful only as a reminder that broader attempts were rolled back and the current pass should stay narrow, measurable, and independently revertable.
