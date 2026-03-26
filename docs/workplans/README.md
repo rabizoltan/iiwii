@@ -53,7 +53,8 @@ This folder contains implementation sequencing and delivery plans.
 
 ## Current Workplans
 - [active/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md): blocked execution plan pending explicit feedback-scope decisions.
-- [active/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-crowd-performance-and-contact-stability-slice.md): current dense-pack jitter/FPS diagnosis plan tied to the `F3` counters and optional CSV perf logging.
+- [active/enemy-rear-line-approach-churn-fix-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-rear-line-approach-churn-fix-slice.md): current narrow gameplay follow-up focused on stopping blocked second-line enemy `APPROACH` churn near the player.
+- [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record that narrowed the current rear-line motion follow-up.
 - [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md): completed dense-scene enemy navigation performance pass record.
 - [roadmaps/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md): planning entry point for the current behavior-slice sequence.
 - [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, and crouch traversal slices.

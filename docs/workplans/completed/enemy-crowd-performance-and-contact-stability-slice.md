@@ -1,12 +1,12 @@
 # Enemy Crowd Performance And Contact Stability Slice
 
 ## Status
-- `active`
+- `completed`
 
 ## Purpose
-- Diagnose the current dense-pack enemy jitter and FPS drop using the new runtime counters and optional CSV logging.
-- Replace the older rollback-era restart note with a current execution guide tied to the actual codebase.
-- Narrow the next implementation slice based on measured evidence instead of broad performance speculation.
+- Diagnose the dense-pack enemy jitter and FPS drop using the runtime counters and optional CSV logging.
+- Preserve the evidence that narrowed the next gameplay follow-up slice.
+- Close the diagnostics phase so the next work can target the confirmed rear-line motion problem directly.
 
 ## Current Context
 1. The earlier dense-scene enemy navigation performance pass is already closed in [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md).
@@ -69,10 +69,10 @@
 4. Are `nearby/local/rank queries/s` high enough to be a meaningful secondary bottleneck once the crowd compresses?
 5. Is the main spike mostly nav/goal churn, mostly registry-scan pressure, or a feedback loop between both?
 
-## Execution Order
+## Execution Record
 
 ### Step 1 - Capture Dense-Pack Repro
-Status: `active`
+Status: `completed`
 
 Actions:
 1. Open `DemoMain`.
@@ -84,7 +84,7 @@ Exit gate:
 - At least one clear repro run exists where the visible jitter and FPS drop are both present.
 
 ### Step 2 - Record Counter Behavior
-Status: `active`
+Status: `completed`
 
 Actions:
 1. Record the overlay values during the repro window.
@@ -106,25 +106,18 @@ Exit gate:
 - The repro has measurable runtime evidence, not only visual observation.
 
 ### Step 3 - Classify The Primary Driver
-Status: `pending`
+Status: `completed`
 
-Actions:
-1. Compare the values during normal movement vs dense blocked churn.
-2. Identify which family rises hardest during the FPS drop:
-   - nav resolve / nav step work
-   - goal / path-query work
-   - crowd-query pressure
-   - stuck / rejection churn
-3. Use the result to choose the next narrow fix slice.
-
-Exit gate:
-- One primary driver and one secondary driver are identified with evidence.
+Outcome:
+1. The dense-pack issue was narrowed from a broad performance question into a gameplay-policy problem around rear-line crowd motion.
+2. The evidence showed that blocked second-line enemies keep vibrating and making small inward adjustments near the player instead of settling.
+3. The next slice should focus on rear-line `APPROACH` churn, inward goal ownership, and related small-motion jitter rather than reopening broad nav-refresh experimentation.
 
 ## Acceptance Checks
-1. The current jitter/FPS issue can be reproduced in `DemoMain`.
-2. The `F3` overlay exposes enough information to distinguish nav churn from query churn.
-3. At least one CSV-backed run exists with usable `runtime_sec` comparisons.
-4. The next implementation slice can be named narrowly from evidence, not from broad suspicion.
+1. The jitter/FPS issue was reproduced in `DemoMain`.
+2. The `F3` overlay exposed enough information to distinguish nav churn from query churn.
+3. CSV-backed runs produced usable `runtime_sec` comparisons.
+4. The next implementation slice could be named narrowly from evidence instead of broad suspicion.
 
 ## Open Risks
 1. The visible jitter may be a feedback loop rather than a single hotspot, so one counter family alone may not explain the whole drop.
@@ -132,4 +125,4 @@ Exit gate:
 3. The CSV log is session-cumulative unless the runtime is restarted, so comparisons should be grouped carefully.
 
 ## Next Step
-- Capture one or more dense-pack repro runs with the current `F3` counters and `user://enemy_nav_perf_log.csv`, then use that evidence to open a new narrow implementation slice for the highest-confidence hotspot.
+- Continue with the active rear-line motion follow-up in [active/enemy-rear-line-approach-churn-fix-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-rear-line-approach-churn-fix-slice.md).
