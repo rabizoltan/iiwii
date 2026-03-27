@@ -18,7 +18,7 @@
 - Slice 2 - Debug control panel: `completed`
 - Slice 3 - Enemy close-range behavior: `completed`
 - Slice 4 - Player-enemy collision and crowd pressure: `stable-baseline`
-- Slice 5 - Combat feedback and debug behavior: `blocked`
+- Slice 5 - Combat feedback and debug behavior: `parked`
 - Future Planning - Player traversal and movement slices: `planned`
 
 ## Recommended Order
@@ -26,7 +26,7 @@
 2. Debug control panel
 3. Enemy close-range behavior
 4. Player-enemy collision and crowd pressure
-5. Combat feedback and debug behavior
+5. Combat feedback and debug behavior only if explicitly reopened later
 6. Player traversal and movement slices after scope is chosen
 
 ## Current Planned Sequence
@@ -34,12 +34,13 @@
 2. Add [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) so current and follow-up behavior slices share the same runtime debug controls
 3. After player attack and debug control are validated, continue with the historical slice note at [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md) while treating [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) as the current behavior source of truth
 4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
-5. After the movement and collision rules are stable enough, define and execute [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md)
+5. If combat feedback becomes a priority later, rescope from [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md) instead of treating it as an active plan
 6. When traversal work becomes a priority, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
 - do not start the combat feedback/debug slice as a design driver for combat behavior
+- do not reopen melee-navigation follow-up work implicitly; treat the current baseline as closed unless a new explicit scope is chosen
 
 ## Slice 1 - Player Attack Behavior
 Status: `completed`
@@ -85,7 +86,8 @@ Why second:
 
 Current state:
 - Engage-point movement, hold/facing behavior, soft spreading, physical crowd collision, constrained crowd-yield, and profiling support are implemented and manually validated in the demo scene.
-- This slice is closed for the current milestone and superseded as a source of truth by the architecture docs plus the crowd-pressure follow-up slice.
+- This slice is closed for the current milestone and superseded as a source of truth by the architecture docs.
+- No further melee-navigation refinement slice is planned right now.
 
 Execution priority:
 - completed
@@ -111,16 +113,17 @@ Execution priority:
 - no immediate implementation follow-up; future work belongs to traversal and combat slices
 
 ## Slice 5 - Combat Feedback And Debug Behavior
-Status: `blocked`
+Status: `parked`
 
 Plan file:
-- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md)
+- [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md)
 
 Why third:
 - It should be built on top of the chosen combat and enemy behavior rules.
 
-Blocker:
+Why parked:
 - Feedback/debug requirements need explicit scope decisions before implementation should continue.
+- It should not be treated as the automatic next step after the current navigation baseline.
 
 Current dependency state:
 - The shared debug menu exists and is usable.
@@ -147,4 +150,5 @@ Recommendation:
 
 ## Rule For Next Work
 - Do not reopen the foundation slice for behavior tuning.
-- Start the next implementation only from a behavior slice with explicit success criteria.
+- Do not reopen melee-navigation refinement implicitly.
+- Start the next implementation only from a newly chosen slice with explicit success criteria.

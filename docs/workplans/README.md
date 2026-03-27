@@ -32,7 +32,8 @@ This folder contains implementation sequencing and delivery plans.
 
 ## Current Focus
 - Completed first playable Godot foundation slice
-- Next work should move into behavior-specific slices, not open-ended prototype polishing
+- Treat the current melee-navigation baseline as closed for now; do not keep open follow-up navigation slices without an explicit new decision
+- The next planned slice is camera control and framing: Diablo-like soft-follow behavior, rotation, zoom, and camera-relative movement updates
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -52,9 +53,10 @@ This folder contains implementation sequencing and delivery plans.
   - use that kind of brief only as a bootstrap task prompt, never as project truth
 
 ## Current Workplans
-- [active/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/combat-feedback-and-debug-behavior-slice.md): blocked execution plan pending explicit feedback-scope decisions.
-- [active/enemy-rear-line-approach-churn-fix-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-rear-line-approach-churn-fix-slice.md): current narrow gameplay follow-up focused on stopping blocked second-line enemy `APPROACH` churn near the player.
-- [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record that narrowed the current rear-line motion follow-up.
+- [active/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/camera-rotation-and-zoom-slice.md): next planned slice for Diablo-like camera follow, rotation, zoom, and rotation-aware movement updates.
+- There is currently no active melee-navigation follow-up slice.
+- [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
+- [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.
 - [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md): completed dense-scene enemy navigation performance pass record.
 - [roadmaps/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md): planning entry point for the current behavior-slice sequence.
 - [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, and crouch traversal slices.
@@ -63,6 +65,7 @@ This folder contains implementation sequencing and delivery plans.
 - [completed/debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md): completed shared debug control slice centered on the `F3` overlay.
 - [completed/player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md): completed crowd-pressure baseline cleanup that removed baseline player shove.
 - [completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/refactor-enemy-runtime-cleanup-and-boundary-tightening.md): completed runtime cleanup/refactor planning artifact.
-- [handoffs/session-handoff-2026-03-08.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/handoffs/session-handoff-2026-03-08.md): latest session handoff baseline for restart context.
+- [handoffs/session-handoff-2026-03-28.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/handoffs/session-handoff-2026-03-28.md): latest session handoff baseline for restart context.
+- [handoffs/session-handoff-2026-03-08.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/handoffs/session-handoff-2026-03-08.md): older enemy-runtime cleanup handoff preserved as history.
 - [stale/enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md): stale historical slice note that now points to the renewed melee behavior source of truth.
 - [stale/enemy-navigation-and-movement-performance-optimization-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-navigation-and-movement-performance-optimization-slice.md): earlier restart plan kept only as superseded historical context.

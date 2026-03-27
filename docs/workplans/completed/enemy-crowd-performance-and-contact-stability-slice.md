@@ -125,4 +125,4 @@ Outcome:
 3. The CSV log is session-cumulative unless the runtime is restarted, so comparisons should be grouped carefully.
 
 ## Next Step
-- Continue with the active rear-line motion follow-up in [active/enemy-rear-line-approach-churn-fix-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/enemy-rear-line-approach-churn-fix-slice.md).
+- No further rear-line navigation follow-up is planned right now; treat this document as historical diagnostics for the accepted current baseline.
