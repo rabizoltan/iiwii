@@ -1,6 +1,5 @@
 extends Node3D
 
-
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key_event: InputEventKey = event

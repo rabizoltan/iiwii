@@ -33,7 +33,7 @@ This folder contains implementation sequencing and delivery plans.
 ## Current Focus
 - Completed first playable Godot foundation slice
 - Treat the current melee-navigation baseline as closed for now; do not keep open follow-up navigation slices without an explicit new decision
-- The next planned slice is camera control and framing: Diablo-like soft-follow behavior, rotation, zoom, and camera-relative movement updates
+- The camera control and framing slice is complete for the current milestone; future maps should reuse the shared gameplay camera scene
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -53,7 +53,7 @@ This folder contains implementation sequencing and delivery plans.
   - use that kind of brief only as a bootstrap task prompt, never as project truth
 
 ## Current Workplans
-- [active/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/camera-rotation-and-zoom-slice.md): next planned slice for Diablo-like camera follow, rotation, zoom, and rotation-aware movement updates.
+- [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
 - [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.

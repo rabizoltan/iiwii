@@ -1,7 +1,7 @@
 # Feature Matrix
 Category: Runtime System
 Role: Runtime Truth
-Last updated: 2026-03-27
+Last updated: 2026-03-28
 Last validated: pending
 
 ## Purpose
@@ -20,7 +20,7 @@ Last validated: pending
 | --- | --- | --- | --- |
 | Godot project bootstrap | working | Godot 4.6 project opens and runs with the initial slice scene | [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md) |
 | Main playable scene | working | Demo scene runs with player, enemies, navmesh obstacles, projectile anchor setup, and dedicated flat/elevated attack test fixtures | [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md) |
-| Camera control and framing | not_started | Planned next slice: Diablo-like soft-follow camera with player-controlled rotation, constrained zoom, and camera-relative movement updates | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/camera-rotation-and-zoom-slice.md) |
+| Camera control and framing | working | A reusable gameplay camera scene now provides soft-follow framing, middle-mouse rotation, constrained zoom, and camera-relative movement; playable maps should instance it and point `target_path` at the player, and the current baseline is manually validated and accepted | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 | Player movement | working | Player movement is responsive and obstacle-safe in the first demo scene | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md) |
 | Simple player attack | working | Mouse/world aimed projectile shots enforce one-click single-shot, `0.5s` cooldown, blocker-aware travel, and validated elevated/ground/enemy targeting in the demo scene | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Enemy navigation | working | Enemies chase engage points near the player, hold/facing at melee range, apply soft local spreading, and physically collide with other enemies while using constrained crowd-yield under player pressure; this is the accepted current melee-navigation baseline and no further follow-up slice is planned right now | [enemy-ai-navigation-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-navigation-v1.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md), [enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md) |
@@ -41,4 +41,5 @@ Last validated: pending
 - `working`: usable for the current milestone
 - `blocked`: cannot proceed due to another missing dependency
 - `deferred`: intentionally excluded from the current milestone
+
 

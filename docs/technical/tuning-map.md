@@ -1,8 +1,8 @@
 # Tuning Map
 Category: Runtime Architecture
 Role: Runtime Truth
-Last updated: 2026-03-18
-Last validated: pending
+Last updated: 2026-03-28
+Last validated: 2026-03-28
 
 ## Purpose
 - Track where runtime tuning and config values actually live today.
@@ -23,7 +23,8 @@ Last validated: pending
 
 | Area | Current owner | Current tuning surface | Notes | Related docs |
 | --- | --- | --- | --- | --- |
-| Player movement | `godot/scripts/player/player_controller.gd` | `move_speed`, `turn_speed` | Current baseline movement tuning is script-owned and minimal. | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |
+| Player movement | `godot/scripts/player/player_controller.gd` | `move_speed`, `turn_speed` | Current baseline movement tuning is script-owned and now uses the active gameplay camera basis. | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |
+| Camera framing and controls | `godot/scripts/main/gameplay_camera_rig.gd` | `follow_lerp_speed`, `rotation_drag_degrees_per_pixel`, `pitch_degrees`, `min_zoom_distance`, `max_zoom_distance`, `default_zoom_distance`, `zoom_step`, `zoom_lerp_speed` | Camera follow, rotation, and zoom tuning are currently script-owned in the gameplay camera rig. | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 | Player attack cadence and targeting | `godot/scripts/player/player_controller.gd` | `attack_cooldown`, `aim_collision_mask`, `aim_ray_length` | Current attack cadence and aim query parameters are script-owned. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Projectile runtime | `godot/scripts/projectiles/projectile.gd` | `speed`, `damage`, `hit_collision_mask` | Projectile speed and damage remain code-owned exports in the current slice. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Enemy locomotion and melee behavior | `godot/scripts/enemy/enemy_controller.gd` | movement speed, engage distances, close-adjust values, crowd-pressure values, goal-selection values, stuck-fallback values | The current melee baseline keeps almost all enemy behavior tuning in one script-owned surface. | [enemy-movement-runtime-ownership.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-movement-runtime-ownership.md), [enemy-ai-config-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-config-v1.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |

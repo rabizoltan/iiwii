@@ -1,8 +1,8 @@
 # Validation Map
 Category: Verification
 Role: Verification Guide
-Last updated: 2026-03-18
-Last validated: pending
+Last updated: 2026-03-28
+Last validated: 2026-03-28
 
 ## Purpose
 - Track how current behaviors are validated in this repo.
@@ -21,6 +21,7 @@ Last validated: pending
 | Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for projectile debug lines and runtime stats visibility | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
 | Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
+| Camera control and framing | `godot/scenes/main/DemoMain.tscn` gameplay camera rig | manual camera checks for soft-follow stability, middle-mouse rotation, zoom in/out, camera-relative movement after rotation, and cursor/world aiming under rotated and zoomed views | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 
 ## Current Validation Fixtures
 - `DemoMain.tscn` is the main current validation scene.
@@ -34,10 +35,10 @@ Last validated: pending
 
 ## Shared Validation Aids
 - When debugging enemy traversal, verify the enemy collision capsule, body mesh fit, and NavigationAgent3D dimensions before assuming a navmesh or controller bug.
-
 - `F3` debug menu for central toggle-based runtime visibility
 - projectile debug lines
 - lightweight runtime stats
+- gameplay camera rig in `DemoMain.tscn` for rotation and zoom checks
 
 ## Validation Ownership Rules
 - If a workplan defines the current execution gate, keep its concrete pass steps there.
@@ -55,7 +56,3 @@ Last validated: pending
 - Update this file when a behavior slice adds a stable manual validation recipe worth reusing.
 - Update [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md) when validation depends on a new runtime-owned debug surface.
 - Update [feature-matrix.md](d:/Game/DEV/iiWii/iiwii/docs/technical/feature-matrix.md) if validation changes feature readiness or status.
-
-
-
-

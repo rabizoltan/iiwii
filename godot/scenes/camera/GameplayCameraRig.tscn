@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://c1r0xk4x67bgm" path="res://scripts/main/gameplay_camera_rig.gd" id="1"]
+
+[node name="GameplayCameraRig" type="Node3D"]
+script = ExtResource("1")
+
+[node name="CameraYawPivot" type="Node3D" parent="."]
+
+[node name="Camera3D" type="Camera3D" parent="CameraYawPivot"]
+current = true
