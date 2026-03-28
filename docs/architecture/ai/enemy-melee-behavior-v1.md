@@ -5,9 +5,9 @@ Last updated: 2026-03-16
 Last validated: pending
 
 ## Status
-- Target behavior contract for the melee rebuild.
+- Working runtime contract for the accepted current melee baseline.
 - Use this as the source of truth for close-range enemy behavior.
-- Runtime implementation is expected to be rebuilt against this document.
+- No further melee-navigation refinement is planned right now; reopen this area only for a concrete regression or a newly chosen gameplay scope.
 
 ## Purpose
 Define melee enemy movement and crowd interaction that is:

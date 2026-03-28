@@ -13,7 +13,7 @@ var _attack_cooldown_remaining: float = 0.0
 
 func _physics_process(delta: float) -> void:
 	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	var move_direction := Vector3(input_vector.x, 0.0, input_vector.y)
+	var move_direction := _get_move_direction(input_vector)
 
 	if move_direction.length_squared() > 0.0:
 		move_direction = move_direction.normalized()
@@ -102,3 +102,24 @@ func _resolve_aim_target() -> Dictionary:
 		"position": result["position"],
 		"collider": collider,
 	}
+
+func _get_move_direction(input_vector: Vector2) -> Vector3:
+	if input_vector.length_squared() <= 0.0:
+		return Vector3.ZERO
+
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		return Vector3(input_vector.x, 0.0, input_vector.y)
+
+	var camera_forward := -camera.global_transform.basis.z
+	camera_forward.y = 0.0
+	camera_forward = camera_forward.normalized()
+
+	var camera_right := camera.global_transform.basis.x
+	camera_right.y = 0.0
+	camera_right = camera_right.normalized()
+
+	if camera_forward.length_squared() <= 0.0 or camera_right.length_squared() <= 0.0:
+		return Vector3(input_vector.x, 0.0, input_vector.y)
+
+	return camera_right * input_vector.x + camera_forward * -input_vector.y

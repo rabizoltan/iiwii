@@ -5,13 +5,13 @@ Last updated: 2026-03-16
 Last validated: pending
 
 ## Status
-- Partially implemented.
-- The melee close-range target behavior is now documented explicitly in [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md).
-- The current runtime implementation should be treated as rebuild work against that contract, not as final reference behavior.
-- Threat-table target selection, ranged donut/kite behavior, LOS attack gating, unreachable-anchor handling, multi-size nav-layer authoring, and the broader v1 test fixture set remain design targets.
+- Working for the current singleplayer-first milestone.
+- The melee close-range behavior documented in [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) is the accepted current runtime baseline.
+- No further melee-navigation improvement slice is active right now; reopen this area only for a concrete regression or a newly chosen gameplay scope.
+- Threat-table target selection, ranged donut/kite behavior, LOS attack gating, unreachable-anchor handling, multi-size nav-layer authoring, and the broader v1 test fixture set remain future design territory, not active implementation scope.
 
 ## Summary
-Implement a robust enemy navigation and combat-positioning system for up to roughly 100 enemies.
+Describe the current enemy navigation and combat-positioning baseline, plus the broader v1 direction that remains out of active scope for now.
 
 Enemies pick the highest-threat player and move toward a goal point near that player:
 - melee: ring gather close enough to engage

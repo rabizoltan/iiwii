@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://crsljbug2mpyu" path="res://scenes/enemy/EnemyBasic.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/debug/DebugOverlay.tscn" id="3"]
 [ext_resource type="Script" uid="uid://dqxjd0uewlqbu" path="res://scripts/main/demo_main_controller.gd" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/camera/GameplayCameraRig.tscn" id="5"]
+[ext_resource type="Script" path="res://scripts/main/spawn_warmup_manager.gd" id="6"]
 
 [sub_resource type="Environment" id="11"]
 background_mode = 1
@@ -345,158 +347,8 @@ target_path = NodePath("../../Player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3389854, 0, -8.575111)
 target_path = NodePath("../../Player")
 
-[node name="EnemyD53" parent="Actors/Enemies" unique_id=1602358455 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.97271585, 0, -8.575111)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD54" parent="Actors/Enemies" unique_id=337236859 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7088394, 0, -8.575111)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD55" parent="Actors/Enemies" unique_id=850287729 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.639612, 0, -8.575111)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD56" parent="Actors/Enemies" unique_id=853476653 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.8743486, 0, -8.575111)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD57" parent="Actors/Enemies" unique_id=1136844362 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450633, 0, -8.575111)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD58" parent="Actors/Enemies" unique_id=615657053 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.450633, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD59" parent="Actors/Enemies" unique_id=1462539889 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.0648375, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD60" parent="Actors/Enemies" unique_id=87917291 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.0648375, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD61" parent="Actors/Enemies" unique_id=50256939 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5015702, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD62" parent="Actors/Enemies" unique_id=1073903426 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.532433, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD63" parent="Actors/Enemies" unique_id=789519120 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.313531, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD64" parent="Actors/Enemies" unique_id=1924568878 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.71741, 0, -10.086775)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD65" parent="Actors/Enemies" unique_id=1851279623 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.71741, 0, -8.570543)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD66" parent="Actors/Enemies" unique_id=296935559 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.034639, 0, -8.570543)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD67" parent="Actors/Enemies" unique_id=1626675860 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.034639, 0, -6.693573)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD6" parent="Actors/Enemies" unique_id=1953074675 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.444647, 0, -13.123986)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD7" parent="Actors/Enemies" unique_id=1056508700 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.126747, 0, -13.123986)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD8" parent="Actors/Enemies" unique_id=637490424 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.698947, 0, -13.123986)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD9" parent="Actors/Enemies" unique_id=369591485 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -13.103125)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD10" parent="Actors/Enemies" unique_id=1850954276 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -11.964224)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD11" parent="Actors/Enemies" unique_id=780685523 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -10.316468)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD12" parent="Actors/Enemies" unique_id=162059306 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -8.796083)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD13" parent="Actors/Enemies" unique_id=1453367287 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -7.533005)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD14" parent="Actors/Enemies" unique_id=1404814675 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -5.533005)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD15" parent="Actors/Enemies" unique_id=536469571 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.184423, 0, -3.8982277)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD16" parent="Actors/Enemies" unique_id=1468564074 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.4430895, 0, -3.8982277)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD17" parent="Actors/Enemies" unique_id=1663212726 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.4430895, 0, -5.142996)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD18" parent="Actors/Enemies" unique_id=612275406 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.4430895, 0, -6.458069)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD20" parent="Actors/Enemies" unique_id=973097668 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -10.4430895, 0, -9.63599)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD21" parent="Actors/Enemies" unique_id=1002218054 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -10.4430895, 0, -11.143593)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD22" parent="Actors/Enemies" unique_id=1538129720 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -11.143593)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD23" parent="Actors/Enemies" unique_id=101027738 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -9.080999)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD24" parent="Actors/Enemies" unique_id=997312227 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -7.4551344)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD25" parent="Actors/Enemies" unique_id=1145802422 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -6.11275)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD26" parent="Actors/Enemies" unique_id=2018852390 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -4.2168427)
-target_path = NodePath("../../Player")
-
-[node name="EnemyD27" parent="Actors/Enemies" unique_id=1010125158 instance=ExtResource("2")]
-transform = Transform3D(0.99912864, 0.006685595, -0.04119804, -0.0065062866, 0.99996877, 0.004484851, 0.04122674, -0.0042128935, 0.9991409, -8.3527565, 0, -3.1923661)
-target_path = NodePath("../../Player")
-
-[node name="EnemyE" parent="Actors/Enemies" unique_id=1891705640 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -6.5)
-target_path = NodePath("../../Player")
-
-[node name="TargetDummy" parent="Actors/Enemies" unique_id=1024000001 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
-move_speed = 0.0
-target_path = NodePath("../../Player")
+[node name="SpawnWarmupManager" type="Node" parent="." unique_id=240886846]
+script = ExtResource("6")
 
 [node name="Projectiles" type="Node3D" parent="." unique_id=240886847]
 
@@ -504,12 +356,18 @@ target_path = NodePath("../../Player")
 
 [node name="DebugOverlay" parent="." unique_id=240886849 instance=ExtResource("3")]
 
-[node name="CameraRig" type="Node3D" parent="." unique_id=1191528715]
+[node name="CameraRig" parent="." unique_id=1191528715 instance=ExtResource("5")]
+target_path = NodePath("../Actors/Player")
+follow_lerp_speed = 8.0
+rotation_drag_degrees_per_pixel = 0.2
+min_zoom_distance = 10.0
+max_zoom_distance = 27.0
+default_zoom_distance = 25.612497
+zoom_step = 1.0
+zoom_lerp_speed = 14.0
 
-[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=662466961]
-transform = Transform3D(1, 0, 0, 0, 0.6156615, 0.7880107, 0, -0.7880107, 0.6156615, 0, 20, 16)
-current = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=719074496]
 transform = Transform3D(0.81915206, -0.46984634, 0.32898995, 0, 0.57357645, 0.81915206, -0.57357645, -0.6710101, 0.46984634, 0, 0, 0)
 light_energy = 2.0
+

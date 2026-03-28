@@ -61,7 +61,9 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 
 ### Input Space
 - If `camera_relative_movement = true`:
-  - movement basis uses camera forward/right projected on XZ.
+  - movement basis uses the active gameplay camera forward/right projected on XZ.
+  - camera pitch must not directly tilt movement into the ground or air.
+  - if the camera rotates around the player, movement intent rotates with it.
 - Else:
   - movement basis uses player local forward/right projected on XZ.
 

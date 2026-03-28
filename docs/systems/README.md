@@ -9,6 +9,7 @@ This folder contains active gameplay-rule documents.
 
 ## Document Roles
 - [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md): current player movement and traversal runtime behavior in the prototype.
+- [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md): gameplay camera style, follow behavior, rotation, zoom, and movement-facing expectations.
 - [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md): gameplay meaning of crouch, vault, connectors, and elevation.
 - [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md): combat rules and current combat prototype scope.
 - [classes-and-abilities.md](d:/Game/DEV/iiWii/iiwii/docs/systems/classes-and-abilities.md): future-facing role and ability model, not the main current milestone.
@@ -24,6 +25,7 @@ This folder contains active gameplay-rule documents.
 ## Current Priority
 - Highest priority for the current milestone:
   - [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md)
+  - [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md)
   - [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md)
   - [death-and-extraction.md](d:/Game/DEV/iiWii/iiwii/docs/systems/death-and-extraction.md)
   - [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md)
