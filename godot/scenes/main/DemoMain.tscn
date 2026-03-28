@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/debug/DebugOverlay.tscn" id="3"]
 [ext_resource type="Script" uid="uid://dqxjd0uewlqbu" path="res://scripts/main/demo_main_controller.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/camera/GameplayCameraRig.tscn" id="5"]
+[ext_resource type="Script" path="res://scripts/main/spawn_warmup_manager.gd" id="6"]
 
 [sub_resource type="Environment" id="11"]
 background_mode = 1
@@ -346,6 +347,9 @@ target_path = NodePath("../../Player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3389854, 0, -8.575111)
 target_path = NodePath("../../Player")
 
+[node name="SpawnWarmupManager" type="Node" parent="." unique_id=240886846]
+script = ExtResource("6")
+
 [node name="Projectiles" type="Node3D" parent="." unique_id=240886847]
 
 [node name="DebugWorld" type="Node3D" parent="." unique_id=240886848]
@@ -366,7 +370,4 @@ zoom_lerp_speed = 14.0
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=719074496]
 transform = Transform3D(0.81915206, -0.46984634, 0.32898995, 0, 0.57357645, 0.81915206, -0.57357645, -0.6710101, 0.46984634, 0, 0, 0)
 light_energy = 2.0
-
-
-
 

@@ -19,6 +19,7 @@ Last validated: pending
 - Player movement, enemy chase, and first-pass combat files now exist.
 - The melee close-range and player-enemy crowd-pressure baselines are implemented for the current milestone.
 - No further melee-navigation follow-up is currently planned; camera control and framing is the active gameplay slice.
+- DemoMain now owns a shared spawn warm-up path for gameplay-critical runtime scenes that would otherwise hitch on first live use.
 
 ## Entry Format
 Use one row per important runtime file or scene once implementation starts.
@@ -26,8 +27,9 @@ Use one row per important runtime file or scene once implementation starts.
 | Path | Type | Owns | Referenced By | Primary Docs |
 | --- | --- | --- | --- | --- |
 | `godot/project.godot` | project config | Godot project bootstrap and main scene entry | Godot editor runtime | [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md) |
-| `godot/scenes/main/DemoMain.tscn` | scene | Initial playable world scaffold plus the current melee close-range validation layout, spawn anchors, nav region, actor placement, a stationary target dummy, a reachable elevated shooting test platform, a denser multi-line enemy crowd fixture, and shared debug overlay/world anchors | `godot/project.godot` | [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
-| `godot/scripts/main/demo_main_controller.gd` | script | Global demo-scene input handling for shared runtime debug menu controls | `godot/scenes/main/DemoMain.tscn` | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
+| `godot/scenes/main/DemoMain.tscn` | scene | Initial playable world scaffold plus the current melee close-range validation layout, spawn anchors, nav region, actor placement, a stationary target dummy, a reachable elevated shooting test platform, a denser multi-line enemy crowd fixture, shared debug overlay/world anchors, and the scene-level spawn warm-up owner used for first-use runtime hitch prevention | `godot/project.godot` | [first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
+| `godot/scripts/main/demo_main_controller.gd` | script | Global demo-scene input handling plus registration of gameplay-critical spawned scene warm-ups for the current playable map | `godot/scenes/main/DemoMain.tscn` | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md), [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md) |
+| `godot/scripts/main/spawn_warmup_manager.gd` | script | Shared scene-level queue that instantiates, tree-registers, and frees gameplay-critical spawned scenes during startup so first live use avoids one-time hitching | `godot/scenes/main/DemoMain.tscn`, `godot/scripts/main/demo_main_controller.gd` | [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md) |
 | `godot/scenes/camera/GameplayCameraRig.tscn` | scene | Reusable gameplay camera prefab shell that packages the camera rig script, yaw pivot, and active Camera3D for any playable map | `godot/scenes/main/DemoMain.tscn` | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 | `godot/scripts/main/gameplay_camera_rig.gd` | script | Soft-follow gameplay camera ownership, player-controlled yaw rotation, constrained zoom handling, and camera rig transform updates around the tracked player | `godot/scenes/camera/GameplayCameraRig.tscn`, `godot/scripts/player/player_controller.gd` | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 | `godot/scenes/player/Player.tscn` | scene | Player actor root, collision, visible body, and chest-height projectile spawn anchor | `godot/scenes/main/DemoMain.tscn` | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
@@ -59,8 +61,4 @@ Use one row per important runtime file or scene once implementation starts.
 When the next steps start, add entries for:
 - any shared tuning or config resource
 - combat feedback or hit VFX files
-
-
-
-
 
