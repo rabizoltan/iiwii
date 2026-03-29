@@ -20,6 +20,7 @@
 - Slice 4 - Player-enemy collision and crowd pressure: `stable-baseline`
 - Slice 5 - Combat feedback and debug behavior: `parked`
 - Slice 6 - Player mobility foundation: `completed`
+- Slice 7 - Player vault traversal: `active`
 - Future Planning - Remaining traversal slices: `planned`
 
 ## Recommended Order
@@ -29,7 +30,8 @@
 4. Player-enemy collision and crowd pressure
 5. Combat feedback and debug behavior only if explicitly reopened later
 6. Player mobility foundation
-7. Vault or crouch traversal after explicit scope selection
+7. Player vault traversal
+8. Vault follow-up traversal slices such as crouch or mantle after explicit scope selection
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md)
@@ -37,8 +39,9 @@
 3. After player attack and debug control are validated, continue with the historical slice note at [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md) while treating [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) as the current behavior source of truth
 4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
 5. If combat feedback becomes a priority later, rescope from [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md) instead of treating it as an active plan
-6. The first traversal follow-up is now complete at [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
-7. When traversal work becomes a priority again, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
+6. The first traversal follow-up is complete at [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
+7. The current next traversal implementation target is [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+8. Future mantle or climb-up work now has its own separate planning document at [player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -150,6 +153,23 @@ Current state:
 Execution priority:
 - completed
 
+## Slice 7 - Player Vault Traversal
+Status: `active`
+
+Plan file:
+- [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+
+Why here:
+- It is the next highest-value traversal slice after mobility because it adds low obstacle traversal without mixing in climb-up behavior.
+
+Current state:
+- The design boundary is now documented: vault crosses low authored obstacles and returns to roughly the same floor level.
+- Mantle or climb-up remains a separate later slice.
+- No implementation has landed yet.
+
+Execution priority:
+- next traversal implementation target
+
 ## Future Planning - Remaining Traversal Slices
 Status: `planned`
 
@@ -157,15 +177,16 @@ Plan file:
 - [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Why separate:
-- Vault and crouch still affect collision, input priority, combat flow, and traversal geometry differently from the new mobility baseline.
-- They should not be reopened implicitly through the crowd-pressure slice or mixed into combat feedback work.
+- Vault, crouch, and mantle still affect collision, input priority, combat flow, and traversal geometry in different ways.
+- They should not be mixed into one catch-all traversal pass.
 
 Current state:
 - The movement spec now includes a real shared dodge/dash mobility foundation.
-- Vault and crouch remain unimplemented follow-up slices.
+- Vault is the active next slice.
+- Crouch and mantle remain unimplemented follow-up slices.
 
 Recommendation:
-- Treat vault and crouch as the next explicit traversal slices under the shared traversal roadmap.
+- Treat vault, crouch, and mantle as separate explicit slices under the shared traversal roadmap.
 
 ## Rule For Next Work
 - Do not reopen the completed mobility foundation slice for casual tuning.

@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://bhuxyjb4k3g7a"]
+
+[ext_resource type="PackedScene" uid="uid://bjbms32vk2cff" path="res://Assets/KayKitDungeonRemastered/table_long_decorated_A.gltf.glb" id="1_kkgd8"]
+[ext_resource type="PackedScene" path="res://scenes/traversal/VaultTrigger.tscn" id="2_u4qba"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7wgwf"]
+size = Vector3(1.9859009, 1, 7.6245956)
+
+[node name="Table" type="StaticBody3D" unique_id=1776583534 groups=["Navigation"]]
+
+[node name="table_long_decorated_A_gltf" parent="." unique_id=1066644772 instance=ExtResource("1_kkgd8")]
+
+[node name="table_long_decorated_A_gltf2" parent="." unique_id=1930219068 instance=ExtResource("1_kkgd8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.660378)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1898634533]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.01626587, 0.54212236, 1.8040886)
+shape = SubResource("BoxShape3D_7wgwf")
+
+[node name="VaultSegments" type="Node3D" parent="." unique_id=808165951]
+
+[node name="SegmentTop" type="Node3D" parent="VaultSegments" unique_id=702936713]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.35)
+
+[node name="EntryFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentTop" unique_id=715640200]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, 0, 0)
+
+[node name="ExitFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentTop" unique_id=1895356060]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0, 0)
+
+[node name="EntryLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentTop" unique_id=1381476969]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, 0)
+
+[node name="ExitLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentTop" unique_id=1290163721]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
+
+[node name="VaultTrigger" parent="VaultSegments/SegmentTop" unique_id=1620875994 instance=ExtResource("2_u4qba")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.58, 0, 0.92, 0)
+directionality = 2
+obstacle_height = 0.8
+entry_face_anchor_path = NodePath("../EntryFaceAnchor")
+exit_face_anchor_path = NodePath("../ExitFaceAnchor")
+entry_landing_anchor_path = NodePath("../EntryLandingAnchor")
+exit_landing_anchor_path = NodePath("../ExitLandingAnchor")
+
+[node name="SegmentMid" type="Node3D" parent="VaultSegments" unique_id=1487862725]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.8)
+
+[node name="EntryFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentMid" unique_id=862636851]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72, 0, 0)
+
+[node name="ExitFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentMid" unique_id=1483729021]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.72, 0, 0)
+
+[node name="EntryLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentMid" unique_id=570615250]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, 0)
+
+[node name="ExitLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentMid" unique_id=391020731]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, 0)
+
+[node name="VaultTrigger" parent="VaultSegments/SegmentMid" unique_id=1767568076 instance=ExtResource("2_u4qba")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 0.58, 0, 0.92, 0)
+directionality = 2
+obstacle_height = 0.8
+entry_face_anchor_path = NodePath("../EntryFaceAnchor")
+exit_face_anchor_path = NodePath("../ExitFaceAnchor")
+entry_landing_anchor_path = NodePath("../EntryLandingAnchor")
+exit_landing_anchor_path = NodePath("../ExitLandingAnchor")
+
+[node name="SegmentBottom" type="Node3D" parent="VaultSegments" unique_id=1545560180]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.75)
+
+[node name="EntryFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentBottom" unique_id=1018786274]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8790567, 0, 0)
+
+[node name="ExitFaceAnchor" type="Marker3D" parent="VaultSegments/SegmentBottom" unique_id=156819588]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.903527, 0, 0)
+
+[node name="EntryLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentBottom" unique_id=223472177]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0575917, 0, 0)
+
+[node name="ExitLandingAnchor" type="Marker3D" parent="VaultSegments/SegmentBottom" unique_id=471095785]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.0315766, 0, 0)
+
+[node name="VaultTrigger" parent="VaultSegments/SegmentBottom" unique_id=1264160116 instance=ExtResource("2_u4qba")]
+transform = Transform3D(1.42391, 0, 0, 0, 1, 0, 0, 0, 0.58, 0, 0.92, 0)
+directionality = 2
+obstacle_height = 1.0
+entry_face_anchor_path = NodePath("../EntryFaceAnchor")
+exit_face_anchor_path = NodePath("../ExitFaceAnchor")
+entry_landing_anchor_path = NodePath("../EntryLandingAnchor")
+exit_landing_anchor_path = NodePath("../ExitLandingAnchor")

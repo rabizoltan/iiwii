@@ -22,10 +22,17 @@ enum MobilityProfile {
 @export var dash_cooldown: float = 1.25
 @export_range(0.0, 1.0) var dash_enemy_ghost_start: float = 0.0
 @export_range(0.0, 1.0) var dash_enemy_ghost_end: float = 1.0
+@export var vault_duration: float = 0.6
+@export var vault_activation_distance: float = 1.2
+@export_range(0.0, 89.0) var vault_facing_angle_degrees: float = 45.0
+@export var vault_arc_min_height: float = 0.2
+@export var vault_arc_max_height: float = 2.5
+@export var vault_same_floor_tolerance: float = 0.6
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _attack_cooldown_remaining: float = 0.0
 var _mobility_cooldown_remaining: float = 0.0
+var _active_vault_triggers: Array[VaultTrigger] = []
 var _last_move_direction: Vector3 = Vector3.FORWARD
 var _mobility_active: bool = false
 var _mobility_elapsed: float = 0.0
@@ -35,6 +42,14 @@ var _mobility_speed: float = 0.0
 var _mobility_distance_remaining: float = 0.0
 var _mobility_ghost_active: bool = false
 var _mobility_enemy_exceptions: Array[PhysicsBody3D] = []
+var _vault_active: bool = false
+var _vault_elapsed: float = 0.0
+var _vault_duration_current: float = 0.0
+var _vault_start_position: Vector3 = Vector3.ZERO
+var _vault_end_position: Vector3 = Vector3.ZERO
+var _vault_direction: Vector3 = Vector3.ZERO
+var _vault_arc_height: float = 0.0
+var _vault_ghost_active: bool = false
 
 
 func _physics_process(delta: float) -> void:
@@ -50,6 +65,10 @@ func _physics_process(delta: float) -> void:
 	if _mobility_cooldown_remaining > 0.0:
 		_mobility_cooldown_remaining = maxf(_mobility_cooldown_remaining - delta, 0.0)
 
+	if _vault_active:
+		_process_vault(delta)
+		return
+
 	if _mobility_active:
 		_process_mobility(delta)
 		return
@@ -59,13 +78,18 @@ func _physics_process(delta: float) -> void:
 			_process_mobility(delta)
 			return
 
+	if Input.is_action_just_pressed("vault"):
+		if _try_start_vault(move_direction):
+			_process_vault(delta)
+			return
+
 	if move_direction.length_squared() > 0.0:
 		move_direction = move_direction.normalized()
 		var target_velocity: Vector3 = move_direction * move_speed
 		velocity.x = target_velocity.x
 		velocity.z = target_velocity.z
 
-		var target_yaw: float = atan2(move_direction.x, move_direction.z)
+		var target_yaw: float = _yaw_from_direction(move_direction)
 		rotation.y = lerp_angle(rotation.y, target_yaw, turn_speed * delta)
 	else:
 		velocity.x = 0.0
@@ -80,6 +104,68 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("attack"):
 		_try_attack()
+
+
+func register_vault_trigger(trigger: VaultTrigger) -> void:
+	if trigger == null or _active_vault_triggers.has(trigger):
+		return
+
+	_active_vault_triggers.append(trigger)
+
+
+func unregister_vault_trigger(trigger: VaultTrigger) -> void:
+	_active_vault_triggers.erase(trigger)
+
+
+func _try_start_vault(move_direction: Vector3) -> bool:
+	if _vault_active or _mobility_active or not is_on_floor():
+		return false
+
+	if move_direction.length_squared() <= 0.0:
+		return false
+
+	var movement_direction: Vector3 = move_direction.normalized()
+	var min_alignment_dot: float = cos(deg_to_rad(vault_facing_angle_degrees))
+	var best_candidate: Dictionary = {}
+	var best_distance_sq: float = INF
+
+	for trigger in _active_vault_triggers:
+		if trigger == null or not is_instance_valid(trigger):
+			continue
+
+		var candidate: Dictionary = trigger.get_candidate(
+			self,
+			movement_direction,
+			min_alignment_dot,
+			vault_activation_distance,
+			vault_same_floor_tolerance
+		)
+		if candidate.is_empty():
+			continue
+
+		var distance_sq: float = float(candidate["distance_sq"])
+		if distance_sq < best_distance_sq:
+			best_candidate = candidate
+			best_distance_sq = distance_sq
+
+	if best_candidate.is_empty():
+		return false
+
+	var duration_override: float = float(best_candidate["duration_override"])
+	_vault_duration_current = duration_override if duration_override > 0.0 else vault_duration
+	if _vault_duration_current <= 0.0:
+		return false
+
+	_vault_active = true
+	_vault_elapsed = 0.0
+	_vault_start_position = global_position
+	_vault_end_position = best_candidate["landing_position"]
+	_vault_direction = best_candidate["travel_direction"]
+	_vault_arc_height = clampf(float(best_candidate["arc_height"]), vault_arc_min_height, vault_arc_max_height)
+	velocity = Vector3.ZERO
+	rotation.y = _yaw_from_direction(_vault_direction)
+	_set_vault_enemy_ghosting(true)
+	return true
 
 
 func _try_attack() -> void:
@@ -146,7 +232,7 @@ func _resolve_aim_target() -> Dictionary:
 
 
 func _try_start_mobility(move_direction: Vector3) -> bool:
-	if _mobility_active or _mobility_cooldown_remaining > 0.0:
+	if _mobility_active or _vault_active or _mobility_cooldown_remaining > 0.0:
 		return false
 
 	var direction: Vector3 = _resolve_mobility_direction(move_direction)
@@ -167,7 +253,7 @@ func _try_start_mobility(move_direction: Vector3) -> bool:
 	_mobility_distance_remaining = distance
 	_mobility_cooldown_remaining = float(profile["cooldown"])
 	velocity = Vector3.ZERO
-	rotation.y = atan2(direction.x, direction.z)
+	rotation.y = _yaw_from_direction(direction)
 	_update_mobility_enemy_ghosting(0.0)
 	return true
 
@@ -205,6 +291,63 @@ func _finish_mobility() -> void:
 	_clear_mobility_enemy_exceptions()
 
 
+func _process_vault(delta: float) -> void:
+	_vault_elapsed = minf(_vault_elapsed + delta, _vault_duration_current)
+	var progress: float = _vault_elapsed / maxf(_vault_duration_current, 0.0001)
+	var base_position: Vector3 = _vault_start_position.lerp(_vault_end_position, progress)
+	var arc_offset: float = sin(progress * PI) * _vault_arc_height
+	var target_position: Vector3 = base_position
+	target_position.y += arc_offset
+
+	rotation.y = _yaw_from_direction(_vault_direction)
+	global_position = target_position
+	velocity = Vector3.ZERO
+
+	if _vault_elapsed >= _vault_duration_current:
+		_finish_vault()
+
+
+func _finish_vault() -> void:
+	velocity = Vector3.ZERO
+	_vault_active = false
+	_vault_elapsed = 0.0
+	_vault_duration_current = 0.0
+	_vault_start_position = Vector3.ZERO
+	_vault_end_position = Vector3.ZERO
+	_vault_direction = Vector3.ZERO
+	_vault_arc_height = 0.0
+	_set_vault_enemy_ghosting(false)
+	_resolve_enemy_overlap_after_vault()
+
+
+func _set_vault_enemy_ghosting(active: bool) -> void:
+	if _vault_ghost_active == active:
+		return
+
+	_vault_ghost_active = active
+	if _vault_ghost_active:
+		_apply_mobility_enemy_exceptions()
+	else:
+		_clear_mobility_enemy_exceptions()
+
+
+func _resolve_enemy_overlap_after_vault() -> void:
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		var enemy_body: PhysicsBody3D = enemy as PhysicsBody3D
+		if enemy_body == null or not is_instance_valid(enemy_body):
+			continue
+
+		var to_player: Vector3 = global_position - enemy_body.global_position
+		to_player.y = 0.0
+		var distance: float = to_player.length()
+		if distance >= 0.9:
+			continue
+
+		var push_direction: Vector3 = to_player.normalized() if distance > 0.001 else _resolve_mobility_direction(_last_move_direction)
+		var push_amount: float = minf(0.2, 0.9 - distance)
+		global_position += push_direction * push_amount
+
+
 func _resolve_mobility_direction(move_direction: Vector3) -> Vector3:
 	if move_direction.length_squared() > 0.0:
 		return move_direction.normalized()
@@ -218,6 +361,16 @@ func _resolve_mobility_direction(move_direction: Vector3) -> Vector3:
 		return forward.normalized()
 
 	return Vector3.FORWARD
+
+
+func _yaw_from_direction(direction: Vector3) -> float:
+	var horizontal_direction: Vector3 = direction
+	horizontal_direction.y = 0.0
+	if horizontal_direction.length_squared() <= 0.0:
+		return rotation.y
+
+	horizontal_direction = horizontal_direction.normalized()
+	return atan2(-horizontal_direction.x, -horizontal_direction.z)
 
 
 func _get_current_mobility_profile() -> Dictionary:

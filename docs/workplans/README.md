@@ -18,6 +18,7 @@ This folder contains implementation sequencing and delivery plans.
 - `roadmaps/`: higher-level sequencing docs that point to multiple slices or future branches of work.
 - `completed/`: closed slices and finished implementation plans kept as delivery history.
 - `handoffs/`: session handoff documents for restart context.
+- `planned/`: future slice notes that should not be treated as active execution plans yet.
 - `stale/`: superseded plans kept only for historical context or link preservation.
 
 ## Status Rules
@@ -34,7 +35,8 @@ This folder contains implementation sequencing and delivery plans.
 - Completed first playable Godot foundation slice
 - Treat the current melee-navigation baseline as closed for now; do not keep open follow-up navigation slices without an explicit new decision
 - The camera control and framing slice is complete for the current milestone; future maps should reuse the shared gameplay camera scene
-- The shared dodge/dash mobility foundation is complete; the next traversal implementation should be an explicitly chosen vault or crouch slice
+- The shared dodge/dash mobility foundation is complete
+- The current active traversal planning slice is player vault traversal, explicitly kept separate from later mantle or climb-up work
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -56,13 +58,14 @@ This folder contains implementation sequencing and delivery plans.
 ## Current Workplans
 - [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
-- There is currently no active traversal slice open; the shared mobility baseline is complete and future traversal work should start from a newly chosen vault or crouch slice.
+- [active/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md): active traversal slice for contextual low-obstacle vaulting using authored traversal affordances.
+- [planned/player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md): future mantle/climb-up planning note kept separate from the active vault slice.
 - [completed/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md): completed traversal slice for the shared dodge/dash mobility foundation.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
 - [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.
 - [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md): completed dense-scene enemy navigation performance pass record.
 - [roadmaps/behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md): planning entry point for the current behavior-slice sequence.
-- [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, and crouch traversal slices.
+- [roadmaps/player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md): parent roadmap for future dodge/dash, vault, crouch, and mantle traversal slices.
 - [completed/first-playable-vertical-slice-execution-plan.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/first-playable-vertical-slice-execution-plan.md): completed foundation milestone that proved the first runnable gameplay slice.
 - [completed/player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md): completed behavior slice for world-aimed player projectile attacks.
 - [completed/debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md): completed shared debug control slice centered on the `F3` overlay.

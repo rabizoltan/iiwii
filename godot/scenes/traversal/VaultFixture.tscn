@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://c7et14sps075"]
+
+[ext_resource type="Script" uid="uid://bjg00fvbjys37" path="res://scripts/traversal/vault_fixture.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/traversal/VaultTrigger.tscn" id="2"]
+
+[sub_resource type="BoxShape3D" id="1"]
+size = Vector3(2.4, 0.75, 1)
+
+[sub_resource type="StandardMaterial3D" id="2"]
+albedo_color = Color(0.611765, 0.482353, 0.329412, 1)
+
+[sub_resource type="BoxMesh" id="3"]
+size = Vector3(2.4, 0.75, 1)
+
+[sub_resource type="BoxShape3D" id="4"]
+size = Vector3(1.2, 1.4, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="5"]
+albedo_color = Color(0.862745, 0.317647, 0.266667, 1)
+
+[sub_resource type="BoxMesh" id="6"]
+size = Vector3(1.2, 1.4, 1.2)
+
+[node name="VaultFixture" type="Node3D" unique_id=853824104]
+script = ExtResource("1")
+
+[node name="VaultWall" type="StaticBody3D" parent="." unique_id=907932524 groups=["Navigation"]]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="VaultWall" unique_id=1440531572]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, 0)
+shape = SubResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="VaultWall" unique_id=739552503]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.375, 0)
+material_override = SubResource("2")
+mesh = SubResource("3")
+
+[node name="LandingBlocker" type="StaticBody3D" parent="." unique_id=1015240893 groups=["Navigation"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 1.75)
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LandingBlocker" unique_id=2040315013]
+shape = SubResource("4")
+disabled = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="LandingBlocker" unique_id=1109019394]
+material_override = SubResource("5")
+mesh = SubResource("6")
+
+[node name="EntryFaceAnchor" type="Marker3D" parent="." unique_id=1763218203]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.65)
+
+[node name="ExitFaceAnchor" type="Marker3D" parent="." unique_id=759411091]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.65)
+
+[node name="EntryLandingAnchor" type="Marker3D" parent="." unique_id=251552116]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.55)
+
+[node name="ExitLandingAnchor" type="Marker3D" parent="." unique_id=41242909]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.55)
+
+[node name="VaultTrigger" parent="." unique_id=373803786 instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.38055572)
+directionality = 2
+obstacle_height = 0.3
+entry_face_anchor_path = NodePath("../EntryFaceAnchor")
+exit_face_anchor_path = NodePath("../ExitFaceAnchor")
+entry_landing_anchor_path = NodePath("../EntryLandingAnchor")
+exit_landing_anchor_path = NodePath("../ExitLandingAnchor")
