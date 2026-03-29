@@ -1,14 +1,15 @@
 # Movement Spec
 Category: Runtime System
 Role: Reference Contract
-Last updated: 2026-03-16
+Last updated: 2026-03-29
 Last validated: pending
 
-This document defines the intended runtime player locomotion/traversal behavior for the vertical slice.
+This document defines the intended runtime player locomotion and current first-pass mobility behavior for the vertical slice.
 
 ## Scope
-- This is a behavior specification, not a claim about files currently present in this repository.
-- Concrete scene, script, and tuning asset paths should be added only after the gameplay project structure exists here.
+- This document now reflects current runtime truth for baseline movement and the first shared mobility foundation.
+- The current runtime owner is `godot/scripts/player/player_controller.gd`.
+- Vault and crouch remain reference-contract behavior until their implementation slices land.
 
 ## State Machine
 
@@ -25,7 +26,7 @@ This document defines the intended runtime player locomotion/traversal behavior 
 4. Then handle attacks.
 5. Then crouch state update, facing update, and movement.
 
-This ordering means vault/dodge are traversal-lock states that suppress regular movement and attacks for that tick.
+This ordering means vault and dodge are traversal-lock states that suppress regular movement and attacks for that tick.
 
 ## Transitions
 
@@ -36,6 +37,7 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 
 ### Any Non-Lock State -> Dodging
 - Trigger: `dodge` action just pressed.
+- Current implementation uses one shared mobility runtime with a tunable `mobility_profile` that can behave as either a short `dodge` or a longer `dash`.
 - Blocked when:
   - `dodge_cooldown_remaining > 0`
   - current state is `VAULTING`
@@ -61,11 +63,11 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 
 ### Input Space
 - If `camera_relative_movement = true`:
-  - movement basis uses the active gameplay camera forward/right projected on XZ.
+  - movement basis uses the active gameplay camera forward and right projected on XZ.
   - camera pitch must not directly tilt movement into the ground or air.
   - if the camera rotates around the player, movement intent rotates with it.
 - Else:
-  - movement basis uses player local forward/right projected on XZ.
+  - movement basis uses player local forward and right projected on XZ.
 
 ### Target Speed
 - Standing speed: `move_speed`
@@ -84,16 +86,14 @@ This ordering means vault/dodge are traversal-lock states that suppress regular 
 - In air: `velocity.y -= gravity * delta`
 
 ## Dodge Behavior
-- Dodge duration: `dodge_duration`
-- Dodge displacement:
-  - if `dodge_speed > 0`: `dodge_speed * dodge_duration`
-  - else: `dodge_distance`
-- Position is interpolated from start to end over normalized dodge progress.
-- I-frame window:
-  - invulnerable when progress in `[dodge_iframes_start, dodge_iframes_end]`
+- The current implementation uses one shared mobility foundation that can be tuned into either a short `dodge` profile or a longer `dash` profile.
+- Travel duration is driven by profile duration exports.
+- Travel displacement is driven by profile distance exports.
+- Position is interpolated from start to end over normalized travel progress.
 - Collision behavior:
-  - dodge should also grant a short `ghosted` or `unhindered` window against enemy bodies so dense contact can be escaped explicitly
-  - this window should be driven by dodge state, not by baseline locomotion pushing enemies away
+  - mobility grants a short tunable `ghosted` or `unhindered` window against enemy bodies so dense contact can be escaped explicitly
+  - this window is driven by mobility state, not by baseline locomotion pushing enemies away
+- Future invulnerability, blink, and authored trail or end effects remain follow-up work rather than current runtime truth.
 
 ## Vault Behavior
 - Vault duration: `vault_duration`
@@ -114,6 +114,7 @@ Default input mapping target:
 - No jump state
 - No slope-specific locomotion model
 - No stamina gating
+- No blink or teleport mobility in the current slice
 
 ## Player vs Enemy Collision Direction
 - Normal locomotion should not push enemies away as a baseline movement rule.

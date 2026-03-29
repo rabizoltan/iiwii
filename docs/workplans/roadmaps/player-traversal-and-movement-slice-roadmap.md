@@ -30,11 +30,14 @@ The better structure is:
 
 ### Slice A - Player Dodge Or Dash Traversal
 Status:
-- `planned`
+- `active`
+
+Plan file:
+- [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md)
 
 Suggested scope:
-1. directional dodge or dash activation
-2. duration, speed, and cooldown rules
+1. one shared mobility action foundation with tunable `dodge` and `dash` profiles
+2. duration, speed, distance, and cooldown rules
 3. temporary `ghosted` or `unhindered` enemy-body behavior
 4. interaction with aiming and attack lockouts
 
@@ -77,11 +80,9 @@ Why third:
 - [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md)
 
 ## Suggested Restart Point
-When work resumes, start by deciding whether Slice A should be:
-1. a short dodge
-2. a longer dash
-3. or a single movement skill with tuning values that can later branch
+Current decision:
+1. build one shared mobility foundation
+2. support two initial tunable profiles: short `dodge` and longer `dash`
+3. defer blink/teleport and class-aware specialization to later slices
 
-That decision should be made before code changes begin.
-
-After that decision, create or update a focused active slice doc before implementation.
+Implementation should now continue from [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md).

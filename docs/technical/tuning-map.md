@@ -1,7 +1,7 @@
 # Tuning Map
 Category: Runtime Architecture
 Role: Runtime Truth
-Last updated: 2026-03-28
+Last updated: 2026-03-29
 Last validated: 2026-03-28
 
 ## Purpose
@@ -24,6 +24,7 @@ Last validated: 2026-03-28
 | Area | Current owner | Current tuning surface | Notes | Related docs |
 | --- | --- | --- | --- | --- |
 | Player movement | `godot/scripts/player/player_controller.gd` | `move_speed`, `turn_speed` | Current baseline movement tuning is script-owned and now uses the active gameplay camera basis. | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |
+| Player mobility foundation | `godot/scripts/player/player_controller.gd` | `mobility_profile`, `dodge_distance`, `dodge_duration`, `dodge_cooldown`, `dodge_enemy_ghost_start`, `dodge_enemy_ghost_end`, `dash_distance`, `dash_duration`, `dash_cooldown`, `dash_enemy_ghost_start`, `dash_enemy_ghost_end` | The first traversal implementation keeps dodge/dash profile tuning in the player controller and uses one shared mobility runtime path. | [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md), [tuning-and-stats.md](d:/Game/DEV/iiWii/iiwii/docs/systems/tuning-and-stats.md) |
 | Camera framing and controls | `godot/scripts/main/gameplay_camera_rig.gd` | `follow_lerp_speed`, `rotation_drag_degrees_per_pixel`, `pitch_degrees`, `min_zoom_distance`, `max_zoom_distance`, `default_zoom_distance`, `zoom_step`, `zoom_lerp_speed` | Camera follow, rotation, and zoom tuning are currently script-owned in the gameplay camera rig. | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |
 | Player attack cadence and targeting | `godot/scripts/player/player_controller.gd` | `attack_cooldown`, `aim_collision_mask`, `aim_ray_length` | Current attack cadence and aim query parameters are script-owned. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |
 | Projectile runtime | `godot/scripts/projectiles/projectile.gd` | `speed`, `damage`, `hit_collision_mask` | Projectile speed and damage remain code-owned exports in the current slice. | [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md) |

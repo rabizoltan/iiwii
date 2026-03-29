@@ -1,7 +1,7 @@
 # Validation Map
 Category: Verification
 Role: Verification Guide
-Last updated: 2026-03-28
+Last updated: 2026-03-29
 Last validated: 2026-03-28
 
 ## Purpose
@@ -19,6 +19,7 @@ Last validated: 2026-03-28
 | Validation area | Primary scene / surface | Current method | Main verification docs |
 | --- | --- | --- | --- |
 | Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets, plus first-shot responsiveness after a fresh scene launch | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md) |
+| Player mobility foundation | `godot/scenes/main/DemoMain.tscn`, `Shift` input | manual checks for short dodge profile, longer dash profile, cooldown gating, attack lockout during travel, dense-pack escape behavior, and clean return to normal locomotion after travel ends | [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md) |
 | Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for projectile debug lines and runtime stats visibility | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
 | Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
 | Camera control and framing | `godot/scenes/main/DemoMain.tscn` gameplay camera rig | manual camera checks for soft-follow stability, middle-mouse rotation, zoom in/out, camera-relative movement after rotation, and cursor/world aiming under rotated and zoomed views | [camera-and-framing.md](d:/Game/DEV/iiWii/iiwii/docs/systems/camera-and-framing.md), [camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md) |

@@ -1,27 +1,71 @@
 extends CharacterBody3D
 
+enum MobilityProfile {
+	DODGE,
+	DASH,
+}
+
 @export var move_speed: float = 7.0
 @export var turn_speed: float = 10.0
 @export var projectile_scene: PackedScene
 @export var attack_cooldown: float = 0.5
 @export var aim_collision_mask: int = 3
 @export var aim_ray_length: float = 1000.0
+@export var mobility_profile: MobilityProfile = MobilityProfile.DODGE
+@export var dodge_distance: float = 2.1
+@export var dodge_duration: float = 0.18
+@export var dodge_cooldown: float = 0.75
+@export_range(0.0, 1.0) var dodge_enemy_ghost_start: float = 0.0
+@export_range(0.0, 1.0) var dodge_enemy_ghost_end: float = 1.0
+@export var dash_distance: float = 4.4
+@export var dash_duration: float = 0.26
+@export var dash_cooldown: float = 1.25
+@export_range(0.0, 1.0) var dash_enemy_ghost_start: float = 0.0
+@export_range(0.0, 1.0) var dash_enemy_ghost_end: float = 1.0
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _attack_cooldown_remaining: float = 0.0
+var _mobility_cooldown_remaining: float = 0.0
+var _last_move_direction: Vector3 = Vector3.FORWARD
+var _mobility_active: bool = false
+var _mobility_elapsed: float = 0.0
+var _mobility_duration: float = 0.0
+var _mobility_direction: Vector3 = Vector3.ZERO
+var _mobility_speed: float = 0.0
+var _mobility_distance_remaining: float = 0.0
+var _mobility_ghost_active: bool = false
+var _mobility_enemy_exceptions: Array[PhysicsBody3D] = []
 
 
 func _physics_process(delta: float) -> void:
-	var input_vector := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	var move_direction := _get_move_direction(input_vector)
+	var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	var move_direction: Vector3 = _get_move_direction(input_vector)
+
+	if move_direction.length_squared() > 0.0:
+		_last_move_direction = move_direction.normalized()
+
+	if _attack_cooldown_remaining > 0.0:
+		_attack_cooldown_remaining = maxf(_attack_cooldown_remaining - delta, 0.0)
+
+	if _mobility_cooldown_remaining > 0.0:
+		_mobility_cooldown_remaining = maxf(_mobility_cooldown_remaining - delta, 0.0)
+
+	if _mobility_active:
+		_process_mobility(delta)
+		return
+
+	if Input.is_action_just_pressed("dodge"):
+		if _try_start_mobility(move_direction):
+			_process_mobility(delta)
+			return
 
 	if move_direction.length_squared() > 0.0:
 		move_direction = move_direction.normalized()
-		var target_velocity := move_direction * move_speed
+		var target_velocity: Vector3 = move_direction * move_speed
 		velocity.x = target_velocity.x
 		velocity.z = target_velocity.z
 
-		var target_yaw := atan2(move_direction.x, move_direction.z)
+		var target_yaw: float = atan2(move_direction.x, move_direction.z)
 		rotation.y = lerp_angle(rotation.y, target_yaw, turn_speed * delta)
 	else:
 		velocity.x = 0.0
@@ -34,9 +78,6 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	if _attack_cooldown_remaining > 0.0:
-		_attack_cooldown_remaining = maxf(_attack_cooldown_remaining - delta, 0.0)
-
 	if Input.is_action_just_pressed("attack"):
 		_try_attack()
 
@@ -45,28 +86,28 @@ func _try_attack() -> void:
 	if projectile_scene == null or _attack_cooldown_remaining > 0.0:
 		return
 
-	var aim_target := _resolve_aim_target()
+	var aim_target: Dictionary = _resolve_aim_target()
 	if aim_target.is_empty():
 		return
 
-	var spawn_marker := $ProjectileSpawn as Marker3D
+	var spawn_marker: Marker3D = $ProjectileSpawn as Marker3D
 	var target_position: Vector3 = aim_target["position"]
-	var shot_direction := target_position - spawn_marker.global_position
+	var shot_direction: Vector3 = target_position - spawn_marker.global_position
 	if shot_direction.length_squared() <= 0.0:
 		return
 
-	var projectile := projectile_scene.instantiate()
+	var projectile: Node = projectile_scene.instantiate()
 	if projectile == null:
 		return
 
-	var projectile_parent := get_tree().current_scene.get_node_or_null("Projectiles")
+	var projectile_parent: Node = get_tree().current_scene.get_node_or_null("Projectiles")
 	if projectile_parent == null:
 		projectile_parent = get_tree().current_scene
 
 	projectile_parent.add_child(projectile)
 
 	if projectile is Node3D:
-		projectile.global_position = spawn_marker.global_position
+		(projectile as Node3D).global_position = spawn_marker.global_position
 
 	if projectile.has_method("initialize"):
 		projectile.initialize(shot_direction, target_position, get_rid())
@@ -75,19 +116,19 @@ func _try_attack() -> void:
 
 
 func _resolve_aim_target() -> Dictionary:
-	var camera := get_viewport().get_camera_3d()
+	var camera: Camera3D = get_viewport().get_camera_3d()
 	if camera == null:
 		return {}
 
-	var mouse_position := get_viewport().get_mouse_position()
-	var ray_origin := camera.project_ray_origin(mouse_position)
-	var ray_end := ray_origin + camera.project_ray_normal(mouse_position) * aim_ray_length
+	var mouse_position: Vector2 = get_viewport().get_mouse_position()
+	var ray_origin: Vector3 = camera.project_ray_origin(mouse_position)
+	var ray_end: Vector3 = ray_origin + camera.project_ray_normal(mouse_position) * aim_ray_length
 
 	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end, aim_collision_mask, [get_rid()])
 	query.collide_with_areas = false
 	query.hit_back_faces = true
 
-	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	var result: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	if result.is_empty():
 		return {}
 
@@ -103,19 +144,154 @@ func _resolve_aim_target() -> Dictionary:
 		"collider": collider,
 	}
 
+
+func _try_start_mobility(move_direction: Vector3) -> bool:
+	if _mobility_active or _mobility_cooldown_remaining > 0.0:
+		return false
+
+	var direction: Vector3 = _resolve_mobility_direction(move_direction)
+	if direction.length_squared() <= 0.0:
+		return false
+
+	var profile: Dictionary = _get_current_mobility_profile()
+	var duration: float = float(profile["duration"])
+	var distance: float = float(profile["distance"])
+	if duration <= 0.0 or distance <= 0.0:
+		return false
+
+	_mobility_active = true
+	_mobility_elapsed = 0.0
+	_mobility_duration = duration
+	_mobility_direction = direction
+	_mobility_speed = distance / duration
+	_mobility_distance_remaining = distance
+	_mobility_cooldown_remaining = float(profile["cooldown"])
+	velocity = Vector3.ZERO
+	rotation.y = atan2(direction.x, direction.z)
+	_update_mobility_enemy_ghosting(0.0)
+	return true
+
+
+func _process_mobility(delta: float) -> void:
+	_mobility_elapsed = minf(_mobility_elapsed + delta, _mobility_duration)
+	var progress: float = _mobility_elapsed / maxf(_mobility_duration, 0.0001)
+	var frame_distance: float = minf(_mobility_speed * delta, _mobility_distance_remaining)
+	_mobility_distance_remaining = maxf(_mobility_distance_remaining - frame_distance, 0.0)
+	velocity.x = _mobility_direction.x * _mobility_speed
+	velocity.z = _mobility_direction.z * _mobility_speed
+
+	if not is_on_floor():
+		velocity.y -= _gravity * delta
+	else:
+		velocity.y = 0.0
+
+	_update_mobility_enemy_ghosting(progress)
+	move_and_slide()
+
+	if _mobility_elapsed >= _mobility_duration or _mobility_distance_remaining <= 0.0:
+		_finish_mobility()
+
+
+func _finish_mobility() -> void:
+	_mobility_active = false
+	_mobility_elapsed = 0.0
+	_mobility_duration = 0.0
+	_mobility_direction = Vector3.ZERO
+	_mobility_speed = 0.0
+	_mobility_distance_remaining = 0.0
+	velocity.x = 0.0
+	velocity.z = 0.0
+	_update_mobility_enemy_ghosting(1.0)
+	_clear_mobility_enemy_exceptions()
+
+
+func _resolve_mobility_direction(move_direction: Vector3) -> Vector3:
+	if move_direction.length_squared() > 0.0:
+		return move_direction.normalized()
+
+	if _last_move_direction.length_squared() > 0.0:
+		return _last_move_direction.normalized()
+
+	var forward: Vector3 = -global_transform.basis.z
+	forward.y = 0.0
+	if forward.length_squared() > 0.0:
+		return forward.normalized()
+
+	return Vector3.FORWARD
+
+
+func _get_current_mobility_profile() -> Dictionary:
+	match mobility_profile:
+		MobilityProfile.DASH:
+			return {
+				"distance": dash_distance,
+				"duration": dash_duration,
+				"cooldown": dash_cooldown,
+				"ghost_start": dash_enemy_ghost_start,
+				"ghost_end": dash_enemy_ghost_end,
+			}
+		_:
+			return {
+				"distance": dodge_distance,
+				"duration": dodge_duration,
+				"cooldown": dodge_cooldown,
+				"ghost_start": dodge_enemy_ghost_start,
+				"ghost_end": dodge_enemy_ghost_end,
+			}
+
+
+func _update_mobility_enemy_ghosting(progress: float) -> void:
+	var profile: Dictionary = _get_current_mobility_profile()
+	var ghost_start: float = float(profile["ghost_start"])
+	var ghost_end: float = float(profile["ghost_end"])
+	var should_ghost: bool = progress >= ghost_start and progress <= ghost_end
+	if should_ghost == _mobility_ghost_active:
+		return
+
+	_mobility_ghost_active = should_ghost
+	if _mobility_ghost_active:
+		_apply_mobility_enemy_exceptions()
+	else:
+		_clear_mobility_enemy_exceptions()
+
+
+func _apply_mobility_enemy_exceptions() -> void:
+	_clear_mobility_enemy_exceptions()
+
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		var enemy_body: PhysicsBody3D = enemy as PhysicsBody3D
+		if enemy_body == null:
+			continue
+
+		add_collision_exception_with(enemy_body)
+		enemy_body.add_collision_exception_with(self)
+		_mobility_enemy_exceptions.append(enemy_body)
+
+
+func _clear_mobility_enemy_exceptions() -> void:
+	for enemy_body in _mobility_enemy_exceptions:
+		if enemy_body == null or not is_instance_valid(enemy_body):
+			continue
+
+		remove_collision_exception_with(enemy_body)
+		enemy_body.remove_collision_exception_with(self)
+
+	_mobility_enemy_exceptions.clear()
+
+
 func _get_move_direction(input_vector: Vector2) -> Vector3:
 	if input_vector.length_squared() <= 0.0:
 		return Vector3.ZERO
 
-	var camera := get_viewport().get_camera_3d()
+	var camera: Camera3D = get_viewport().get_camera_3d()
 	if camera == null:
 		return Vector3(input_vector.x, 0.0, input_vector.y)
 
-	var camera_forward := -camera.global_transform.basis.z
+	var camera_forward: Vector3 = -camera.global_transform.basis.z
 	camera_forward.y = 0.0
 	camera_forward = camera_forward.normalized()
 
-	var camera_right := camera.global_transform.basis.x
+	var camera_right: Vector3 = camera.global_transform.basis.x
 	camera_right.y = 0.0
 	camera_right = camera_right.normalized()
 

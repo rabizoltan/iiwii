@@ -55,6 +55,7 @@ This folder contains implementation sequencing and delivery plans.
 ## Current Workplans
 - [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
+- [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md): active traversal slice for the shared dodge/dash mobility foundation.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
 - [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.
 - [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md): completed dense-scene enemy navigation performance pass record.
