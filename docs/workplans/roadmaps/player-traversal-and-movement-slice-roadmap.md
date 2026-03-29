@@ -1,15 +1,15 @@
 # Player Traversal And Movement Slice Roadmap
 
 ## Status
-- `planned`
+- `active`
 
 ## Current Role
-- Parent planning document for future traversal slices.
+- Parent planning document for traversal follow-up slices.
 - This roadmap is not an implementation spec by itself; each traversal feature should still get its own narrower slice before code starts.
 - Current movement and collision truth should be read from [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [code-map.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/code-map.md), and the crowd-pressure baseline at [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md).
 
 ## Purpose
-- Preserve the deferred player movement work as an explicit next-day planning artifact.
+- Preserve the remaining player traversal work as explicit follow-up slices.
 - Keep traversal work separate from combat and enemy crowd-pressure slices.
 - Avoid reopening the crowd-pressure baseline just to add dodge, dash, vault, or crouch behavior ad hoc.
 
@@ -30,20 +30,25 @@ The better structure is:
 
 ### Slice A - Player Dodge Or Dash Traversal
 Status:
-- `active`
+- `completed`
 
 Plan file:
-- [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md)
+- [completed/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
 
-Suggested scope:
+Delivered scope:
 1. one shared mobility action foundation with tunable `dodge` and `dash` profiles
 2. duration, speed, distance, and cooldown rules
-3. temporary `ghosted` or `unhindered` enemy-body behavior
+3. temporary `ghosted` enemy-body behavior during mobility travel
 4. interaction with aiming and attack lockouts
 
 Why first:
-1. It is the most directly connected deferred item from the crowd-pressure slice.
-2. It gives the player an explicit answer to dense enemy contact.
+1. It was the most directly connected deferred item from the crowd-pressure slice.
+2. It gave the player an explicit answer to dense enemy contact.
+
+Current state:
+- The slice is implemented and closed.
+- Runtime truth now lives in the movement spec and player controller.
+- Future work should extend from this baseline rather than reopening Slice A casually.
 
 ### Slice B - Player Vault Traversal
 Status:
@@ -80,9 +85,10 @@ Why third:
 - [behavior-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/behavior-slice-roadmap.md)
 
 ## Suggested Restart Point
-Current decision:
-1. build one shared mobility foundation
-2. support two initial tunable profiles: short `dodge` and longer `dash`
-3. defer blink/teleport and class-aware specialization to later slices
+Current traversal baseline:
+1. one shared mobility foundation already exists
+2. the current runtime supports tunable short `dodge` and longer `dash` profiles
+3. blink/teleport and class-aware specialization remain deferred
+4. the next implementation should be an explicitly chosen vault or crouch slice
 
-Implementation should now continue from [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md).
+Do not reopen Slice A unless a regression or clearly new mobility scope appears.

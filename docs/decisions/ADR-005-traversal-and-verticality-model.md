@@ -5,10 +5,10 @@ Accepted
 
 ## Context
 We want:
-- Jump and crouch as readable, timing-based actions (not precision platforming).
+- Jump and crouch as readable, timing-based actions, not precision platforming.
 - Avoiding some projectiles by crouching.
-- “Flee” events with obstacles requiring jump/crouch at the right time.
-- Multi-level play (towers/walls) with line-of-sight combat.
+- flee events with obstacles requiring jump or crouch at the right time.
+- multi-level play with line-of-sight combat.
 
 This must remain compatible with:
 - host-authoritative multiplayer
@@ -18,32 +18,42 @@ This must remain compatible with:
 ## Decision
 We will implement **Diablo-like traversal** with **rule/animation-driven** actions and **gameplay verticality**:
 
-1) **Traversal actions are non-precise**
+1. **Traversal actions are non-precise**
 - Jump is a **vault/jump state** used for clearing obstacles and avoiding tagged ground effects.
 - Crouch is a **low-profile state** used for passing under low clearance and avoiding tagged high attacks.
-- Traversal is **timing-based** and/or trigger-based (not physics platforming).
+- Traversal is **timing-based** and or trigger-based, not physics platforming.
 
-2) **Tagged avoidance rules**
+2. **Tagged avoidance rules**
 - Crouch avoids only attacks tagged as **High**.
-- Jump/Vault avoids only hazards/attacks tagged as **Ground** (and clears vaultable obstacles).
+- Jump/Vault avoids only hazards or attacks tagged as **Ground**, and clears vaultable obstacles.
 
-3) **Verticality exists in gameplay**
-- World supports at least **Ground** and **Elevated** layers (e.g., wall/tower).
-- Elevation transitions occur via **connectors** (stairs/ladder/ramps/doors), not free jumping.
+3. **Verticality exists in gameplay**
+- World supports at least **Ground** and **Elevated** layers, for example wall or tower play.
+- Elevation transitions occur via **connectors** such as stairs, ladders, ramps, or doors, not free jumping.
 - Combat between elevations requires **line of sight**.
+
+4. **Explicit displacement mobility may coexist with traversal without replacing it**
+- A short dodge or longer dash style mobility action may exist as an authored displacement ability.
+- That mobility action does not replace crouch, vault, or connector-based traversal semantics.
+- Blink or teleport behavior remains a separate later design decision.
 
 ## Scope
 - This ADR defines traversal semantics and gameplay verticality rules.
 - It does not define world representation technology, camera implementation, or aiming-space rules in detail.
 
+## Current Prototype Note
+- The current playable runtime now includes a displacement-based mobility foundation that can be tuned as a short `dodge` or longer `dash`.
+- Crouch, vault, tagged hazard avoidance, and connector-driven traversal remain part of the intended model but are not yet implemented in the same runtime baseline.
+
 ## Implications
-- Characters have explicit traversal state (Standing / Crouching / Vaulting).
-- Attacks and hazards must declare their clearance tag (High / Ground / Neutral).
-- Obstacles must declare required traversal (Vault / Crouch / Connector).
-- Networking replicates traversal state + elevation layer; host validates transitions and hit results.
+- Characters have explicit traversal state such as Standing, Crouching, or Vaulting.
+- Attacks and hazards must declare their clearance tag: High, Ground, or Neutral.
+- Obstacles must declare required traversal: Vault, Crouch, or Connector.
+- Networking replicates traversal state plus elevation layer; host validates transitions and hit results.
+- A separate mobility action can exist alongside traversal rules, but it should stay authored and rule-driven rather than becoming freeform platforming movement.
 
 ## Alternatives considered
-- Visual-only “fake depth” (rejected: doesn’t support tower/wall gameplay rules)
+- Visual-only fake depth (rejected: does not support tower or wall gameplay rules)
 - Full platformer physics (rejected: too precise for intended feel)
 
 ## Related ADRs

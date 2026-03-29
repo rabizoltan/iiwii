@@ -34,6 +34,7 @@ This folder contains implementation sequencing and delivery plans.
 - Completed first playable Godot foundation slice
 - Treat the current melee-navigation baseline as closed for now; do not keep open follow-up navigation slices without an explicit new decision
 - The camera control and framing slice is complete for the current milestone; future maps should reuse the shared gameplay camera scene
+- The shared dodge/dash mobility foundation is complete; the next traversal implementation should be an explicitly chosen vault or crouch slice
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -55,7 +56,8 @@ This folder contains implementation sequencing and delivery plans.
 ## Current Workplans
 - [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
-- [active/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-mobility-foundation-slice.md): active traversal slice for the shared dodge/dash mobility foundation.
+- There is currently no active traversal slice open; the shared mobility baseline is complete and future traversal work should start from a newly chosen vault or crouch slice.
+- [completed/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md): completed traversal slice for the shared dodge/dash mobility foundation.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
 - [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.
 - [completed/enemy-dense-scene-navigation-performance-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-dense-scene-navigation-performance-slice.md): completed dense-scene enemy navigation performance pass record.

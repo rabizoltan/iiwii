@@ -18,6 +18,7 @@ We will implement a **PC-first control scheme**:
 - **Aiming:** mouse aim (cursor/world aim point)
 - **Actions:** key/mouse button based (primary/secondary + abilities)
 - **Traversal:** dedicated crouch + vault/jump inputs (timing-based)
+- **Mobility:** dedicated dodge/dash-style escape input on `Shift`
 
 ## Scope
 - This ADR defines input and control conventions.
@@ -34,6 +35,11 @@ We will later support controllers, but the first implementation targets keyboard
 - Crouch: Ctrl (hold by default; optional toggle later)
 - Vault/Jump: Space (contextual; see below)
 - Dodge: Shift
+
+## Current Prototype Note
+- The current runtime baseline now includes one shared mobility action on `Shift`.
+- That mobility action is implemented as a tunable foundation that can behave like either a short `dodge` or a longer `dash`.
+- Vault and crouch remain planned traversal follow-ups and are not yet part of the playable runtime baseline.
 
 ## Vault/Jump behavior (non-precise)
 - Vault/Jump is **contextual**:
@@ -54,6 +60,7 @@ We will later support controllers, but the first implementation targets keyboard
   - responsive local feel (local prediction for movement/traversal)
   - authoritative correction from host snapshots
 - UI must not directly change gameplay state; it triggers intents/commands.
+- The current movement runtime should treat `Shift` mobility as one shared ability path with data/tuning-driven profiles rather than two unrelated mechanics.
 
 ## Alternatives considered
 - Click-to-move ARPG controls (rejected: conflicts with timing-based traversal/avoidance)

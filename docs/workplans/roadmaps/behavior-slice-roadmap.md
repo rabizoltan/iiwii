@@ -19,7 +19,8 @@
 - Slice 3 - Enemy close-range behavior: `completed`
 - Slice 4 - Player-enemy collision and crowd pressure: `stable-baseline`
 - Slice 5 - Combat feedback and debug behavior: `parked`
-- Future Planning - Player traversal and movement slices: `planned`
+- Slice 6 - Player mobility foundation: `completed`
+- Future Planning - Remaining traversal slices: `planned`
 
 ## Recommended Order
 1. Player attack behavior
@@ -27,7 +28,8 @@
 3. Enemy close-range behavior
 4. Player-enemy collision and crowd pressure
 5. Combat feedback and debug behavior only if explicitly reopened later
-6. Player traversal and movement slices after scope is chosen
+6. Player mobility foundation
+7. Vault or crouch traversal after explicit scope selection
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md)
@@ -35,7 +37,8 @@
 3. After player attack and debug control are validated, continue with the historical slice note at [enemy-close-range-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/enemy-close-range-behavior-slice.md) while treating [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) as the current behavior source of truth
 4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
 5. If combat feedback becomes a priority later, rescope from [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md) instead of treating it as an active plan
-6. When traversal work becomes a priority, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
+6. The first traversal follow-up is now complete at [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
+7. When traversal work becomes a priority again, continue from [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -130,25 +133,41 @@ Current dependency state:
 - Enemy close-range movement and crowd-pressure baselines are stable enough to build feedback rules on top of them.
 - What remains unresolved is product scope, not runtime plumbing.
 
-## Future Planning - Player Traversal And Movement Slices
+## Slice 6 - Player Mobility Foundation
+Status: `completed`
+
+Plan file:
+- [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
+
+Why here:
+- It turned the deferred crowd-pressure escape requirement into a concrete shared traversal baseline.
+
+Current state:
+- `Shift` now drives a shared mobility runtime with tunable `dodge` and `dash` profiles.
+- Dense enemy packs can be escaped through temporary enemy-body ghosting during mobility travel.
+- The slice is closed; future traversal work should build on this baseline rather than reopening it casually.
+
+Execution priority:
+- completed
+
+## Future Planning - Remaining Traversal Slices
 Status: `planned`
 
 Plan file:
 - [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)
 
 Why separate:
-- Dodge or dash, vault, and crouch affect collision, input priority, combat flow, and traversal geometry in different ways.
+- Vault and crouch still affect collision, input priority, combat flow, and traversal geometry differently from the new mobility baseline.
 - They should not be reopened implicitly through the crowd-pressure slice or mixed into combat feedback work.
 
 Current state:
-- The movement spec already describes intended traversal states.
-- Runtime implementation is not there yet.
-- The crowd-pressure slice explicitly deferred dodge or ghosted escape to later traversal work.
+- The movement spec now includes a real shared dodge/dash mobility foundation.
+- Vault and crouch remain unimplemented follow-up slices.
 
 Recommendation:
-- Treat dodge or dash, vault, and crouch as separate slices under one traversal roadmap.
+- Treat vault and crouch as the next explicit traversal slices under the shared traversal roadmap.
 
 ## Rule For Next Work
-- Do not reopen the foundation slice for behavior tuning.
+- Do not reopen the completed mobility foundation slice for casual tuning.
 - Do not reopen melee-navigation refinement implicitly.
 - Start the next implementation only from a newly chosen slice with explicit success criteria.
