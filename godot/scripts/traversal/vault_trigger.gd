@@ -7,7 +7,13 @@ enum Directionality {
 	BIDIRECTIONAL,
 }
 
+enum TraversalModel {
+	FIXED_ENDPOINT,
+	STRIP_OFFSET,
+}
+
 @export var directionality: Directionality = Directionality.ENTRY_TO_EXIT
+@export var traversal_model: TraversalModel = TraversalModel.FIXED_ENDPOINT
 @export var landing_collision_mask: int = 1
 @export var landing_clearance_radius: float = 0.45
 @export var landing_clearance_center_height: float = 0.955
@@ -19,10 +25,13 @@ enum Directionality {
 @export var arc_clearance: float = 0.35
 @export var player_contact_buffer: float = 0.45
 @export var activation_overlap_tolerance: float = 0.55
+@export var strip_end_margin: float = 0.35
 @export var entry_face_anchor_path: NodePath
 @export var exit_face_anchor_path: NodePath
 @export var entry_landing_anchor_path: NodePath
 @export var exit_landing_anchor_path: NodePath
+
+@onready var _collision_shape: CollisionShape3D = $CollisionShape3D
 
 
 func _ready() -> void:
@@ -48,26 +57,26 @@ func get_candidate(
 	if traversal.is_empty():
 		return {}
 
-	var source_face_anchor: Marker3D = traversal["source_face"]
-	var destination_landing_anchor: Marker3D = traversal["destination_landing"]
+	var source_face_position: Vector3 = traversal["source_face_position"]
+	var destination_landing_position: Vector3 = traversal["destination_landing_position"]
 	var travel_direction: Vector3 = traversal["travel_direction"]
 
-	var to_source_face: Vector3 = source_face_anchor.global_position - player.global_position
+	var to_source_face: Vector3 = source_face_position - player.global_position
 	to_source_face.y = 0.0
 
 	if movement_direction.dot(travel_direction) < min_alignment_dot:
 		return {}
 
-	var center_to_face_distance: float = to_source_face.dot(travel_direction)
-	var face_distance: float = center_to_face_distance - player_contact_buffer
-	if face_distance < -activation_overlap_tolerance or face_distance > max_activation_distance:
+	var center_to_edge_distance: float = to_source_face.dot(travel_direction)
+	var edge_distance: float = center_to_edge_distance - player_contact_buffer
+	if edge_distance < -activation_overlap_tolerance or edge_distance > max_activation_distance:
 		return {}
 
-	var lateral_offset: Vector3 = to_source_face - travel_direction * center_to_face_distance
-	var clamped_face_distance: float = clampf(face_distance, 0.0, max_activation_distance)
-	var score_distance_sq: float = clamped_face_distance * clamped_face_distance + lateral_offset.length_squared()
+	var lateral_offset: Vector3 = to_source_face - travel_direction * center_to_edge_distance
+	var clamped_edge_distance: float = clampf(edge_distance, 0.0, max_activation_distance)
+	var score_distance_sq: float = clamped_edge_distance * clamped_edge_distance + lateral_offset.length_squared()
 
-	var landing_floor: Dictionary = _resolve_landing_floor(destination_landing_anchor, player)
+	var landing_floor: Dictionary = _resolve_landing_floor(destination_landing_position, player)
 	if landing_floor.is_empty():
 		return {}
 
@@ -116,39 +125,104 @@ func _resolve_traversal(player_position: Vector3) -> Dictionary:
 	player_offset.y = 0.0
 	var side: float = player_offset.dot(forward_direction)
 
+	var source_face_anchor: Marker3D = null
+	var destination_landing_anchor: Marker3D = null
+	var travel_direction: Vector3 = Vector3.ZERO
+
 	match directionality:
 		Directionality.EXIT_TO_ENTRY:
 			if side < side_margin:
 				return {}
-			return {
-				"source_face": exit_face_anchor,
-				"destination_landing": entry_landing_anchor,
-				"travel_direction": -forward_direction,
-			}
+			source_face_anchor = exit_face_anchor
+			destination_landing_anchor = entry_landing_anchor
+			travel_direction = -forward_direction
 		Directionality.BIDIRECTIONAL:
 			if side <= -side_margin:
-				return {
-					"source_face": entry_face_anchor,
-					"destination_landing": exit_landing_anchor,
-					"travel_direction": forward_direction,
-				}
-
-			if side >= side_margin:
-				return {
-					"source_face": exit_face_anchor,
-					"destination_landing": entry_landing_anchor,
-					"travel_direction": -forward_direction,
-				}
-
-			return {}
+				source_face_anchor = entry_face_anchor
+				destination_landing_anchor = exit_landing_anchor
+				travel_direction = forward_direction
+			elif side >= side_margin:
+				source_face_anchor = exit_face_anchor
+				destination_landing_anchor = entry_landing_anchor
+				travel_direction = -forward_direction
+			else:
+				return {}
 		_:
 			if side > -side_margin:
 				return {}
-			return {
-				"source_face": entry_face_anchor,
-				"destination_landing": exit_landing_anchor,
-				"travel_direction": forward_direction,
-			}
+			source_face_anchor = entry_face_anchor
+			destination_landing_anchor = exit_landing_anchor
+			travel_direction = forward_direction
+
+	if traversal_model == TraversalModel.STRIP_OFFSET:
+		var strip_positions: Dictionary = _resolve_strip_positions(player_position, source_face_anchor.global_position, destination_landing_anchor.global_position, travel_direction)
+		if strip_positions.is_empty():
+			return {}
+
+		return {
+			"source_face_position": strip_positions["source_face_position"],
+			"destination_landing_position": strip_positions["destination_landing_position"],
+			"travel_direction": strip_positions["travel_direction"],
+		}
+
+	return {
+		"source_face_position": source_face_anchor.global_position,
+		"destination_landing_position": destination_landing_anchor.global_position,
+		"travel_direction": travel_direction,
+	}
+
+
+func _resolve_strip_positions(
+	player_position: Vector3,
+	source_face_position: Vector3,
+	destination_landing_position: Vector3,
+	travel_direction: Vector3
+) -> Dictionary:
+	if _collision_shape == null:
+		return {}
+
+	var box_shape: BoxShape3D = _collision_shape.shape as BoxShape3D
+	if box_shape == null:
+		return {}
+	var x_axis: Vector3 = _collision_shape.global_transform.basis.x
+	x_axis.y = 0.0
+	var z_axis: Vector3 = _collision_shape.global_transform.basis.z
+	z_axis.y = 0.0
+	var x_length: float = x_axis.length()
+	var z_length: float = z_axis.length()
+	if x_length <= 0.0001 or z_length <= 0.0001:
+		return {}
+
+	x_axis = x_axis / x_length
+	z_axis = z_axis / z_length
+	var x_dot: float = absf(x_axis.dot(travel_direction))
+	var z_dot: float = absf(z_axis.dot(travel_direction))
+
+	var along_axis: Vector3 = z_axis
+	var along_half_extent: float = box_shape.size.z * 0.5 * z_length
+	if x_dot < z_dot:
+		along_axis = x_axis
+		along_half_extent = box_shape.size.x * 0.5 * x_length
+
+	var usable_half_extent: float = maxf(along_half_extent - strip_end_margin, 0.0)
+	var to_player: Vector3 = player_position - _collision_shape.global_position
+	to_player.y = 0.0
+	var along_offset: float = to_player.dot(along_axis)
+	if absf(along_offset) > usable_half_extent:
+		return {}
+
+	var projected_source: Vector3 = source_face_position + along_axis * along_offset
+	var projected_destination: Vector3 = destination_landing_position + along_axis * along_offset
+	var projected_travel: Vector3 = projected_destination - projected_source
+	projected_travel.y = 0.0
+	if projected_travel.length_squared() <= 0.0001:
+		return {}
+
+	return {
+		"source_face_position": projected_source,
+		"destination_landing_position": projected_destination,
+		"travel_direction": projected_travel.normalized(),
+	}
 
 
 func _resolve_anchor(anchor_path: NodePath) -> Marker3D:
@@ -158,9 +232,9 @@ func _resolve_anchor(anchor_path: NodePath) -> Marker3D:
 	return get_node_or_null(anchor_path) as Marker3D
 
 
-func _resolve_landing_floor(landing_anchor: Marker3D, player: CharacterBody3D) -> Dictionary:
-	var ray_origin: Vector3 = landing_anchor.global_position + Vector3.UP * landing_ray_height
-	var ray_end: Vector3 = landing_anchor.global_position + Vector3.DOWN * landing_ray_depth
+func _resolve_landing_floor(landing_position: Vector3, player: CharacterBody3D) -> Dictionary:
+	var ray_origin: Vector3 = landing_position + Vector3.UP * landing_ray_height
+	var ray_end: Vector3 = landing_position + Vector3.DOWN * landing_ray_depth
 	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_end, landing_collision_mask, [get_rid(), player.get_rid()])
 	query.collide_with_areas = false
 	query.hit_back_faces = true

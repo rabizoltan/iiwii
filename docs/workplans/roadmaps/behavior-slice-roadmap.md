@@ -20,7 +20,7 @@
 - Slice 4 - Player-enemy collision and crowd pressure: `stable-baseline`
 - Slice 5 - Combat feedback and debug behavior: `parked`
 - Slice 6 - Player mobility foundation: `completed`
-- Slice 7 - Player vault traversal: `active`
+- Slice 7 - Player vault traversal: `completed`
 - Future Planning - Remaining traversal slices: `planned`
 
 ## Recommended Order
@@ -40,7 +40,7 @@
 4. After close-range enemy behavior is stable enough, execute [player-enemy-collision-and-crowd-pressure-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-enemy-collision-and-crowd-pressure-slice.md)
 5. If combat feedback becomes a priority later, rescope from [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md) instead of treating it as an active plan
 6. The first traversal follow-up is complete at [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
-7. The current next traversal implementation target is [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+7. Vault traversal is now closed at [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md)
 8. Future mantle or climb-up work now has its own separate planning document at [player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md)
 
 Rule:
@@ -154,21 +154,21 @@ Execution priority:
 - completed
 
 ## Slice 7 - Player Vault Traversal
-Status: `active`
+Status: `completed`
 
 Plan file:
-- [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+- [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md)
 
 Why here:
 - It is the next highest-value traversal slice after mobility because it adds low obstacle traversal without mixing in climb-up behavior.
 
 Current state:
-- The design boundary is now documented: vault crosses low authored obstacles and returns to roughly the same floor level.
+- The design boundary and runtime implementation are now complete: vault crosses low authored obstacles and returns to roughly the same floor level.
 - Mantle or climb-up remains a separate later slice.
-- No implementation has landed yet.
+- Implementation is landed and validated manually in DemoMain fixtures.
 
 Execution priority:
-- next traversal implementation target
+- completed
 
 ## Future Planning - Remaining Traversal Slices
 Status: `planned`
@@ -182,7 +182,7 @@ Why separate:
 
 Current state:
 - The movement spec now includes a real shared dodge/dash mobility foundation.
-- Vault is the active next slice.
+- Vault is now completed.
 - Crouch and mantle remain unimplemented follow-up slices.
 
 Recommendation:

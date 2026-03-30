@@ -43,7 +43,8 @@ We will implement **Diablo-like traversal** with **rule/animation-driven** actio
 
 ## Current Prototype Note
 - The current playable runtime now includes a displacement-based mobility foundation that can be tuned as a short `dodge` or longer `dash`.
-- Crouch, vault, tagged hazard avoidance, and connector-driven traversal remain part of the intended model but are not yet implemented in the same runtime baseline.
+- Contextual low-obstacle vault traversal is now implemented as authored `VaultTrigger`-driven runtime behavior.
+- Crouch, tagged hazard avoidance semantics, and connector-driven traversal remain future follow-up work.
 
 ## Implications
 - Characters have explicit traversal state such as Standing, Crouching, or Vaulting.

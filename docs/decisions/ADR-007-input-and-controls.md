@@ -39,7 +39,8 @@ We will later support controllers, but the first implementation targets keyboard
 ## Current Prototype Note
 - The current runtime baseline now includes one shared mobility action on `Shift`.
 - That mobility action is implemented as a tunable foundation that can behave like either a short `dodge` or a longer `dash`.
-- Vault and crouch remain planned traversal follow-ups and are not yet part of the playable runtime baseline.
+- Contextual low-obstacle vault on `Space` is now part of the playable runtime baseline.
+- Crouch remains a planned follow-up slice.
 
 ## Vault/Jump behavior (non-precise)
 - Vault/Jump is **contextual**:

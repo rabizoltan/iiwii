@@ -89,5 +89,5 @@ A future active mantle slice should likely prove:
 ## Related Documents
 - [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md)
 - [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md)
-- [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+- [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md)
 - [player-traversal-and-movement-slice-roadmap.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/roadmaps/player-traversal-and-movement-slice-roadmap.md)

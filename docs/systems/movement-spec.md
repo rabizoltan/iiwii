@@ -1,23 +1,22 @@
 # Movement Spec
 Category: Runtime System
 Role: Reference Contract
-Last updated: 2026-03-29
-Last validated: pending
+Last updated: 2026-03-30
+Last validated: manual playtesting in editor during vault slice implementation
 
-This document defines the intended runtime player locomotion and current first-pass mobility behavior for the vertical slice.
+This document defines the current runtime player locomotion and shared traversal behavior for the vertical slice.
 
 ## Scope
-- This document now reflects current runtime truth for baseline movement and the first shared mobility foundation.
+- This document reflects current runtime truth for baseline movement, shared dodge/dash mobility, and the first authored vault traversal slice.
 - The current runtime owner is `godot/scripts/player/player_controller.gd`.
-- Vault and crouch remain reference-contract behavior until their implementation slices land.
-- In this file, baseline movement and shared mobility describe current runtime truth; vault and crouch sections describe the intended contract for pending traversal slices and should not be read as already-implemented runtime behavior.
+- Crouch remains planned follow-up work and is not yet implemented runtime behavior.
 - For traversal semantics and the vault-vs-mantle boundary, see [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md).
 
 ## State Machine
 
 ### States
 - `STANDING`
-- `CROUCHING`
+- `CROUCHING` `planned`
 - `VAULTING`
 - `DODGING`
 
@@ -26,16 +25,14 @@ This document defines the intended runtime player locomotion and current first-p
 2. Else if state is `DODGING`, process dodge and return early.
 3. Else handle dodge input first, then vault input.
 4. Then handle attacks.
-5. Then crouch state update, facing update, and movement.
+5. Then handle facing update and movement.
 
 This ordering means vault and dodge are traversal-lock states that suppress regular movement and attacks for that tick.
 
 ## Transitions
 
 ### Standing <-> Crouching
-- Enter crouch while `crouch` action is held.
-- Return to standing when crouch is released.
-- Entering crouch updates capsule height, collision Y offset, and mesh Y-scale.
+- Crouch remains planned and is not yet runtime truth.
 
 ### Any Non-Lock State -> Dodging
 - Trigger: `dodge` action just pressed.
@@ -51,39 +48,32 @@ This ordering means vault and dodge are traversal-lock states that suppress regu
 ### Any Non-Lock State -> Vaulting
 - Trigger: `vault` action just pressed.
 - Requirements:
-  - a nearby authored vault traversal node such as `VaultTrigger` or `VaultLink`
-  - valid approach side or alignment for that traversal node
-  - active movement intent toward the obstacle when the vault request happens
-  - valid landing position on the far side against world geometry
+  - player is on floor
+  - a nearby authored `VaultTrigger` candidate is registered
+  - the candidate is on a valid authored side
+  - the player has active movement intent toward the obstacle when the request happens
+  - movement intent passes the configured forward-alignment gate
+  - the landing resolves to valid world floor with clearance on roughly the same floor level
 - Explicit non-goal for v1:
   - getting onto a meaningfully higher platform is **mantle / climb-up**, not vault
 
-### Dodging/Vaulting -> Standing or Crouching
-- When timer expires:
-  - if crouch is held, end in `CROUCHING`
-  - else end in `STANDING`
+### Dodging/Vaulting -> Standing
+- When timer expires, runtime returns to normal locomotion.
+- Crouch handoff does not exist yet because crouch is still planned.
 
 ## Movement Formulas
 
 ### Input Space
-- If `camera_relative_movement = true`:
-  - movement basis uses the active gameplay camera forward and right projected on XZ.
-  - camera pitch must not directly tilt movement into the ground or air.
-  - if the camera rotates around the player, movement intent rotates with it.
-- Else:
-  - movement basis uses player local forward and right projected on XZ.
+- Movement basis uses the active gameplay camera forward and right projected on XZ.
+- Camera pitch must not directly tilt movement into the ground or air.
+- If the camera rotates around the player, movement intent rotates with it.
 
 ### Target Speed
 - Standing speed: `move_speed`
-- Crouch speed:
-  - `crouch_speed` if `crouch_speed > 0`
-  - otherwise `move_speed * crouch_speed_mult`
 
-### Horizontal Velocity Blend
-- `target_velocity = move_dir * target_speed`
-- `rate = acceleration` while input is active, else `deceleration`
-- `response_t = clamp(rate * delta, 0, 1)`
-- `horizontal_velocity = lerp(horizontal_velocity, target_velocity, response_t)`
+### Horizontal Velocity
+- `target_velocity = move_dir * move_speed`
+- Player controller writes X/Z velocity directly from movement intent during normal locomotion.
 
 ### Vertical
 - On floor: `velocity.y = 0`
@@ -93,46 +83,51 @@ This ordering means vault and dodge are traversal-lock states that suppress regu
 - The current implementation uses one shared mobility foundation that can be tuned into either a short `dodge` profile or a longer `dash` profile.
 - Travel duration is driven by profile duration exports.
 - Travel displacement is driven by profile distance exports.
-- The mobility start frame should apply movement immediately so dash handoff stays smooth while movement input is already held.
+- The mobility start frame applies movement immediately so dash handoff stays smooth while movement input is already held.
 - Collision behavior:
   - mobility grants a short tunable `ghosted` or `unhindered` window against enemy bodies so dense contact can be escaped explicitly
   - this window is driven by mobility state, not by baseline locomotion pushing enemies away
 - Future invulnerability, blink, and authored trail or end effects remain follow-up work rather than current runtime truth.
 
-## Vault Behavior (Reference Contract, Not Yet Runtime Truth)
+## Vault Behavior
 - Vault is a short contextual traversal move over a low authored obstacle.
-- Vault should start from one side of the obstacle and land on the far side in one committed motion.
-- Vault should return the player to roughly the same floor level.
-- Vault should be driven by obstacle-authored traversal data rather than raw geometry guessing.
-- Recommended obstacle-side data owner:
-  - a dedicated traversal node or component such as `VaultTrigger` or `TraversalMarker`
-- That traversal data should define at least:
-  - traversal type
-  - valid approach side or entry region
-  - start anchor or alignment
-  - exit landing anchor
-  - optional traversal duration or local tuning overrides
-- Candidate selection should prefer valid authored vault nodes in front of the player, then choose the nearest valid candidate among them.
-- A forgiving front-facing cone of roughly `45` degrees is the intended starting point for v1 candidate filtering.
-- Vault directionality should be authored per obstacle; one-way should be the default expectation, while bidirectional use is allowed when explicitly authored.
-- Vault should activate only from a short readable distance near the authored entry region, not from long-range.
-- Vault should lock normal locomotion, mobility, and attacks during travel.
-- Vault should use a short fixed-duration committed move with a small readable arc.
-- The default arc should derive from obstacle height plus a small clearance margin, with sane clamp limits.
-- Enemy bodies should not block the vault once it starts, but world collision and landing validity still matter.
-- Nearby enemy bodies should not hard-block vault start by themselves; temporary enemy ghosting during vault travel is acceptable for readability and reliability, and any end overlap should resolve with gentle separation rather than strong knockback.
+- Vault starts from one side of the obstacle and lands on the far side in one committed motion.
+- Vault returns the player to roughly the same floor level.
+- Vault is driven by obstacle-authored traversal data rather than raw geometry guessing.
+- Current obstacle-side data owner:
+  - `VaultTrigger` with explicit anchor references
+- Current authored anchor set:
+  - `EntryFaceAnchor`
+  - `ExitFaceAnchor`
+  - `EntryLandingAnchor`
+  - `ExitLandingAnchor`
+- Current trigger-side runtime choices:
+  - directionality (`ENTRY_TO_EXIT`, `EXIT_TO_ENTRY`, `BIDIRECTIONAL`)
+  - traversal model (`FIXED_ENDPOINT`, `STRIP_OFFSET`)
+  - optional duration override and landing/clearance tuning
+- Candidate selection prefers the lowest-score valid registered trigger.
+- Current default forward cone is driven by `vault_facing_angle_degrees = 65`.
+- Current default activation distance is driven by `vault_activation_distance = 1.2`.
+- Vault directionality is authored per obstacle.
+- `STRIP_OFFSET` is available for long straight obstacles so landing preserves along-obstacle offset instead of snapping toward one fixed midpoint.
+- Vault locks normal locomotion, mobility, and attacks during travel.
+- Vault uses a short fixed-duration committed move with a readable arc.
+- The default arc derives from trigger `obstacle_height + arc_clearance`, then clamps through player exports `vault_arc_min_height` and `vault_arc_max_height`.
+- Vault travel is applied by directly setting position along the authored path rather than using `move_and_slide()` during the traversal motion.
+- Enemy bodies do not block the vault once it starts.
+- Nearby enemy bodies do not hard-block vault start by themselves; temporary enemy ghosting during vault travel is used for readability and reliability, and any end overlap resolves with gentle separation rather than strong knockback.
 - Platform climb-up, ledge grab, and mantle behavior remain out of scope for the first vault slice.
 
 ## Input Mapping Defaults
 Default input mapping target:
 - `W/A/S/D` movement
-- `Ctrl` crouch
 - `Space` vault
 - `Shift` dodge
 - left mouse button attack
 
 ## Non-Goals (Current Prototype)
 - No jump state
+- No crouch runtime yet
 - No slope-specific locomotion model
 - No stamina gating
 - No blink or teleport mobility in the current slice
@@ -142,3 +137,4 @@ Default input mapping target:
 - Normal locomotion should not push enemies away as a baseline movement rule.
 - Enemy pressure should come from body blocking and combat threat, not a continuous shove loop.
 - Enemy displacement caused by the player should be an authored combat effect, not a default locomotion side effect.
+- Dodge/dash and vault are the explicit player-controlled escape/traversal cases that may temporarily ghost enemy collision.

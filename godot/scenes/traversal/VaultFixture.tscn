@@ -60,7 +60,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.55)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.55)
 
 [node name="VaultTrigger" parent="." unique_id=373803786 instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.38055572)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00041770935, 0.9500002, -0.38852975)
 directionality = 2
 obstacle_height = 0.3
 entry_face_anchor_path = NodePath("../EntryFaceAnchor")

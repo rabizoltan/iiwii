@@ -24,7 +24,7 @@ enum MobilityProfile {
 @export_range(0.0, 1.0) var dash_enemy_ghost_end: float = 1.0
 @export var vault_duration: float = 0.6
 @export var vault_activation_distance: float = 1.2
-@export_range(0.0, 89.0) var vault_facing_angle_degrees: float = 45.0
+@export_range(0.0, 89.0) var vault_facing_angle_degrees: float = 65.0
 @export var vault_arc_min_height: float = 0.2
 @export var vault_arc_max_height: float = 2.5
 @export var vault_same_floor_tolerance: float = 0.6
@@ -346,6 +346,7 @@ func _resolve_enemy_overlap_after_vault() -> void:
 		var push_direction: Vector3 = to_player.normalized() if distance > 0.001 else _resolve_mobility_direction(_last_move_direction)
 		var push_amount: float = minf(0.2, 0.9 - distance)
 		global_position += push_direction * push_amount
+
 
 
 func _resolve_mobility_direction(move_direction: Vector3) -> Vector3:

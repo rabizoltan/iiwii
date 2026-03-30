@@ -36,7 +36,8 @@ This folder contains implementation sequencing and delivery plans.
 - Treat the current melee-navigation baseline as closed for now; do not keep open follow-up navigation slices without an explicit new decision
 - The camera control and framing slice is complete for the current milestone; future maps should reuse the shared gameplay camera scene
 - The shared dodge/dash mobility foundation is complete
-- The current active traversal planning slice is player vault traversal, explicitly kept separate from later mantle or climb-up work
+- The authored low-obstacle vault slice is now complete and documented as the current traversal baseline
+- Mantle or climb-up remains a separate planned future slice
 
 ## Reusable Reference Ideas
 - From an older architecture draft, the only reusable principles worth keeping are:
@@ -58,8 +59,8 @@ This folder contains implementation sequencing and delivery plans.
 ## Current Workplans
 - [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
-- [active/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md): active traversal slice for contextual low-obstacle vaulting using authored traversal affordances.
-- [planned/player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md): future mantle/climb-up planning note kept separate from the active vault slice.
+- [completed/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md): completed traversal slice for contextual low-obstacle vaulting using authored `VaultTrigger` affordances.
+- [planned/player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md): future mantle/climb-up planning note kept separate from the completed vault slice.
 - [completed/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md): completed traversal slice for the shared dodge/dash mobility foundation.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.
 - [completed/enemy-crowd-performance-and-contact-stability-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/enemy-crowd-performance-and-contact-stability-slice.md): completed dense-pack diagnostics record for the historical rear-line motion investigation.

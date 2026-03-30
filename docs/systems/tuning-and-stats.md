@@ -1,7 +1,7 @@
 # Tuning And Stats
 Category: Gameplay System
 Role: Reference Contract
-Last updated: 2026-03-16
+Last updated: 2026-03-30
 Last validated: pending
 
 This document defines the intended ownership and organization of gameplay tuning data.
@@ -10,26 +10,41 @@ This document defines the intended ownership and organization of gameplay tuning
 - Keep gameplay numbers centralized enough to tune safely.
 - Separate tunable values from hard-coded combat or movement logic over time.
 
-### Movement Fields
+## Movement Fields
+### Player-controller movement and traversal tuning
 - `move_speed`
-- `acceleration`
-- `deceleration`
-- `camera_relative_movement`
-- `crouch_speed`
-- `crouch_speed_mult`
+- `turn_speed`
 - `vault_duration`
-- `vault_default_distance`
-- `vault_min_distance`
-- `vault_max_distance`
-- `vault_clearance`
-- `vault_min_height`
-- `vault_max_height`
-- `dodge_duration`
+- `vault_activation_distance`
+- `vault_facing_angle_degrees`
+- `vault_arc_min_height`
+- `vault_arc_max_height`
+- `vault_same_floor_tolerance`
 - `dodge_distance`
-- `dodge_speed`
+- `dodge_duration`
 - `dodge_cooldown`
-- `dodge_iframes_start`
-- `dodge_iframes_end`
+- `dodge_enemy_ghost_start`
+- `dodge_enemy_ghost_end`
+- `dash_distance`
+- `dash_duration`
+- `dash_cooldown`
+- `dash_enemy_ghost_start`
+- `dash_enemy_ghost_end`
+
+### `VaultTrigger` obstacle-side tuning
+- `directionality`
+- `traversal_model`
+- `duration_override`
+- `obstacle_height`
+- `arc_clearance`
+- `player_contact_buffer`
+- `activation_overlap_tolerance`
+- `landing_clearance_radius`
+- `landing_clearance_center_height`
+- `landing_ray_height`
+- `landing_ray_depth`
+- `side_margin`
+- `strip_end_margin`
 
 ## Player Combat/Health Constants
 - If these remain code-owned early, keep them grouped clearly:
@@ -64,13 +79,14 @@ If broader tuning unification is needed, move these to a dedicated combat resour
 1. Change one variable cluster at a time (speed, then dodge, then vault).
 2. Run the current gameplay test scene and validate the focused behavior.
 3. Validate no lock-state regressions:
-   - crouch release recovery
    - dodge end-state recovery
    - vault entry only near valid obstacles
-4. Keep i-frame window within `[0, 1]` normalized dodge progress.
+   - vault landing remains on valid floor with clearance
+4. Keep normalized enemy-ghost windows within `[0, 1]` progress ranges.
+5. Prefer tuning long-obstacle behavior on `traversal_model = STRIP_OFFSET` triggers before adding more authored segments.
 
 ## Notes
-- Intended early tuning split:
-  - movement values grouped together
-  - combat and enemy values grouped together
-- This is intentional for incremental migration without large refactors.
+- Current tuning split is intentional:
+  - shared player movement/mobility/vault feel lives in `player_controller.gd`
+  - obstacle-specific vault setup lives on `VaultTrigger`
+- This keeps authored obstacle tuning local while preserving one shared player runtime.

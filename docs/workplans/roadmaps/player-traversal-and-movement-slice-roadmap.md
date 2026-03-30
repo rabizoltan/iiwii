@@ -53,10 +53,10 @@ Current state:
 
 ### Slice B - Player Vault Traversal
 Status:
-- `active`
+- `completed`
 
 Plan file:
-- [active/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/active/player-vault-traversal-slice.md)
+- [completed/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md)
 
 Suggested scope:
 1. contextual `Space` input for low obstacle crossing
@@ -65,10 +65,17 @@ Suggested scope:
 4. short committed traversal motion over low obstacles only
 5. no mantle or climb-up behavior in this slice
 
-Why next:
-1. It adds new traversal interaction with level geometry without reopening the dodge or dash baseline.
-2. It is the highest-value next traversal slice for combat spaces and map readability.
-3. It keeps platform climb-up as a separate later mantle decision.
+Delivered scope:
+1. contextual `Space` input for low obstacle crossing
+2. authored `VaultTrigger` obstacle affordances with explicit face and landing anchors
+3. approach-side validation and far-side landing validation
+4. short committed traversal motion over low obstacles only
+5. no mantle or climb-up behavior in this slice
+
+Current state:
+- The slice is implemented and closed.
+- Runtime truth now lives in movement/traversal system docs and runtime files.
+- Mantle and climb-up remain separate planned follow-up work.
 
 ### Slice C - Player Crouch And Movement-State Rules
 Status:
@@ -115,7 +122,7 @@ Why later:
 Current traversal baseline:
 1. one shared mobility foundation already exists
 2. the current runtime supports tunable short `dodge` and longer `dash` profiles
-3. vault is now the active next slice and should stay limited to low authored obstacle crossing
+3. low-obstacle vault is implemented as a completed slice and remains separate from mantle
 4. mantle/climb-up and class-aware specialization remain deferred
 5. future mantle should likely distinguish low and high mantle rather than using one generic climb-up band
 

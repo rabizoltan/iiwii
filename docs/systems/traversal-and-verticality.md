@@ -1,36 +1,33 @@
 # Traversal (Vault, Crouch) + Verticality
 Category: Gameplay System
 Role: Reference Contract
-Last updated: 2026-03-29
-Last validated: pending
+Last updated: 2026-03-30
+Last validated: manual playtesting in editor during vault slice implementation
 
 ## Goals
-- Provide Diablo-like, timing-based traversal (no precision platforming).
-- Support flee obstacles (jump/crouch prompts).
-- Support multi-level play (ground vs tower/wall) with LOS-based combat.
+- Provide Diablo-like, timing-based traversal without precision platforming.
 - Keep vault traversal readable, contextual, and authored rather than geometry-guessed.
+- Preserve a clean design boundary between low obstacle vaulting and future climb-up mechanics.
 
 ## Non-goals (for now)
-- Physics-driven platforming (ledge grabs, variable jump height, airborne steering precision).
-- Freeform vertical movement outside connectors (no "jump anywhere to any height").
+- Physics-driven platforming.
+- Freeform vertical movement outside authored connectors.
 - Mixing low obstacle vaulting with full climb-up or mantle behavior in the same first slice.
 
-## Player traversal states
+## Player Traversal States
 ### Standing
 Default state. Full movement + standard hit profile.
 
 ### Crouching
-- Enter/exit via input (or forced by "low clearance zones").
-- Movement speed reduced (tunable).
-- **Avoidance rule:** dodges only attacks/hitboxes tagged **High**.
+- Planned follow-up, not current runtime truth.
 
 ### Vaulting
 Short-duration traversal state.
-- Triggered by input + a valid authored vault traversal opportunity.
-- For authored obstacle vaulting, v1 should require active movement intent toward the obstacle together with the vault input rather than allowing idle `Space` activation.
-- **Avoidance rule:** dodges only hazards/attacks tagged **Ground**.
-- Clears obstacles tagged **Vaultable**.
+- Triggered by `Space` plus a valid authored vault opportunity.
+- Requires active movement intent toward the obstacle; idle `Space` does not start vault.
 - Returns the player to roughly the same floor level on the far side of the obstacle.
+- Locks regular locomotion, attack, and mobility during travel.
+- Uses temporary enemy-body ghosting during the committed motion, then restores normal collision with soft overlap cleanup if needed.
 
 ## Vault vs Mantle Boundary
 ### Vault
@@ -43,6 +40,7 @@ Short-duration traversal state.
   - low barricade
   - short fence segment
   - sandbag line
+  - long table or trunk when explicitly authored
 
 ### Mantle / Climb-Up
 - Moves **up onto** something meaningfully higher.
@@ -59,6 +57,49 @@ Rule of thumb:
 
 Mantle remains a separate later slice and should not be folded into first-pass vault implementation.
 
+## Current Authored Vault Model
+### Shared Trigger Pattern
+- Vault traversal is authored through `VaultTrigger`.
+- `VaultTrigger` is the activation `Area3D` and obstacle-specific rules container.
+- The blue trigger box means: the player is inside an obstacle-authored activation region.
+- The trigger box is not the landing point by itself.
+
+### Anchor Pattern
+Current authored anchors are:
+- `EntryFaceAnchor`
+- `ExitFaceAnchor`
+- `EntryLandingAnchor`
+- `ExitLandingAnchor`
+
+Meaning:
+- face anchors define the two crossing sides of the obstacle
+- landing anchors define the landing references on the far sides
+
+### Directionality
+Current directionality choices:
+- `ENTRY_TO_EXIT`
+- `EXIT_TO_ENTRY`
+- `BIDIRECTIONAL`
+
+### Traversal Models
+Current trigger traversal models:
+- `FIXED_ENDPOINT`
+  - best for short simple obstacles
+- `STRIP_OFFSET`
+  - best for long straight obstacles
+  - preserves where along the obstacle the player started
+  - avoids pulling the player toward one shared middle landing point
+
+## Current Runtime Rules
+- Candidate selection prefers valid authored triggers in front of the player, then picks the best valid candidate by score.
+- Current forward-facing tolerance starts from the player controller export `vault_facing_angle_degrees = 65`.
+- Current start distance starts from `vault_activation_distance = 1.2` plus trigger-side contact/overlap tolerances.
+- Landing must resolve to valid floor with clearance and same-floor intent.
+- Nearby enemy bodies should not hard-block vault start by themselves.
+- Vault motion is code-driven, committed, and readable rather than animation-root-motion-driven.
+- Arc height derives from trigger `obstacle_height + arc_clearance`, then clamps through player-side arc limits.
+- Vault remains a low-obstacle crossing tool, not a general elevation-change mechanic.
+
 ## Future Mantle Notes
 These notes preserve the currently agreed future direction without opening a mantle implementation slice yet.
 
@@ -71,25 +112,6 @@ These notes preserve the currently agreed future direction without opening a man
   - no wall climb
   - no chained parkour
 
-### Likely Mantle Height Bands
-A future mantle slice should likely distinguish at least two mantle bands:
-- **Low mantle**
-  - around hip or waist height
-  - smaller elevation gain
-  - examples: crate edge, low platform lip, short raised ledge
-- **High mantle**
-  - around chest to arm-reach height
-  - larger but still reachable climb-up
-  - examples: taller ledge, raised walkway edge, higher rooftop lip
-
-This is preferred over a single generic mantle because different height bands usually want different validation limits, motion timing, animation treatment, and gameplay readability.
-
-Good future mantle examples:
-- crate top
-- platform lip
-- rooftop edge
-- raised walkway edge
-
 ## Future-Slice Context (Not Part Of The Current Vault Slice)
 The sections below preserve broader traversal and verticality context for later slices.
 They are not part of the current low-obstacle vault implementation scope unless a future slice explicitly reactivates them.
@@ -98,89 +120,27 @@ They are not part of the current low-obstacle vault implementation scope unless 
 ### Attack/Hazard tags
 - **High**: can be dodged by Crouch; hits Standing; typically projectiles at chest/head height.
 - **Ground**: can be dodged by Vault/Jump; hits Standing/Crouch; typically ground wave / floor spikes.
-- **Neutral**: hits regardless of crouch/jump unless explicitly stated (default for most attacks early).
-
-Rules:
-- Crouch only affects High.
-- Vault only affects Ground.
-- If an attack has no tag, treat it as Neutral.
+- **Neutral**: hits regardless of crouch/jump unless explicitly stated.
 
 ### Obstacle tags
-- **Vaultable**: requires Vault to cross (tree trunk, low barrier).
-- **LowClearance**: requires Crouch to pass (fence gap, collapsed tunnel).
-- **Connector**: changes elevation layer (stairs/ladder/door/ramps). Vault does not change elevation.
+- **Vaultable**: requires Vault to cross.
+- **LowClearance**: requires future Crouch to pass.
+- **Connector**: changes elevation layer. Vault does not change elevation.
 
-## Authored Traversal Affordances
-Best-practice baseline for this project:
-- Traversal should be **explicitly authored** on the environment.
-- Low obstacle vaulting should use a dedicated traversal node or component such as `VaultTrigger` or `TraversalMarker`.
-- The player runtime should own vault execution, while the obstacle-side traversal node should own the obstacle-specific traversal data.
-
-The authored traversal node should define at least:
-- traversal type, currently `vault`
-- entry region or valid approach side
-- start alignment or anchor
-- exit landing point or anchor
-- optional traversal duration or local tuning overrides
-
-Recommended v1 selection and directionality rules:
-- prefer valid vault nodes in front of the player, then choose the nearest valid candidate
-- use a forgiving front-facing cone; roughly `45` degrees is the intended starting point
-- require active movement intent toward the chosen candidate
-- default to one-way authored directionality
-- allow bidirectional vaulting only when the obstacle is explicitly authored for both sides
-- prefer a simple `VaultTrigger`-style setup with entry and exit anchors for v1 rather than a more general link model
-
-Recommended v1 tuning rules:
-- require a short readable activation distance near the obstacle rather than long-range triggering
-- derive the vault arc from obstacle height plus a small clearance margin
-- keep enemy end-of-vault overlap resolution gentle so traversal remains readable and does not become a shove attack
-
-This is preferred over pure geometry guessing because it is more reliable, easier to debug, clearer for level design, and easier to extend later to mantle, crouch-pass, ladder, or connector traversal.
-
-## Elevation layers
-Minimum viable:
+## Elevation Layers
+Minimum viable future direction:
 - **Ground**
 - **Elevated**
 
-### Moving between layers
-- Only through **Connector** volumes.
-- Connector defines:
-  - from_layer -> to_layer
-  - optional direction
-  - optional interaction requirement (press key) vs auto
-
 Vault does not become a general elevation-change mechanic in the first slice.
 
-## Combat line of sight (LOS)
-- Attacks across elevation layers require LOS.
-- "LOS blocked" means:
-  - cannot target, or projectile collides with a blocker
-- Early slice: treat walls/railings as LOS blockers unless at an "edge" zone (optional later).
-
-## Networking (host-authoritative future target)
-- Clients send **intent**: crouch toggle, vault/jump request, interact connector.
-- Host validates:
-  - state transitions (cooldowns/durations)
-  - obstacle requirements met
-  - hazard avoidance resolution by tags
-  - elevation changes via connectors only
-- Host replicates:
-  - traversal state (standing/crouch/vault)
-  - elevation layer
-  - position/velocity (as applicable)
+## Networking (Host-Authoritative Future Target)
+- Clients send traversal intent.
+- Host validates traversal state changes and authored obstacle requirements.
+- Host replicates traversal state and position.
 
 ## Broader Vertical Slice Target (Future Context)
-- Traversal should support explicit `Standing`, `Crouching`, and `Vaulting` states.
-- Crouch should be hold-based and should change both movement speed and capsule height.
-- Vault should be contextual and gated by a nearby authored `Vaultable` traversal node.
-- Vault start should require a valid approach, active movement intent, and should not trigger from an idle misalignment.
-- Vault should land on the far side of the obstacle without becoming climb-up or mantle behavior.
-
-## Broader VS-001 Notes (Future Context)
-For the broader traversal-and-verticality vision, it is enough to demonstrate:
-- One **Vaultable** obstacle (tree trunk)
-- One **LowClearance** obstacle (fence gap)
-- One **Ground** hazard (ground wave) avoidable by vault
-- One **High** projectile avoidable by crouch
-- One **Connector** to Elevated (simple tower platform) and LOS gating
+- Standing, crouching, and vaulting remain the intended traversal vocabulary.
+- Crouch is still future scope.
+- Vault is now the implemented authored low-obstacle crossing baseline.
+- Mantle remains the later elevation-gain follow-up.
