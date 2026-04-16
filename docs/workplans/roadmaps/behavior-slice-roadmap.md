@@ -21,6 +21,7 @@
 - Slice 5 - Combat feedback and debug behavior: `parked`
 - Slice 6 - Player mobility foundation: `completed`
 - Slice 7 - Player vault traversal: `completed`
+- Slice 8 - Player crouch movement-state rules: `completed`
 - Future Planning - Remaining traversal slices: `planned`
 
 ## Recommended Order
@@ -31,7 +32,8 @@
 5. Combat feedback and debug behavior only if explicitly reopened later
 6. Player mobility foundation
 7. Player vault traversal
-8. Vault follow-up traversal slices such as crouch or mantle after explicit scope selection
+8. Player crouch movement-state rules
+9. Mantle or other traversal follow-up slices after explicit scope selection
 
 ## Current Planned Sequence
 1. Start with [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md)
@@ -41,7 +43,8 @@
 5. If combat feedback becomes a priority later, rescope from [combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md) instead of treating it as an active plan
 6. The first traversal follow-up is complete at [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md)
 7. Vault traversal is now closed at [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md)
-8. Future mantle or climb-up work now has its own separate planning document at [player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md)
+8. Player crouch movement-state rules are implemented and manually smoke-validated at [player-crouch-movement-state-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-crouch-movement-state-slice.md)
+9. Future mantle or climb-up work now has its own separate planning document at [player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md)
 
 Rule:
 - do not start the melee close-range behavior slice before the player attack behavior slice is implemented and validated
@@ -183,10 +186,11 @@ Why separate:
 Current state:
 - The movement spec now includes a real shared dodge/dash mobility foundation.
 - Vault is now completed.
-- Crouch and mantle remain unimplemented follow-up slices.
+- Crouch is implemented as a physical hold state and manually smoke-validated.
+- Mantle remains an unimplemented follow-up slice.
 
 Recommendation:
-- Treat vault, crouch, and mantle as separate explicit slices under the shared traversal roadmap.
+- Treat mantle and any later traversal additions as separate explicit slices under the shared traversal roadmap.
 
 ## Rule For Next Work
 - Do not reopen the completed mobility foundation slice for casual tuning.

@@ -14,6 +14,9 @@ This document defines the intended ownership and organization of gameplay tuning
 ### Player-controller movement and traversal tuning
 - `move_speed`
 - `turn_speed`
+- `crouch_speed_multiplier`
+- `crouch_collision_height`
+- `crouch_collision_center_y`
 - `vault_duration`
 - `vault_activation_distance`
 - `vault_facing_angle_degrees`
@@ -82,6 +85,8 @@ If broader tuning unification is needed, move these to a dedicated combat resour
    - dodge end-state recovery
    - vault entry only near valid obstacles
    - vault landing remains on valid floor with clearance
+   - crouch release only stands when the upper clearance volume is free
+   - crouch blocks attack, dodge/dash, and vault starts
 4. Keep normalized enemy-ghost windows within `[0, 1]` progress ranges.
 5. Prefer tuning long-obstacle behavior on `traversal_model = STRIP_OFFSET` triggers before adding more authored segments.
 

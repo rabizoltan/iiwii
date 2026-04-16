@@ -9,7 +9,7 @@ Define a stable collision-layer convention to avoid rework in:
 - mouse aiming (raycasts)
 - projectile/hitscan collision
 - line-of-sight (LOS)
-- traversal triggers (vault/crouch/connectors)
+- traversal triggers and fixtures (vault, possible future crouch prompts, connectors)
 
 This project uses a continuous 3D space model and free aim.
 
@@ -60,7 +60,7 @@ This project uses a continuous 3D space model and free aim.
 - Enemy ramp failures in the current project were successfully traced to collision-envelope mismatch rather than nav logic, so physical envelope checks should be part of collision debugging.
 
 - Keep `GroundAim` enabled on floor surfaces.
-- Keep vault/crouch/extract zones non-blocking trigger areas.
+- Keep vault/extract zones non-blocking trigger areas; current crouch low-clearance validation is physical world collision plus player capsule clearance, not a trigger.
 - Separate body and hurtbox colliders where possible.
 - For top-down camera parallax, cursor pick and shot origin differ; this is expected. Use fallback validation rules deliberately and keep them documented.
 

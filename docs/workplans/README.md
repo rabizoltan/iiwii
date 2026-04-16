@@ -37,6 +37,7 @@ This folder contains implementation sequencing and delivery plans.
 - The camera control and framing slice is complete for the current milestone; future maps should reuse the shared gameplay camera scene
 - The shared dodge/dash mobility foundation is complete
 - The authored low-obstacle vault slice is now complete and documented as the current traversal baseline
+- Physical crouch movement-state rules are implemented and manually smoke-validated
 - Mantle or climb-up remains a separate planned future slice
 
 ## Reusable Reference Ideas
@@ -60,6 +61,7 @@ This folder contains implementation sequencing and delivery plans.
 - [completed/camera-rotation-and-zoom-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/camera-rotation-and-zoom-slice.md): completed camera follow/rotation/zoom slice with reusable gameplay camera scene setup.
 - There is currently no active melee-navigation follow-up slice.
 - [completed/player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md): completed traversal slice for contextual low-obstacle vaulting using authored `VaultTrigger` affordances.
+- [completed/player-crouch-movement-state-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-crouch-movement-state-slice.md): completed traversal slice for physical hold-to-crouch behavior with upper-clearance stand-up validation.
 - [planned/player-mantle-climb-up-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/planned/player-mantle-climb-up-slice.md): future mantle/climb-up planning note kept separate from the completed vault slice.
 - [completed/player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md): completed traversal slice for the shared dodge/dash mobility foundation.
 - [stale/combat-feedback-and-debug-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/stale/combat-feedback-and-debug-behavior-slice.md): parked historical feedback/debug scope that should only be reopened with explicit new scope decisions.

@@ -2,11 +2,12 @@
 Category: Gameplay System
 Role: Reference Contract
 Last updated: 2026-03-30
-Last validated: manual playtesting in editor during vault slice implementation
+Last validated: manual editor validation after crouch stand-up query fix
 
 ## Goals
 - Provide Diablo-like, timing-based traversal without precision platforming.
 - Keep vault traversal readable, contextual, and authored rather than geometry-guessed.
+- Keep crouch as a physical low-profile state for low-clearance traversal.
 - Preserve a clean design boundary between low obstacle vaulting and future climb-up mechanics.
 
 ## Non-goals (for now)
@@ -19,7 +20,12 @@ Last validated: manual playtesting in editor during vault slice implementation
 Default state. Full movement + standard hit profile.
 
 ### Crouching
-- Planned follow-up, not current runtime truth.
+Physical low-profile movement state.
+- Triggered by holding `Ctrl` through the `crouch` input action.
+- Lowers the player collision capsule and visible body.
+- Moves at reduced speed through `crouch_speed_multiplier = 0.6`.
+- Blocks attacks, dodge/dash, and vault starts while active.
+- Releasing `Ctrl` only returns to standing when the upper clearance volume between crouched and standing height is free.
 
 ### Vaulting
 Short-duration traversal state.
@@ -118,13 +124,13 @@ They are not part of the current low-obstacle vault implementation scope unless 
 
 ## Tags (future-facing gameplay context)
 ### Attack/Hazard tags
-- **High**: can be dodged by Crouch; hits Standing; typically projectiles at chest/head height.
+- **High**: future combat tag intended to be avoided by Crouch; hits Standing; typically projectiles at chest/head height.
 - **Ground**: can be dodged by Vault/Jump; hits Standing/Crouch; typically ground wave / floor spikes.
 - **Neutral**: hits regardless of crouch/jump unless explicitly stated.
 
 ### Obstacle tags
 - **Vaultable**: requires Vault to cross.
-- **LowClearance**: requires future Crouch to pass.
+- **LowClearance**: requires physical Crouch to pass.
 - **Connector**: changes elevation layer. Vault does not change elevation.
 
 ## Elevation Layers
@@ -140,7 +146,7 @@ Vault does not become a general elevation-change mechanic in the first slice.
 - Host replicates traversal state and position.
 
 ## Broader Vertical Slice Target (Future Context)
-- Standing, crouching, and vaulting remain the intended traversal vocabulary.
-- Crouch is still future scope.
-- Vault is now the implemented authored low-obstacle crossing baseline.
+- Standing, crouching, and vaulting are now the implemented traversal vocabulary for the current movement baseline.
+- Crouch is implemented as a physical hold state; high-attack avoidance remains future combat scope.
+- Vault is the implemented authored low-obstacle crossing baseline.
 - Mantle remains the later elevation-gain follow-up.

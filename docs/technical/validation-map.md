@@ -1,8 +1,8 @@
 # Validation Map
 Category: Verification
 Role: Verification Guide
-Last updated: 2026-03-30
-Last validated: 2026-03-28
+Last updated: 2026-04-16
+Last validated: 2026-04-16
 
 ## Purpose
 - Track how current behaviors are validated in this repo.
@@ -20,6 +20,7 @@ Last validated: 2026-03-28
 | --- | --- | --- | --- |
 | Player attack baseline | `godot/scenes/main/DemoMain.tscn` | manual demo-scene checks against enemy, ground, obstacle, and elevated targets, plus first-shot responsiveness after a fresh scene launch | [player-attack-behavior-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-attack-behavior-slice.md), [combat.md](d:/Game/DEV/iiWii/iiwii/docs/systems/combat.md), [godot-conventions.md](d:/Game/DEV/iiWii/iiwii/docs/technical/godot-conventions.md) |
 | Player mobility foundation | `godot/scenes/main/DemoMain.tscn`, `Shift` input | manual checks for short dodge profile, longer dash profile, cooldown gating, attack lockout during travel, dense-pack escape behavior, and clean return to normal locomotion after travel ends | [player-mobility-foundation-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-mobility-foundation-slice.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md) |
+| Player crouch movement-state rules | `godot/scenes/main/DemoMain.tscn`, `Ctrl` input, `WorldRoot/TraversalFixtures/LowClearanceCrouchFixture` | manual checks for physical crouch lowering, slower movement, low-clearance passage, blocked stand-up under overhead geometry, stand recovery after leaving clearance, and attack/dodge/vault blocking while crouched | [player-crouch-movement-state-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-crouch-movement-state-slice.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md) |
 | Player vault traversal | `godot/scenes/main/DemoMain.tscn`, `godot/scenes/traversal/VaultFixture.tscn`, `godot/scenes/MyAssets/table.tscn`, `Space` input | manual checks for valid-side start, invalid-side rejection, blocked-landing rejection, movement-intent requirement, committed travel behavior, and long-obstacle strip-offset behavior on authored triggers | [player-vault-traversal-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-vault-traversal-slice.md), [movement-spec.md](d:/Game/DEV/iiWii/iiwii/docs/systems/movement-spec.md), [traversal-and-verticality.md](d:/Game/DEV/iiWii/iiwii/docs/systems/traversal-and-verticality.md) |
 | Debug control panel | `godot/scenes/main/DemoMain.tscn`, `F3` menu | manual toggle checks for projectile debug lines and runtime stats visibility | [debug-control-panel-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/debug-control-panel-slice.md) |
 | Enemy melee close-range behavior | `godot/scenes/main/DemoMain.tscn` crowd fixtures | manual observation of hold stability, spreading, player-moves-away follow behavior, dense crowd pressure, and scene-level collision/traversal fit on ramps or slopes | [enemy-ai-testplan-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-ai-testplan-v1.md), [enemy-melee-behavior-v1.md](d:/Game/DEV/iiWii/iiwii/docs/architecture/ai/enemy-melee-behavior-v1.md) |
@@ -32,6 +33,7 @@ Last validated: 2026-03-28
   - stationary target dummy
   - reachable elevated shooting platform
   - navmesh and obstacle layout
+  - low-clearance crouch validation fixture
   - denser multi-line enemy crowd fixture
   - shared debug overlay and debug-world anchors
 

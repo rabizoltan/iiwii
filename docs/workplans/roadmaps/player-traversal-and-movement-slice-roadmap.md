@@ -79,16 +79,21 @@ Current state:
 
 ### Slice C - Player Crouch And Movement-State Rules
 Status:
-- `planned`
+- `completed`
 
-Suggested scope:
-1. crouch enter and exit rules
-2. crouch collision shape changes
-3. crouch speed and movement handling
-4. standing/crouching interaction with other traversal states
+Plan file:
+- [completed/player-crouch-movement-state-slice.md](d:/Game/DEV/iiWii/iiwii/docs/workplans/completed/player-crouch-movement-state-slice.md)
 
-Why after vault:
-1. It remains useful, but low obstacle traversal opens more immediate level and encounter possibilities.
+Delivered scope:
+1. hold-to-crouch enter and clearance-gated stand-up exit rules
+2. physical crouch collision shape changes
+3. crouch speed slowdown through `crouch_speed_multiplier = 0.6`
+4. crouch blocks attack, dodge/dash, and vault starts
+5. low-clearance validation fixture in `DemoMain.tscn`
+
+Current state:
+- The runtime implementation is in place, documented, and manually smoke-validated in editor.
+- High-attack avoidance remains a later combat-rule follow-up.
 
 ### Slice D - Player Mantle Or Climb-Up
 Status:
@@ -123,7 +128,8 @@ Current traversal baseline:
 1. one shared mobility foundation already exists
 2. the current runtime supports tunable short `dodge` and longer `dash` profiles
 3. low-obstacle vault is implemented as a completed slice and remains separate from mantle
-4. mantle/climb-up and class-aware specialization remain deferred
-5. future mantle should likely distinguish low and high mantle rather than using one generic climb-up band
+4. physical crouch is implemented as hold-to-crouch with clearance-gated stand-up
+5. mantle/climb-up and class-aware specialization remain deferred
+6. future mantle should likely distinguish low and high mantle rather than using one generic climb-up band
 
 Do not reopen Slice A unless a regression or clearly new mobility scope appears.

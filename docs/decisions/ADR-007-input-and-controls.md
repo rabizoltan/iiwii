@@ -40,7 +40,7 @@ We will later support controllers, but the first implementation targets keyboard
 - The current runtime baseline now includes one shared mobility action on `Shift`.
 - That mobility action is implemented as a tunable foundation that can behave like either a short `dodge` or a longer `dash`.
 - Contextual low-obstacle vault on `Space` is now part of the playable runtime baseline.
-- Crouch remains a planned follow-up slice.
+- Crouch on `Ctrl` is now implemented as hold-to-crouch physical low-profile movement with clearance-gated stand-up.
 
 ## Vault/Jump behavior (non-precise)
 - Vault/Jump is **contextual**:
@@ -52,8 +52,8 @@ We will later support controllers, but the first implementation targets keyboard
 
 ## Crouch behavior
 - Crouch is used for:
-  - passing LowClearance zones
-  - avoiding attacks tagged as High (validated by host)
+  - passing LowClearance zones through physical low-profile movement
+  - avoiding attacks tagged as High later, once attack clearance tags exist (validated by host)
 
 ## Implications
 - Input actions represent **intent** (especially in multiplayer).

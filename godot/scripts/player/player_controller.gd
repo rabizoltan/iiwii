@@ -7,6 +7,10 @@ enum MobilityProfile {
 
 @export var move_speed: float = 7.0
 @export var turn_speed: float = 10.0
+
+@export_range(0.1, 1.0) var crouch_speed_multiplier: float = 0.6
+@export var crouch_collision_height: float = 0.95
+@export var crouch_collision_center_y: float = 0.5
 @export var projectile_scene: PackedScene
 @export var attack_cooldown: float = 0.5
 @export var aim_collision_mask: int = 3
@@ -51,6 +55,28 @@ var _vault_direction: Vector3 = Vector3.ZERO
 var _vault_arc_height: float = 0.0
 var _vault_ghost_active: bool = false
 
+var _crouching: bool = false
+var _standing_collision_height: float = 0.0
+var _standing_collision_center_y: float = 0.0
+var _body_mesh_base_scale: Vector3 = Vector3.ONE
+
+@onready var _collision_shape: CollisionShape3D = $CollisionShape3D as CollisionShape3D
+@onready var _body_mesh: MeshInstance3D = $BodyMesh as MeshInstance3D
+@onready var _facing_marker: Node3D = $FacingMarker as Node3D
+@onready var _projectile_spawn: Marker3D = $ProjectileSpawn as Marker3D
+
+
+func _ready() -> void:
+	if _collision_shape != null and _collision_shape.shape != null:
+		_collision_shape.shape = _collision_shape.shape.duplicate()
+		var standing_capsule: CapsuleShape3D = _collision_shape.shape as CapsuleShape3D
+		if standing_capsule != null:
+			_standing_collision_height = standing_capsule.height
+			_standing_collision_center_y = _collision_shape.position.y
+
+	if _body_mesh != null:
+		_body_mesh_base_scale = _body_mesh.scale
+
 
 func _physics_process(delta: float) -> void:
 	var input_vector: Vector2 = Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -73,6 +99,8 @@ func _physics_process(delta: float) -> void:
 		_process_mobility(delta)
 		return
 
+	_update_crouch_state()
+
 	if Input.is_action_just_pressed("dodge"):
 		if _try_start_mobility(move_direction):
 			_process_mobility(delta)
@@ -85,7 +113,8 @@ func _physics_process(delta: float) -> void:
 
 	if move_direction.length_squared() > 0.0:
 		move_direction = move_direction.normalized()
-		var target_velocity: Vector3 = move_direction * move_speed
+		var target_speed: float = move_speed * (crouch_speed_multiplier if _crouching else 1.0)
+		var target_velocity: Vector3 = move_direction * target_speed
 		velocity.x = target_velocity.x
 		velocity.z = target_velocity.z
 
@@ -102,7 +131,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	if Input.is_action_just_pressed("attack"):
+	if Input.is_action_just_pressed("attack") and not _crouching:
 		_try_attack()
 
 
@@ -118,7 +147,7 @@ func unregister_vault_trigger(trigger: VaultTrigger) -> void:
 
 
 func _try_start_vault(move_direction: Vector3) -> bool:
-	if _vault_active or _mobility_active or not is_on_floor():
+	if _vault_active or _mobility_active or _crouching or not is_on_floor():
 		return false
 
 	if move_direction.length_squared() <= 0.0:
@@ -169,14 +198,17 @@ func _try_start_vault(move_direction: Vector3) -> bool:
 
 
 func _try_attack() -> void:
-	if projectile_scene == null or _attack_cooldown_remaining > 0.0:
+	if projectile_scene == null or _attack_cooldown_remaining > 0.0 or _crouching:
 		return
 
 	var aim_target: Dictionary = _resolve_aim_target()
 	if aim_target.is_empty():
 		return
 
-	var spawn_marker: Marker3D = $ProjectileSpawn as Marker3D
+	var spawn_marker: Marker3D = _projectile_spawn
+	if spawn_marker == null:
+		return
+
 	var target_position: Vector3 = aim_target["position"]
 	var shot_direction: Vector3 = target_position - spawn_marker.global_position
 	if shot_direction.length_squared() <= 0.0:
@@ -232,7 +264,7 @@ func _resolve_aim_target() -> Dictionary:
 
 
 func _try_start_mobility(move_direction: Vector3) -> bool:
-	if _mobility_active or _vault_active or _mobility_cooldown_remaining > 0.0:
+	if _mobility_active or _vault_active or _crouching or _mobility_cooldown_remaining > 0.0:
 		return false
 
 	var direction: Vector3 = _resolve_mobility_direction(move_direction)
@@ -347,6 +379,87 @@ func _resolve_enemy_overlap_after_vault() -> void:
 		var push_amount: float = minf(0.2, 0.9 - distance)
 		global_position += push_direction * push_amount
 
+func _update_crouch_state() -> void:
+	if Input.is_action_pressed("crouch"):
+		_set_crouching(true)
+		return
+
+	if _crouching and _can_stand():
+		_set_crouching(false)
+
+
+func _set_crouching(active: bool) -> void:
+	if _crouching == active:
+		return
+
+	_crouching = active
+	_apply_crouch_collision(active)
+	_apply_crouch_presentation(active)
+
+
+func _apply_crouch_collision(active: bool) -> void:
+	if _collision_shape == null:
+		return
+
+	var capsule: CapsuleShape3D = _collision_shape.shape as CapsuleShape3D
+	if capsule == null:
+		return
+
+	if not active and _standing_collision_height <= 0.0:
+		return
+
+	capsule.height = crouch_collision_height if active else _standing_collision_height
+	var collision_position: Vector3 = _collision_shape.position
+	collision_position.y = crouch_collision_center_y if active else _standing_collision_center_y
+	_collision_shape.position = collision_position
+
+
+func _apply_crouch_presentation(active: bool) -> void:
+	if _body_mesh != null and _standing_collision_height > 0.0:
+		var mesh_scale: Vector3 = _body_mesh_base_scale
+		if active:
+			mesh_scale.y *= crouch_collision_height / _standing_collision_height
+		_body_mesh.scale = mesh_scale
+		_body_mesh.position.y = crouch_collision_center_y if active else _standing_collision_center_y
+
+	if _facing_marker != null:
+		var marker_position: Vector3 = _facing_marker.position
+		marker_position.y = 0.58 if active else 1.05
+		_facing_marker.position = marker_position
+
+
+func _can_stand() -> bool:
+	if _collision_shape == null:
+		return true
+
+	if _standing_collision_height <= 0.0:
+		return true
+
+	var standing_top: float = _standing_collision_center_y + _standing_collision_height * 0.5
+	var crouch_top: float = crouch_collision_center_y + crouch_collision_height * 0.5
+	var clearance_height: float = standing_top - crouch_top
+	if clearance_height <= 0.0:
+		return true
+
+	var current_capsule: CapsuleShape3D = _collision_shape.shape as CapsuleShape3D
+	if current_capsule == null:
+		return true
+
+	var upper_clearance_shape := CylinderShape3D.new()
+	upper_clearance_shape.radius = current_capsule.radius
+	upper_clearance_shape.height = clearance_height
+
+	var shape_position := Vector3(_collision_shape.position.x, crouch_top + clearance_height * 0.5, _collision_shape.position.z)
+	var shape_transform := global_transform * Transform3D(Basis.IDENTITY, shape_position)
+	var query := PhysicsShapeQueryParameters3D.new()
+	query.shape = upper_clearance_shape
+	query.transform = shape_transform
+	query.collision_mask = collision_mask
+	query.exclude = [get_rid()]
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	return get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
 
 
 func _resolve_mobility_direction(move_direction: Vector3) -> Vector3:
